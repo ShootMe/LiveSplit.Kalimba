@@ -7,13 +7,14 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using System.Xml;
+using LiveSplit.Kalimba.Memory;
 namespace LiveSplit.Kalimba {
 	public class KalimbaComponent : IComponent {
 		public string ComponentName { get { return "Kalimba Autosplitter"; } }
 		protected TimerModel Model { get; set; }
 		public IDictionary<string, Action> ContextMenuControls { get { return null; } }
 		private KalimbaMemory mem;
-		private int currentSplit = 25;
+		private int currentSplit = 0;
 		private int state = 0;
 		internal static string[] keys = { "CurrentSplit", "World", "Campaign", "CurrentMenu", "PreviousMenu", "Cinematic", "LoadingLevel", "LevelTime", "Disabled", "Score", "Deaths", "LevelName", "Moving", "X", "Y", "State" };
 		private Dictionary<string, string> currentValues = new Dictionary<string, string>();

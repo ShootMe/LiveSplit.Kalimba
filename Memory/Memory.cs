@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-namespace LiveSplit.Kalimba {
-	public class Memory {
+namespace LiveSplit.Kalimba.Memory {
+	public class MemoryReader {
 		const int MEM_COMMIT = 0x00001000;
 		const int MEM_PRIVATE = 0x00020000;
 		const int PAGE_EXECUTE_READWRITE = 0x40;
@@ -32,7 +32,7 @@ namespace LiveSplit.Kalimba {
 			public uint Type;
 		}
 
-		public static T ReadValue<T>(Process targetProcess, IntPtr address, params int[] offsets) {
+		public static T Read<T>(Process targetProcess, IntPtr address, params int[] offsets) {
 			byte[] buffer = new byte[8];
 			int bytesRead;
 
@@ -77,46 +77,8 @@ namespace LiveSplit.Kalimba {
 			SafeNativeMethods.ReadProcessMemory(proc.Handle, addr, buffer, numBytes, out bytesRead);
 			return buffer;
 		}
-		public static void WriteValue<T>(Process targetProcess, IntPtr address, T value, params int[] offsets) {
-			byte[] buffer = new byte[8];
-			int bytesRead;
-
-			try {
-				for (int i = 0; i < offsets.Length - 1; i++) {
-					SafeNativeMethods.ReadProcessMemory(targetProcess.Handle, (IntPtr)(address + offsets[i]), buffer, 4, out bytesRead);
-					address = (IntPtr)BitConverter.ToInt32(buffer, 0);
-				}
-				int last = offsets.Length > 0 ? offsets[offsets.Length - 1] : 0;
-				if (typeof(T) == typeof(int)) {
-					buffer = BitConverter.GetBytes((int)((object)value));
-					SafeNativeMethods.WriteProcessMemory(targetProcess.Handle, address + last, buffer, 4, out bytesRead);
-				} else if (typeof(T) == typeof(long)) {
-					buffer = BitConverter.GetBytes((long)((object)value));
-					SafeNativeMethods.WriteProcessMemory(targetProcess.Handle, address + last, buffer, 8, out bytesRead);
-				} else if (typeof(T) == typeof(byte)) {
-					buffer = BitConverter.GetBytes((byte)((object)value));
-					SafeNativeMethods.WriteProcessMemory(targetProcess.Handle, address + last, buffer, 1, out bytesRead);
-				} else if (typeof(T) == typeof(short)) {
-					buffer = BitConverter.GetBytes((short)((object)value));
-					SafeNativeMethods.WriteProcessMemory(targetProcess.Handle, address + last, buffer, 2, out bytesRead);
-				} else if (typeof(T) == typeof(float)) {
-					buffer = BitConverter.GetBytes((float)((object)value));
-					SafeNativeMethods.WriteProcessMemory(targetProcess.Handle, address + last, buffer, 4, out bytesRead);
-				} else if (typeof(T) == typeof(double)) {
-					buffer = BitConverter.GetBytes((double)((object)value));
-					SafeNativeMethods.WriteProcessMemory(targetProcess.Handle, address + last, buffer, 8, out bytesRead);
-				} else if (typeof(T) == typeof(bool)) {
-					buffer = BitConverter.GetBytes((bool)((object)value));
-					SafeNativeMethods.WriteProcessMemory(targetProcess.Handle, address + last, buffer, 1, out bytesRead);
-				}
-			} catch { }
-		}
-		public static void WriteBytes(Process proc, IntPtr addr, byte[] data) {
-			int num = 0;
-			SafeNativeMethods.WriteProcessMemory(proc.Handle, addr, data, data.Length, out num);
-		}
-
-		public static IntPtr[] FindMemorySignatures(Process targetProcess, params string[] searchStrings) {
+		
+		public static IntPtr[] FindSignatures(Process targetProcess, params string[] searchStrings) {
 			IntPtr[] returnAddresses = new IntPtr[searchStrings.Length];
 			MemorySignature[] byteCodes = new MemorySignature[searchStrings.Length];
 			for (int i = 0; i < searchStrings.Length; i++) {
@@ -219,14 +181,6 @@ namespace LiveSplit.Kalimba {
 				this.wildCards = wildCards;
 				this.offset = offset;
 			}
-		}
-
-		[StructLayout(LayoutKind.Sequential)]
-		private struct Rect {
-			public int left;
-			public int top;
-			public int right;
-			public int bottom;
 		}
 
 		private static class SafeNativeMethods {
