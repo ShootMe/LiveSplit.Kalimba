@@ -16,7 +16,8 @@ namespace LiveSplit.Kalimba {
 		private KalimbaMemory mem;
 		private int currentSplit = 0;
 		private int state = 0;
-		internal static string[] keys = { "CurrentSplit", "World", "Campaign", "CurrentMenu", "PreviousMenu", "Cinematic", "LoadingLevel", "LevelTime", "Disabled", "Score", "Deaths", "LevelName", "Moving", "X", "Y", "State" };
+		private float lastYP2;
+		internal static string[] keys = { "CurrentSplit", "World", "Campaign", "CurrentMenu", "PreviousMenu", "Cinematic", "LoadingLevel", "LevelTime", "Disabled", "Score", "Deaths", "LevelName", "Moving", "P1Y", "P2Y", "State" };
 		private Dictionary<string, string> currentValues = new Dictionary<string, string>();
 
 		public KalimbaComponent() {
@@ -54,8 +55,9 @@ namespace LiveSplit.Kalimba {
 					if (disabled && currentValues["Disabled"].Equals("False", StringComparison.OrdinalIgnoreCase)) {
 						state++;
 					}
-				} else if (!mem.GetIsMoving() && mem.GetLastYP2() < -210) {
-					shouldSplit = true;
+				} else {
+					float p2Y = mem.GetLastYP2();
+					shouldSplit = p2Y < -211 && lastYP2 < p2Y;
 				}
 			}
 
@@ -85,8 +87,8 @@ namespace LiveSplit.Kalimba {
 					case "Deaths": curr = mem.GetCurrentDeaths().ToString(); break;
 					case "LevelName": curr = mem.GetLevelName(); break;
 					//case "Moving": curr = mem.GetIsMoving().ToString(); break;
-					//case "X": curr = mem.GetLastYP2().ToString("0"); break;
-					//case "Y": curr = mem.GetLastYP1().ToString("0"); break;
+					//case "P1Y": curr = mem.GetLastYP2().ToString("0"); break;
+					//case "P2Y": lastYP2 = mem.GetLastYP2(); break;
 					case "CurrentSplit": curr = currentSplit.ToString(); break;
 					case "State": curr = state.ToString(); break;
 					default: curr = ""; break;
@@ -148,7 +150,7 @@ namespace LiveSplit.Kalimba {
 		private void WriteLog(string data) {
 			//Console.WriteLine(data);
 			//using (StreamWriter wr = new StreamWriter("_Kalimba.log", true)) {
-			//    wr.WriteLine(data);
+			//	wr.WriteLine(data);
 			//}
 		}
 

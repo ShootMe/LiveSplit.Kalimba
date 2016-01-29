@@ -1,13 +1,23 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <updates>
-  <update version="1.0.1">
-    <files>
-      <file path="Release/LiveSplit.Kalimba.dll" status="changed"/>
-    </files>
-    <changelog>
-      <change>
-        Updated the Autosplitter to support auto updates
-      </change>
-    </changelog>
-  </update>
+	<update version="1.1.0">
+		<files>
+			<file path="Release/LiveSplit.Kalimba.dll" status="changed"/>
+		</files>
+		<changelog>
+			<change>
+				Fixed final split
+			</change>
+		</changelog>
+	</update>
+	<update version="1.0.1">
+		<files>
+			<file path="Release/LiveSplit.Kalimba.dll" status="changed"/>
+		</files>
+		<changelog>
+			<change>
+				Updated the Autosplitter to support auto updates
+			</change>
+		</changelog>
+	</update>
 </updates>
