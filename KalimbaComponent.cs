@@ -40,7 +40,7 @@ namespace LiveSplit.Kalimba {
 			if (currentSplit == 0) {
 				shouldSplit = screen == MenuScreen.SinglePlayerPathSelect && mem.GetPlayingCinematic();
 			} else if (currentSplit < 25) {
-				shouldSplit = screen == MenuScreen.Loading && mem.GetPreviousMenu() == MenuScreen.SinglePlayerMap;
+				shouldSplit = screen == MenuScreen.Loading && mem.GetPreviousMenu() == MenuScreen.SinglePlayerMap && !currentValues["CurrentMenu"].Equals("Loading", StringComparison.OrdinalIgnoreCase);
 				if (shouldSplit && currentSplit == 1 && state == 0) {
 					state++;
 					shouldSplit = false;
