@@ -88,7 +88,7 @@ namespace LiveSplit.Kalimba {
 					case "LevelName": curr = mem.GetLevelName(); break;
 					//case "Moving": curr = mem.GetIsMoving().ToString(); break;
 					//case "P1Y": curr = mem.GetLastYP2().ToString("0"); break;
-					//case "P2Y": lastYP2 = mem.GetLastYP2(); break;
+					case "P2Y": lastYP2 = mem.GetLastYP2(); break;
 					case "CurrentSplit": curr = currentSplit.ToString(); break;
 					case "State": curr = state.ToString(); break;
 					default: curr = ""; break;
