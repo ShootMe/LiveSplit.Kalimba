@@ -10,7 +10,7 @@ namespace LiveSplit.Kalimba {
         public IComponent Create(LiveSplitState state) { return new KalimbaComponent(); }
         public string UpdateName { get { return this.ComponentName; } }
 		public string UpdateURL { get { return "https://raw.githubusercontent.com/ShootMe/LiveSplit.Kalimba/master/"; } }
-		public string XMLURL { get { return this.UpdateURL + "Release/LiveSplit.Kalimba.Updates.xml"; } }
+		public string XMLURL { get { return this.UpdateURL + "Components/LiveSplit.Kalimba.Updates.xml"; } }
 		public Version Version { get { return Assembly.GetExecutingAssembly().GetName().Version; } }
     }
 }

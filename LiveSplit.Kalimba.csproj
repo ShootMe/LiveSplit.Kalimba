@@ -65,8 +65,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Release\LiveSplit.Kalimba.dll" />
-    <Content Include="Release\LiveSplit.Kalimba.Updates.xml" />
+    <Content Include="Components\LiveSplit.Kalimba.dll" />
+    <Content Include="Components\LiveSplit.Kalimba.Updates.xml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="LICENSE" />
@@ -74,7 +74,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy $(TargetPath) $(ProjectDir)Release\$(TargetFileName)</PostBuildEvent>
+    <PostBuildEvent>copy $(TargetPath) $(ProjectDir)Components\$(TargetFileName)</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
