@@ -1,12 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <updates>
+	<update version="1.2.0">
+		<files>
+			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
+		</files>
+		<changelog>
+			<change>
+				Fixed too many splits causing final split to be missed.
+			</change>
+		</changelog>
+	</update>
 	<update version="1.1.1">
 		<files>
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
 		</files>
 		<changelog>
 			<change>
-				Fixed mistake in final split
+				Fixed mistake in final split.
 			</change>
 		</changelog>
 	</update>
@@ -16,7 +26,7 @@
 		</files>
 		<changelog>
 			<change>
-				Fixed final split
+				Fixed final split.
 			</change>
 		</changelog>
 	</update>
@@ -26,7 +36,7 @@
 		</files>
 		<changelog>
 			<change>
-				Updated the Autosplitter to support auto updates
+				Updated the Autosplitter to support auto updates.
 			</change>
 		</changelog>
 	</update>

@@ -40,13 +40,13 @@ namespace LiveSplit.Kalimba {
 
 			if (currentSplit == 0) {
 				shouldSplit = screen == MenuScreen.SinglePlayerPathSelect && mem.GetPlayingCinematic();
-			} else if (currentSplit < 25) {
+			} else if (currentSplit < 24) {
 				shouldSplit = screen == MenuScreen.Loading && mem.GetPreviousMenu() == MenuScreen.SinglePlayerMap && !currentValues["CurrentMenu"].Equals("Loading", StringComparison.OrdinalIgnoreCase);
 				if (shouldSplit && currentSplit == 1 && state == 0) {
 					state++;
 					shouldSplit = false;
 				}
-			} else if (currentSplit == 25) {
+			} else if (currentSplit == 24) {
 				if (screen == MenuScreen.Loading && mem.GetPreviousMenu() == MenuScreen.InGame) {
 					state = 0;
 				}
@@ -88,7 +88,10 @@ namespace LiveSplit.Kalimba {
 					case "LevelName": curr = mem.GetLevelName(); break;
 					//case "Moving": curr = mem.GetIsMoving().ToString(); break;
 					//case "P1Y": curr = mem.GetLastYP2().ToString("0"); break;
-					case "P2Y": lastYP2 = mem.GetLastYP2(); break;
+					case "P2Y":
+						lastYP2 = mem.GetLastYP2();
+						curr = state >= 2 ? lastYP2.ToString("0.0") : "";
+						break;
 					case "CurrentSplit": curr = currentSplit.ToString(); break;
 					case "State": curr = state.ToString(); break;
 					default: curr = ""; break;
