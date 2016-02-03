@@ -16,8 +16,10 @@ namespace LiveSplit.Kalimba {
 		private KalimbaMemory mem;
 		private int currentSplit = 0;
 		private int state = 0;
+		private bool hasLog = false;
+		private int lastLogCheck = 0;
 		private float lastYP2;
-		internal static string[] keys = { "CurrentSplit", "World", "Campaign", "CurrentMenu", "PreviousMenu", "Cinematic", "LoadingLevel", "LevelTime", "Disabled", "Score", "Deaths", "LevelName", "Moving", "P1Y", "P2Y", "State" };
+		internal static string[] keys = { "CurrentSplit", "World", "Campaign", "CurrentMenu", "PreviousMenu", "Cinematic", "LoadingLevel", "LevelTime", "Disabled", "Score", "Deaths", "LevelName", "Moving", "P1Y", "P2Y", "State", "EndLevel" };
 		private Dictionary<string, string> currentValues = new Dictionary<string, string>();
 
 		public KalimbaComponent() {
@@ -40,12 +42,14 @@ namespace LiveSplit.Kalimba {
 
 			if (currentSplit == 0) {
 				shouldSplit = screen == MenuScreen.SinglePlayerPathSelect && mem.GetPlayingCinematic();
-			} else if (currentSplit < 24) {
+			} else if ((currentSplit < 24 && (Model == null || Model.CurrentState.Run.Count == 24)) || currentSplit < 10) {
 				shouldSplit = screen == MenuScreen.Loading && mem.GetPreviousMenu() == MenuScreen.SinglePlayerMap && !currentValues["CurrentMenu"].Equals("Loading", StringComparison.OrdinalIgnoreCase);
 				if (shouldSplit && currentSplit == 1 && state == 0) {
 					state++;
 					shouldSplit = false;
 				}
+			} else if (currentSplit == 10) {
+				shouldSplit = mem.GetEndLevel();
 			} else if (currentSplit == 24) {
 				if (screen == MenuScreen.Loading && mem.GetPreviousMenu() == MenuScreen.InGame) {
 					state = 0;
@@ -71,36 +75,46 @@ namespace LiveSplit.Kalimba {
 				}
 			}
 
-			string prev = "", curr = "";
-			foreach (string key in keys) {
-				prev = currentValues[key];
-				switch (key) {
-					case "World": curr = mem.GetWorld().ToString(); break;
-					case "Campaign": curr = mem.GetCampaign().ToString(); break;
-					case "CurrentMenu": curr = mem.GetCurrentMenu().ToString(); break;
-					case "PreviousMenu": curr = mem.GetPreviousMenu().ToString(); break;
-					case "Cinematic": curr = mem.GetPlayingCinematic().ToString(); break;
-					case "LoadingLevel": curr = mem.GetIsLoadingLevel().ToString(); break;
-					case "Disabled": curr = mem.GetIsDisabled().ToString(); break;
-					case "LevelTime": curr = mem.GetLevelTime().ToString(); break;
-					case "Score": curr = mem.GetCurrentScore().ToString(); break;
-					case "Deaths": curr = mem.GetCurrentDeaths().ToString(); break;
-					case "LevelName": curr = mem.GetLevelName(); break;
-					//case "Moving": curr = mem.GetIsMoving().ToString(); break;
-					//case "P1Y": curr = mem.GetLastYP2().ToString("0"); break;
-					case "P2Y":
-						lastYP2 = mem.GetLastYP2();
-						curr = state >= 2 ? lastYP2.ToString("0.0") : "";
-						break;
-					case "CurrentSplit": curr = currentSplit.ToString(); break;
-					case "State": curr = state.ToString(); break;
-					default: curr = ""; break;
-				}
-				if (!prev.Equals(curr)) {
-					WriteLog(DateTime.Now.ToString(@"HH\:mm\:ss.fff") + (Model != null ? " | " + Model.CurrentState.CurrentTime.RealTime.Value.ToString("G").Substring(3, 11) : "") + ": " + key + ": ".PadRight(16 - key.Length, ' ') + prev.PadLeft(25, ' ') + " -> " + curr);
+			if (lastLogCheck == 0) {
+				hasLog = File.Exists("_Kalimba.log");
+				lastLogCheck = 300;
+			}
+			lastLogCheck--;
 
-					currentValues[key] = curr;
+			if (hasLog) {
+				string prev = "", curr = "";
+				foreach (string key in keys) {
+					prev = currentValues[key];
+
+					switch (key) {
+						case "World": curr = mem.GetWorld().ToString(); break;
+						case "Campaign": curr = mem.GetCampaign().ToString(); break;
+						case "CurrentMenu": curr = mem.GetCurrentMenu().ToString(); break;
+						case "PreviousMenu": curr = mem.GetPreviousMenu().ToString(); break;
+						case "Cinematic": curr = mem.GetPlayingCinematic().ToString(); break;
+						case "LoadingLevel": curr = mem.GetIsLoadingLevel().ToString(); break;
+						case "Disabled": curr = mem.GetIsDisabled().ToString(); break;
+						case "LevelTime": curr = mem.GetLevelTime().ToString(); break;
+						case "Score": curr = mem.GetCurrentScore().ToString(); break;
+						case "Deaths": curr = mem.GetCurrentDeaths().ToString(); break;
+						case "LevelName": curr = mem.GetLevelName(); break;
+						case "Moving": curr = mem.GetIsMoving().ToString(); break;
+						//case "P1Y": curr = mem.GetLastYP2().ToString("0"); break;
+						case "P2Y": lastYP2 = mem.GetLastYP2(); curr = ""; break;
+						case "CurrentSplit": curr = currentSplit.ToString(); break;
+						case "State": curr = state.ToString(); break;
+						case "EndLevel": curr = mem.GetEndLevel().ToString(); break;
+						default: curr = ""; break;
+					}
+
+					if (!prev.Equals(curr)) {
+						WriteLog(DateTime.Now.ToString(@"HH\:mm\:ss.fff") + (Model != null ? " | " + Model.CurrentState.CurrentTime.RealTime.Value.ToString("G").Substring(3, 11) : "") + ": " + key + ": ".PadRight(16 - key.Length, ' ') + prev.PadLeft(25, ' ') + " -> " + curr);
+
+						currentValues[key] = curr;
+					}
 				}
+			} else {
+				currentValues["Disabled"] = mem.GetIsDisabled().ToString();
 			}
 		}
 
@@ -152,9 +166,11 @@ namespace LiveSplit.Kalimba {
 		}
 		private void WriteLog(string data) {
 			//Console.WriteLine(data);
-			//using (StreamWriter wr = new StreamWriter("_Kalimba.log", true)) {
-			//	wr.WriteLine(data);
-			//}
+			if (hasLog) {
+				using (StreamWriter wr = new StreamWriter("_Kalimba.log", true)) {
+					wr.WriteLine(data);
+				}
+			}
 		}
 
 		public Control GetSettingsControl(LayoutMode mode) { return null; }

@@ -21,58 +21,84 @@ namespace LiveSplit.Kalimba.Memory {
 		private DateTime hookedTime;
 
 		public World GetWorld() {
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.sceneFile.world
 			return (World)MemoryReader.Read<int>(proc, globalGameManager, 0x14, 0x0c, 0x10, 0x5c);
 		}
 		public Campaign GetCampaign() {
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.sceneFile.campaign
 			return (Campaign)MemoryReader.Read<int>(proc, globalGameManager, 0x14, 0x0c, 0x10, 0x60);
 		}
 		public MenuScreen GetCurrentMenu() {
+			//MenuManager.instance._currentMenu
 			return (MenuScreen)MemoryReader.Read<int>(proc, menuManager, 0x34);
 		}
 		public MenuScreen GetPreviousMenu() {
+			//MenuManager.instance._previousMenu
 			return (MenuScreen)MemoryReader.Read<int>(proc, menuManager, 0x38);
 		}
 		public bool GetPlayingCinematic() {
+			//GlobalGameManager.instance.isPlayingCinematic
 			return MemoryReader.Read<bool>(proc, globalGameManager, 0x46);
 		}
 		public bool GetIsLoadingLevel() {
+			//GlobalGameManager.instance.levelIsLoading
 			return MemoryReader.Read<bool>(proc, globalGameManager, 0x4c);
 		}
 		public int GetCurrentScore() {
+			//GlobalGameManager.instance.currentSession.currentScore
 			return MemoryReader.Read<int>(proc, globalGameManager, 0x14, 0x10);
 		}
 		public int GetCurrentDeaths() {
+			//GlobalGameManager.instance.currentSession.currentDeaths
 			return MemoryReader.Read<int>(proc, globalGameManager, 0x14, 0x14);
 		}
 		public float GetLevelTime() {
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.levelMetric.completionTime
 			return MemoryReader.Read<float>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x30, 0x20);
 		}
 		public string GetLevelName() {
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.levelMetric.levelName
 			return GetString(MemoryReader.Read<IntPtr>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x30, 0x14));
 		}
 		public bool GetIsDisabled() {
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.(noJump | noSwap | noMove)
 			return MemoryReader.Read<int>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x64) == 65793;
 		}
 		public bool GetIsMoving() {
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.totemsIsMoving
 			return MemoryReader.Read<bool>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x88);
 		}
 		public float GetXCenter() {
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].bounceCenter.X
 			return MemoryReader.Read<float>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x30);
 		}
 		public float GetYCenter() {
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].bounceCenter.Y
 			return MemoryReader.Read<float>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x34);
 		}
 		public float GetLastXP1() {
-			return MemoryReader.Read<float>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0xd4, 0xd0);// 0x17c);
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].controlledPlayers[0].animationHandler.lastPos.X
+			return MemoryReader.Read<float>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0xd4, 0xd0);
 		}
 		public float GetLastYP1() {
-			return MemoryReader.Read<float>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0xd4, 0xd4);// 0x180);
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].controlledPlayers[0].animationHandler.lastPos.Y
+			return MemoryReader.Read<float>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0xd4, 0xd4);
 		}
 		public float GetLastXP2() {
-			return MemoryReader.Read<float>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0xd4, 0xd0);// 0x17c);
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].controlledPlayers[1].animationHandler.lastPos.X
+			return MemoryReader.Read<float>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0xd4, 0xd0);
 		}
 		public float GetLastYP2() {
-			return MemoryReader.Read<float>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0xd4, 0xd4);// 0x180);
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].controlledPlayers[1].animationHandler.lastPos.Y
+			return MemoryReader.Read<float>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0xd4, 0xd4);
+		}
+		public bool GetEndLevel() {
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].controlledPlayers[0].frozen
+			bool frozen = MemoryReader.Read<bool>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0x3c);
+			bool isDisabled = GetIsDisabled();
+			MenuScreen currentMenu = GetCurrentMenu();
+
+			return frozen && !isDisabled && currentMenu == MenuScreen.InGame;
 		}
 
 		private string GetString(IntPtr address) {
