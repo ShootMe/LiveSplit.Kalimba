@@ -92,13 +92,33 @@ namespace LiveSplit.Kalimba.Memory {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].controlledPlayers[1].animationHandler.lastPos.Y
 			return MemoryReader.Read<float>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0xd4, 0xd4);
 		}
-		public bool GetEndLevel() {
+		public bool GetFrozen() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].controlledPlayers[0].frozen
-			bool frozen = MemoryReader.Read<bool>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0x3c);
+			return MemoryReader.Read<bool>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0x3c);
+		}
+		public bool GetIsDying() {
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].controlledPlayers[0].isDying
+			bool p1 = MemoryReader.Read<bool>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0x146);
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].controlledPlayers[1].isDying
+			bool p2 = MemoryReader.Read<bool>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0x146);
+			return p1 | p2;
+		}
+		public TotemState GetCurrentStateP1() {
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].controlledPlayers[0]._currentState
+			return (TotemState)MemoryReader.Read<int>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0x148);
+		}
+		public TotemState GetCurrentStateP2() {
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].controlledPlayers[1]._currentState
+			return (TotemState)MemoryReader.Read<int>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0x148);
+		}
+		public bool GetEndLevel() {
+			bool frozen = GetFrozen();
 			bool isDisabled = GetIsDisabled();
+			bool isMoving = GetIsMoving();
+			bool isDying = GetIsDying();
 			MenuScreen currentMenu = GetCurrentMenu();
 
-			return frozen && !isDisabled && currentMenu == MenuScreen.InGame;
+			return frozen && !isDying && isMoving && !isDisabled && currentMenu == MenuScreen.InGame;
 		}
 
 		private string GetString(IntPtr address) {
@@ -243,5 +263,17 @@ namespace LiveSplit.Kalimba.Memory {
 		WaitingForPersistentUserStats,
 		WaitingForControllerMapping,
 		Ready
+	}
+	public enum TotemState {
+		IDLE,
+		WALKING,
+		JUMP_UP,
+		JUMP_DOWN,
+		PASSIVE,
+		TUMPLING,
+		ON_SLOPE,
+		ON_ICE,
+		DEAD,
+		IN_CANNON
 	}
 }
