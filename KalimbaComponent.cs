@@ -45,7 +45,7 @@ namespace LiveSplit.Kalimba {
 
 			if (currentSplit == 0) {
 				shouldSplit = screen == MenuScreen.SinglePlayerPathSelect && mem.GetPlayingCinematic();
-			} else if (Model.CurrentState.CurrentPhase == TimerPhase.Running) {
+			} else if (Model != null && Model.CurrentState.CurrentPhase == TimerPhase.Running) {
 				if ((currentSplit < 24 && (Model == null || Model.CurrentState.Run.Count == 24)) || currentSplit < 10) {
 					shouldSplit = screen == MenuScreen.Loading && mem.GetPreviousMenu() == MenuScreen.SinglePlayerMap && lastMenu != MenuScreen.Loading;
 					if (shouldSplit && currentSplit == 1 && state == 0) {
@@ -75,6 +75,9 @@ namespace LiveSplit.Kalimba {
 
 			if (currentSplit > 0 && screen == MenuScreen.MainMenu) {
 				if (Model != null) { Model.Reset(); } else { currentSplit = 0; state = 0; }
+				if (MessageBox.Show("Do you want to reset back to a new game state?", "Progression", MessageBoxButtons.YesNo) == DialogResult.Yes) {
+					mem.EraseData();
+				}
 			} else if (shouldSplit) {
 				if (currentSplit == 0) {
 					if (Model != null) { Model.Start(); } else { currentSplit++; state = 0; }

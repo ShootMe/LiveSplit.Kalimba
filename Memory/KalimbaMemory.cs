@@ -113,7 +113,6 @@ namespace LiveSplit.Kalimba.Memory {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].controlledPlayers[1]._currentState
 			return (TotemState)MemoryReader.Read<int>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0x148);
 		}
-
 		public PersistentLevelStats GetLevelStats(PlatformLevelId id) {
 			//PlatformManager.instance.imp.players[0].gameSinglePlayerStats._levels
 			IntPtr levels = MemoryReader.Read<IntPtr>(proc, platformManager, 0x10, 0x48, 0x10, 0x24, 0x0c);
@@ -139,6 +138,29 @@ namespace LiveSplit.Kalimba.Memory {
 				}
 			}
 			return null;
+		}
+		public void EraseData() {
+			//PlatformManager.instance.imp.players[0].gameSinglePlayerStats._rememberedMoments
+			MemoryReader.Write<int>(proc, platformManager, 0, 0x10, 0x48, 0x10, 0x24, 0x08, 0x0c);
+
+			//PlatformManager.instance.imp.players[0].gameSinglePlayerStats._levels
+			IntPtr levels = MemoryReader.Read<IntPtr>(proc, platformManager, 0x10, 0x48, 0x10, 0x24, 0x0c);
+			int listSize = MemoryReader.Read<int>(proc, levels, 0x20);
+			IntPtr keys = MemoryReader.Read<IntPtr>(proc, levels, 0x10);
+			levels = MemoryReader.Read<IntPtr>(proc, levels, 0x14);
+
+			for (int i = 0; i < listSize; i++) {
+				IntPtr itemHead = MemoryReader.Read<IntPtr>(proc, levels, 0x10 + (i * 4));
+
+				MemoryReader.Write<long>(proc, itemHead, 0L, 0x08);
+				MemoryReader.Write<int>(proc, itemHead, int.MaxValue, 0x10);
+				MemoryReader.Write<long>(proc, itemHead, 0L, 0x14);
+				MemoryReader.Write<long>(proc, itemHead, 0L, 0x1c);
+				MemoryReader.Write<long>(proc, itemHead, 0L, 0x24);
+				MemoryReader.Write<int>(proc, itemHead, int.MaxValue, 0x2c);
+				MemoryReader.Write<long>(proc, itemHead, 0L, 0x30);
+				MemoryReader.Write<short>(proc, itemHead, 0, 0x38);
+			}
 		}
 		public bool GetEndLevel() {
 			bool frozen = GetFrozen();
