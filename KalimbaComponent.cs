@@ -21,7 +21,6 @@ namespace LiveSplit.Kalimba {
 		private float lastYP2;
 		private MenuScreen lastMenu = MenuScreen.MainMenu;
 		double levelTimes;
-		private DateTime levelStart = DateTime.MinValue;
 		private int lastLevelComplete = 0;
 		internal static string[] keys = { "CurrentSplit", "World", "Campaign", "CurrentMenu", "PreviousMenu", "Cinematic", "LoadingLevel", "LevelTime", "Disabled", "Score", "Deaths", "LevelName", "Moving", "P1Y", "P2Y", "State", "EndLevel", "PlayerState", "Frozen" };
 		private Dictionary<string, string> currentValues = new Dictionary<string, string>();
@@ -84,21 +83,25 @@ namespace LiveSplit.Kalimba {
 				}
 			}
 
-			if (Model != null && levelStart == DateTime.MinValue && screen == MenuScreen.InGame && !mem.GetFrozen() && mem.GetIsMoving()) {
+			if (Model != null && Model.CurrentState.IsGameTimePaused && screen == MenuScreen.InGame && !mem.GetFrozen() && mem.GetIsMoving()) {
 				Model.CurrentState.IsGameTimePaused = false;
-				levelStart = DateTime.Now;
 			}
 
-			float levelTime = mem.GetLevelTime();
-			if (Model != null && screen == MenuScreen.InGame && levelTime != 0 && currentSplit > 0 && currentSplit != lastLevelComplete) {
-				levelTimes += (DateTime.Now - levelStart).TotalSeconds;
-				levelStart = DateTime.MinValue;
-				Model.CurrentState.IsGameTimePaused = true;
-				if (currentSplit == Model.CurrentState.Run.Count + 1) {
-					Time t = Model.CurrentState.Run[lastLevelComplete].SplitTime;
-					Model.CurrentState.Run[lastLevelComplete].SplitTime = new Time(t.RealTime, TimeSpan.FromSeconds(levelTimes));
+			if (Model != null && screen == MenuScreen.SinglePlayerEndLevelFeedBack && currentSplit > 0 && currentSplit != lastLevelComplete) {
+				PersistentLevelStats level = mem.GetLevelStats((PlatformLevelId)(lastLevelComplete + 1));
+				if (level.minMillisecondsForMaxScore != int.MaxValue) {
+					double levelTime = (double)level.minMillisecondsForMaxScore / (double)1000;
+					levelTimes += levelTime;
+					Model.CurrentState.IsGameTimePaused = true;
+					if (currentSplit == Model.CurrentState.Run.Count + 1) {
+						Time t = Model.CurrentState.Run[lastLevelComplete].SplitTime;
+						Model.CurrentState.Run[lastLevelComplete].SplitTime = new Time(t.RealTime, TimeSpan.FromSeconds(levelTimes));
+					} else {
+						Model.CurrentState.SetGameTime(TimeSpan.FromSeconds(levelTimes));
+					}
+					lastLevelComplete++;
+					WriteLog(DateTime.Now.ToString(@"HH\:mm\:ss.fff") + (Model != null ? " | " + Model.CurrentState.CurrentTime.RealTime.Value.ToString("G").Substring(3, 11) : "") + ": Set game time " + levelTime + " " + levelTimes);
 				}
-				lastLevelComplete++;
 			}
 
 			LogValues();
@@ -169,7 +172,6 @@ namespace LiveSplit.Kalimba {
 			lastLevelComplete = 0;
 			state = 0;
 			levelTimes = 0;
-			levelStart = DateTime.MinValue;
 			lastYP2 = 0;
 			lastMenu = MenuScreen.MainMenu;
 			Model.CurrentState.IsGameTimePaused = true;

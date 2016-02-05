@@ -10,12 +10,14 @@ namespace LiveSplit.Kalimba.Memory {
 			{"v1.0", new Dictionary<string, string>() {
 					{"GlobalGameManager", "558BEC5783EC34C745E4000000008B4508C74034000000008B05????????83EC086A0050E8????????83C41085C0743A8B05????????8B4D0883EC085150|-12"},
 					{"MenuManager",       "558BEC53575683EC0C8B05????????83EC086A0050E8????????83C41085C074338B05????????83EC08FF750850E8????????83C41085C0741A83EC0CFF7508E8|-30"},
+					{"PlatformManager",   "558BEC535683EC108B05????????83EC0C50E8????????83C41085C0740B8B05"}
 			}},
 		};
 
 		private Dictionary<string, string> versionedFuncPatterns = new Dictionary<string, string>();
 		private IntPtr globalGameManager = IntPtr.Zero;
 		private IntPtr menuManager = IntPtr.Zero;
+		private IntPtr platformManager = IntPtr.Zero;
 		private Process proc;
 		private bool isHooked = false;
 		private DateTime hookedTime;
@@ -111,14 +113,42 @@ namespace LiveSplit.Kalimba.Memory {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].controlledPlayers[1]._currentState
 			return (TotemState)MemoryReader.Read<int>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0x148);
 		}
+
+		public PersistentLevelStats GetLevelStats(PlatformLevelId id) {
+			//PlatformManager.instance.imp.players[0].gameSinglePlayerStats._levels
+			IntPtr levels = MemoryReader.Read<IntPtr>(proc, platformManager, 0x10, 0x48, 0x10, 0x24, 0x0c);
+			int listSize = MemoryReader.Read<int>(proc, levels, 0x20);
+			IntPtr keys = MemoryReader.Read<IntPtr>(proc, levels, 0x10);
+			levels = MemoryReader.Read<IntPtr>(proc, levels, 0x14);
+
+			for (int i = 0; i < listSize; i++) {
+				IntPtr itemHead = MemoryReader.Read<IntPtr>(proc, levels, 0x10 + (i * 4));
+				PlatformLevelId levelID = (PlatformLevelId)MemoryReader.Read<int>(proc, keys, 0x10 + (i * 4));
+
+				if (levelID == id) {
+					PersistentLevelStats level = new PersistentLevelStats();
+					level.id = levelID;
+					level.awardedGoldenTotemPiece = MemoryReader.Read<bool>(proc, itemHead, 0x20);
+					level.maxScore = MemoryReader.Read<int>(proc, itemHead, 0x0c);
+					level.minDeaths = MemoryReader.Read<int>(proc, itemHead, 0x18);
+					level.minKills = MemoryReader.Read<int>(proc, itemHead, 0x1c);
+					level.minMillisecondsForMaxScore = MemoryReader.Read<int>(proc, itemHead, 0x10);
+					level.minPickups = MemoryReader.Read<int>(proc, itemHead, 0x14);
+					level.state = (PersistentLevelStats.State)MemoryReader.Read<int>(proc, itemHead, 0x08);
+					return level;
+				}
+			}
+			return null;
+		}
 		public bool GetEndLevel() {
 			bool frozen = GetFrozen();
 			bool isDisabled = GetIsDisabled();
-			bool isMoving = GetIsMoving();
 			bool isDying = GetIsDying();
+			TotemState state1 = GetCurrentStateP1();
+			TotemState state2 = GetCurrentStateP2();
 			MenuScreen currentMenu = GetCurrentMenu();
 
-			return frozen && !isDying && isMoving && !isDisabled && currentMenu == MenuScreen.InGame;
+			return frozen && !isDying && (state1 == TotemState.WALKING || state1 == TotemState.JUMP_UP || state2 == TotemState.WALKING || state2 == TotemState.JUMP_UP) && !isDisabled && currentMenu == MenuScreen.InGame;
 		}
 
 		private string GetString(IntPtr address) {
@@ -160,6 +190,13 @@ namespace LiveSplit.Kalimba.Memory {
 				menuManager = GetVersionedFunctionPointer("MenuManager");
 				if (menuManager != IntPtr.Zero) {
 					menuManager = MemoryReader.Read<IntPtr>(proc, menuManager, 0, 0);
+				}
+			}
+
+			if (platformManager == IntPtr.Zero) {
+				platformManager = GetVersionedFunctionPointer("PlatformManager");
+				if (platformManager != IntPtr.Zero) {
+					platformManager = MemoryReader.Read<IntPtr>(proc, platformManager, 0, 0);
 				}
 			}
 
@@ -275,5 +312,94 @@ namespace LiveSplit.Kalimba.Memory {
 		ON_ICE,
 		DEAD,
 		IN_CANNON
+	}
+	public enum PlatformLevelId {
+		None,
+		Underground_Jump,
+		Underground_Swap,
+		Underground_TotemUp,
+		Underground_JumpJump,
+		Underground_IceIceTotem,
+		Underground_Gravity,
+		Underground_UpsideDown,
+		Underground_BigSnake,
+		Earth_Seekers,
+		Earth_Cannons,
+		Earth_SizeUp,
+		Earth_SeekerAndSize,
+		Earth_SizeUp_Gravity,
+		Earth_2xAbility,
+		Earth_Run,
+		Earth_BossTwo,
+		Sky_Wings,
+		Sky_AirFloat,
+		Sky_ColoredEnemies,
+		Sky_MovingPlatforms,
+		Sky_ColoredSeekers,
+		Sky_WingsAndSize,
+		Sky_Launch,
+		Sky_BigBird,
+		Coop_Jump = 41,
+		Coop_Buttons,
+		Coop_TotemUp,
+		Coop_TwinSpirits,
+		Coop_Hoppeborgen,
+		Coop_Seekers,
+		Coop_Sloping,
+		Coop_ActionJackson,
+		Coop_Traps,
+		Coop_TheCrumblingBrickRoad,
+		Coop_BossWarmUp,
+		Coop_EpicBossFight,
+		Space_BackTrack = 100,
+		Space_Rails,
+		Space_ReversedAndMiniBoss,
+		Space_ReversedFlying,
+		Space_ReversedFlyingOnIce,
+		Space_TheWeirdRoom,
+		Space_Ice10,
+		Space_IceAndCannons,
+		Space_Portals01,
+		Space_Portals02,
+		Space_Portals03,
+		Space_ReversedTrampolineFlying,
+		Space_Reversex2,
+		Space_TrampolineSwaping,
+		DLC_Coop_Andrew = 120,
+		DLC_Coop_Bob,
+		DLC_Coop_Carl,
+		DLC_Coop_Dave,
+		DLC_Coop_Errol,
+		DLC_Coop_Frank,
+		DLC_Coop_George,
+		DLC_Coop_Harry,
+		DLC_Coop_Ian,
+		DLC_Coop_Jack,
+		DLC_SP_Alice = 150,
+		DLC_SP_Bella,
+		DLC_SP_Carol,
+		DLC_SP_Diana,
+		DLC_SP_Eve,
+		DLC_SP_Fiona,
+		DLC_SP_Gretchen,
+		DLC_SP_Hillary,
+		DLC_SP_Ilene,
+		DLC_SP_Jocelyn,
+		Test_Scene_1 = 200
+	}
+	public class PersistentLevelStats {
+		public enum State {
+			Unseen,
+			Seen,
+			Completed
+		}
+		public PlatformLevelId id;
+		public PersistentLevelStats.State state;
+		public int maxScore;
+		public int minMillisecondsForMaxScore = 2147483647;
+		public int minPickups = 2147483647;
+		public int minDeaths = 2147483647;
+		public int minKills = 2147483647;
+		public bool awardedGoldenTotemPiece;
 	}
 }
