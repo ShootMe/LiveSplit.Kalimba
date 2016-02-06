@@ -185,6 +185,7 @@ namespace LiveSplit.Kalimba.Memory {
 				if (processes.Length == 0) {
 					globalGameManager = IntPtr.Zero;
 					menuManager = IntPtr.Zero;
+					platformManager = IntPtr.Zero;
 					isHooked = false;
 					return isHooked;
 				}
@@ -193,6 +194,7 @@ namespace LiveSplit.Kalimba.Memory {
 				if (proc.HasExited) {
 					globalGameManager = IntPtr.Zero;
 					menuManager = IntPtr.Zero;
+					platformManager = IntPtr.Zero;
 					isHooked = false;
 					return isHooked;
 				}
