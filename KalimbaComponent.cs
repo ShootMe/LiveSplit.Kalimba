@@ -42,12 +42,13 @@ namespace LiveSplit.Kalimba {
 
 			bool shouldSplit = false;
 			MenuScreen screen = mem.GetCurrentMenu();
-
+			
 			if (currentSplit == 0) {
 				shouldSplit = screen == MenuScreen.SinglePlayerPathSelect && mem.GetPlayingCinematic();
 			} else if (Model != null && Model.CurrentState.CurrentPhase == TimerPhase.Running) {
+				MenuScreen prev = mem.GetPreviousMenu();
 				if ((currentSplit < 24 && (Model == null || Model.CurrentState.Run.Count == 24)) || currentSplit < 10) {
-					shouldSplit = screen == MenuScreen.Loading && mem.GetPreviousMenu() == MenuScreen.SinglePlayerMap && lastMenu != MenuScreen.Loading;
+					shouldSplit = screen == MenuScreen.Loading && (prev == MenuScreen.SinglePlayerMap || prev == MenuScreen.SinglePlayerDLCMap) && lastMenu != MenuScreen.Loading;
 					if (shouldSplit && currentSplit == 1 && state == 0) {
 						state++;
 						shouldSplit = false;
@@ -55,7 +56,7 @@ namespace LiveSplit.Kalimba {
 				} else if (currentSplit == 10) {
 					shouldSplit = mem.GetEndLevel();
 				} else if (currentSplit == 24) {
-					if (screen == MenuScreen.Loading && mem.GetPreviousMenu() == MenuScreen.InGame) {
+					if (screen == MenuScreen.Loading && prev == MenuScreen.InGame) {
 						state = 0;
 					}
 					bool disabled = mem.GetIsDisabled();
@@ -125,12 +126,12 @@ namespace LiveSplit.Kalimba {
 						case "World": curr = mem.GetWorld().ToString(); break;
 						case "Campaign": curr = mem.GetCampaign().ToString(); break;
 						case "CurrentMenu": curr = mem.GetCurrentMenu().ToString(); break;
-						//case "PreviousMenu": curr = mem.GetPreviousMenu().ToString(); break;
+						case "PreviousMenu": curr = mem.GetPreviousMenu().ToString(); break;
 						case "Cinematic": curr = mem.GetPlayingCinematic().ToString(); break;
 						case "LoadingLevel": curr = mem.GetIsLoadingLevel().ToString(); break;
-						//case "Disabled": curr = mem.GetIsDisabled().ToString(); break;
+						case "Disabled": curr = mem.GetIsDisabled().ToString(); break;
 						case "LevelTime": curr = mem.GetLevelTime().ToString(); break;
-						//case "Score": curr = mem.GetCurrentScore().ToString(); break;
+						case "Score": curr = mem.GetCurrentScore().ToString(); break;
 						case "Deaths": curr = mem.GetCurrentDeaths().ToString(); break;
 						case "LevelName": curr = mem.GetLevelName(); break;
 						//case "Moving": curr = mem.GetIsMoving().ToString(); break;
@@ -139,8 +140,8 @@ namespace LiveSplit.Kalimba {
 						case "CurrentSplit": curr = currentSplit.ToString(); break;
 						case "State": curr = state.ToString(); break;
 						case "EndLevel": curr = mem.GetEndLevel().ToString(); break;
-						//case "Frozen": curr = mem.GetFrozen().ToString(); break;
-						//case "PlayerState": curr = mem.GetCurrentStateP1().ToString(); break;
+						case "Frozen": curr = mem.GetFrozen().ToString(); break;
+						case "PlayerState": curr = mem.GetCurrentStateP1().ToString(); break;
 						default: curr = ""; break;
 					}
 

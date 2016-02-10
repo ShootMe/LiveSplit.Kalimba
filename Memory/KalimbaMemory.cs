@@ -10,13 +10,15 @@ namespace LiveSplit.Kalimba.Memory {
 			{"v1.0", new Dictionary<string, string>() {
 					{"GlobalGameManager", "558BEC5783EC34C745E4000000008B4508C74034000000008B05????????83EC086A0050E8????????83C41085C0743A8B05????????8B4D0883EC085150|-12"},
 					{"MenuManager",       "558BEC53575683EC0C8B05????????83EC086A0050E8????????83C41085C074338B05????????83EC08FF750850E8????????83C41085C0741A83EC0CFF7508E8|-30"},
-					{"PlatformManager",   "558BEC535683EC108B05????????83EC0C50E8????????83C41085C0740B8B05"}
+					{"PlatformManager",   "558BEC535683EC108B05????????83EC0C50E8????????83C41085C0740B8B05"},
+					{"TotemPole",         "D95810D94510D958148B4D1489480CC9C3000000558BEC83EC08B8????????8B4D088908C9C3000000000000558BEC5683EC0483EC0C|-27"}
 			}},
 		};
 
 		private Dictionary<string, string> versionedFuncPatterns = new Dictionary<string, string>();
 		private IntPtr globalGameManager = IntPtr.Zero;
 		private IntPtr menuManager = IntPtr.Zero;
+		private IntPtr totemPole = IntPtr.Zero;
 		private IntPtr platformManager = IntPtr.Zero;
 		private Process proc;
 		private bool isHooked = false;
@@ -186,6 +188,7 @@ namespace LiveSplit.Kalimba.Memory {
 					globalGameManager = IntPtr.Zero;
 					menuManager = IntPtr.Zero;
 					platformManager = IntPtr.Zero;
+					totemPole = IntPtr.Zero;
 					isHooked = false;
 					return isHooked;
 				}
@@ -195,6 +198,7 @@ namespace LiveSplit.Kalimba.Memory {
 					globalGameManager = IntPtr.Zero;
 					menuManager = IntPtr.Zero;
 					platformManager = IntPtr.Zero;
+					totemPole = IntPtr.Zero;
 					isHooked = false;
 					return isHooked;
 				}
@@ -221,6 +225,13 @@ namespace LiveSplit.Kalimba.Memory {
 				platformManager = GetVersionedFunctionPointer("PlatformManager");
 				if (platformManager != IntPtr.Zero) {
 					platformManager = MemoryReader.Read<IntPtr>(proc, platformManager, 0, 0);
+				}
+			}
+
+			if (totemPole == IntPtr.Zero) {
+				totemPole = GetVersionedFunctionPointer("TotemPole");
+				if (totemPole != IntPtr.Zero) {
+					totemPole = MemoryReader.Read<IntPtr>(proc, totemPole, 0, 0);
 				}
 			}
 
