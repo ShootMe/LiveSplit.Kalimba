@@ -42,7 +42,7 @@ namespace LiveSplit.Kalimba {
 
 			bool shouldSplit = false;
 			MenuScreen screen = mem.GetCurrentMenu();
-			
+
 			if (currentSplit == 0) {
 				shouldSplit = screen == MenuScreen.SinglePlayerPathSelect && mem.GetPlayingCinematic();
 			} else if (Model != null && Model.CurrentState.CurrentPhase == TimerPhase.Running) {
@@ -92,7 +92,7 @@ namespace LiveSplit.Kalimba {
 			}
 
 			if (Model != null && screen == MenuScreen.SinglePlayerEndLevelFeedBack && currentSplit > 0 && currentSplit != lastLevelComplete) {
-				PersistentLevelStats level = mem.GetLevelStats((PlatformLevelId)(lastLevelComplete + 1));
+				PersistentLevelStats level = mem.GetLevelStats((PlatformLevelId)((Model.CurrentState.Run.Count == 10 ? 150 : 0) + lastLevelComplete + 1));
 				if (level.minMillisecondsForMaxScore != int.MaxValue) {
 					double levelTime = (double)level.minMillisecondsForMaxScore / (double)1000;
 					levelTimes += levelTime;
