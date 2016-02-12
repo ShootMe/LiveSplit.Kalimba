@@ -24,6 +24,7 @@ namespace LiveSplit.Kalimba {
 		private int lastLevelComplete = 0;
 		internal static string[] keys = { "CurrentSplit", "World", "Campaign", "CurrentMenu", "PreviousMenu", "Cinematic", "LoadingLevel", "LevelTime", "Disabled", "Score", "Deaths", "LevelName", "Moving", "P1Y", "P2Y", "State", "EndLevel", "PlayerState", "Frozen" };
 		private Dictionary<string, string> currentValues = new Dictionary<string, string>();
+		private PlatformLevelId[] voidRun = { PlatformLevelId.DLC_SP_Eve, PlatformLevelId.DLC_SP_Alice, PlatformLevelId.DLC_SP_Fiona, PlatformLevelId.DLC_SP_Jocelyn, PlatformLevelId.DLC_SP_Bella, PlatformLevelId.DLC_SP_Gretchen, PlatformLevelId.DLC_SP_Diana, PlatformLevelId.DLC_SP_Carol, PlatformLevelId.DLC_SP_Hillary, PlatformLevelId.DLC_SP_Ilene };
 
 		public KalimbaComponent() {
 			mem = new KalimbaMemory();
@@ -42,7 +43,7 @@ namespace LiveSplit.Kalimba {
 
 			bool shouldSplit = false;
 			MenuScreen screen = mem.GetCurrentMenu();
-
+			
 			if (currentSplit == 0) {
 				shouldSplit = screen == MenuScreen.SinglePlayerPathSelect && mem.GetPlayingCinematic();
 			} else if (Model != null && Model.CurrentState.CurrentPhase == TimerPhase.Running) {
@@ -92,7 +93,7 @@ namespace LiveSplit.Kalimba {
 			}
 
 			if (Model != null && screen == MenuScreen.SinglePlayerEndLevelFeedBack && currentSplit > 0 && currentSplit != lastLevelComplete) {
-				PersistentLevelStats level = mem.GetLevelStats((PlatformLevelId)((Model.CurrentState.Run.Count == 10 ? 150 : 0) + lastLevelComplete + 1));
+				PersistentLevelStats level = mem.GetLevelStats(Model.CurrentState.Run.Count == 10 ? voidRun[lastLevelComplete] : (PlatformLevelId)lastLevelComplete + 1);
 				if (level.minMillisecondsForMaxScore != int.MaxValue) {
 					double levelTime = (double)level.minMillisecondsForMaxScore / (double)1000;
 					levelTimes += levelTime;
