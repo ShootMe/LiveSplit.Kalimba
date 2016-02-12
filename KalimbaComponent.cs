@@ -24,7 +24,7 @@ namespace LiveSplit.Kalimba {
 		private int lastLevelComplete = 0;
 		internal static string[] keys = { "CurrentSplit", "World", "Campaign", "CurrentMenu", "PreviousMenu", "Cinematic", "LoadingLevel", "LevelTime", "Disabled", "Score", "Deaths", "LevelName", "Moving", "P1Y", "P2Y", "State", "EndLevel", "PlayerState", "Frozen" };
 		private Dictionary<string, string> currentValues = new Dictionary<string, string>();
-		private PlatformLevelId[] voidRun = { PlatformLevelId.DLC_SP_Eve, PlatformLevelId.DLC_SP_Alice, PlatformLevelId.DLC_SP_Fiona, PlatformLevelId.DLC_SP_Jocelyn, PlatformLevelId.DLC_SP_Bella, PlatformLevelId.DLC_SP_Gretchen, PlatformLevelId.DLC_SP_Diana, PlatformLevelId.DLC_SP_Carol, PlatformLevelId.DLC_SP_Hillary, PlatformLevelId.DLC_SP_Ilene };
+		private PlatformLevelId[] voidRun = { PlatformLevelId.DLC_SP_Eve, PlatformLevelId.DLC_SP_Diana, PlatformLevelId.DLC_SP_Alice, PlatformLevelId.DLC_SP_Carol, PlatformLevelId.DLC_SP_Bella, PlatformLevelId.DLC_SP_Gretchen, PlatformLevelId.DLC_SP_Fiona, PlatformLevelId.DLC_SP_Hillary, PlatformLevelId.DLC_SP_Ilene, PlatformLevelId.DLC_SP_Jocelyn };
 
 		public KalimbaComponent() {
 			mem = new KalimbaMemory();
@@ -43,7 +43,7 @@ namespace LiveSplit.Kalimba {
 
 			bool shouldSplit = false;
 			MenuScreen screen = mem.GetCurrentMenu();
-			
+
 			if (currentSplit == 0) {
 				shouldSplit = screen == MenuScreen.SinglePlayerPathSelect && mem.GetPlayingCinematic();
 			} else if (Model != null && Model.CurrentState.CurrentPhase == TimerPhase.Running) {
