@@ -44,10 +44,14 @@ namespace LiveSplit.Kalimba {
 			MenuScreen screen = mem.GetCurrentMenu();
 			if (Model != null && Model.CurrentState.Run.Count == 1) {
 				if (currentSplit == 0) {
-					shouldSplit = mem.GetInTransition();
-					if (shouldSplit) {
-						mem.SetScore(mem.GetPlatformLevelId(), 0);
+					if (state == 0) {
+						MenuScreen prev = mem.GetPreviousMenu();
+						if (screen == MenuScreen.Loading && (prev == MenuScreen.SinglePlayerMap || prev == MenuScreen.SinglePlayerDLCMap)) {
+							mem.SetScore(mem.GetPlatformLevelId(), 0);
+							state++;
+						}
 					}
+					shouldSplit = mem.GetInTransition();
 				} else {
 					shouldSplit = mem.GetEndLevel();
 				}
@@ -82,9 +86,9 @@ namespace LiveSplit.Kalimba {
 
 			lastMenu = screen;
 
-			if (currentSplit > 0 && screen == MenuScreen.MainMenu) {
+			if (currentSplit > 0 && (screen == MenuScreen.MainMenu || ((screen == MenuScreen.SinglePlayerMap || screen == MenuScreen.SinglePlayerDLCMap) && Model != null && Model.CurrentState.Run.Count == 1))) {
 				if (Model != null) { Model.Reset(); } else { currentSplit = 0; state = 0; }
-				if (MessageBox.Show("Do you want to reset back to a new game state?", "Progression", MessageBoxButtons.YesNo) == DialogResult.Yes) {
+				if ((Model == null || Model.CurrentState.Run.Count > 1) && MessageBox.Show("Do you want to reset back to a new game state?", "Progression", MessageBoxButtons.YesNo) == DialogResult.Yes) {
 					mem.EraseData();
 				}
 			} else if (shouldSplit) {

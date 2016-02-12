@@ -38,10 +38,7 @@ namespace LiveSplit.Kalimba.Memory {
 			return MemoryReader.Read<float>(proc, transitionManager, 0x40, 0x40);
 		}
 		public bool GetInTransition() {
-			if (GetTransition() != 0) { return false; }
-			if (GetTypingProgress() != TypingProgress.EventsRaised) { return false; }
-			if (GetLevelTime() != 0) { return false; }
-			if (GetFrozen()) { return false; }
+			if (GetTransition() != 0 || GetLevelTime() != 0 || GetFrozen() || GetTypingProgress() != TypingProgress.EventsRaised) { return false; }
 			return GetCurrentMenu() == MenuScreen.Loading;
 		}
 		public PlatformLevelId GetPlatformLevelId() {
@@ -205,14 +202,10 @@ namespace LiveSplit.Kalimba.Memory {
 			}
 		}
 		public bool GetEndLevel() {
-			bool frozen = GetFrozen();
-			bool isDisabled = GetIsDisabled();
-			bool isDying = GetIsDying();
+			if (!GetFrozen() || GetIsDying() || GetIsDisabled() || GetCurrentMenu() != MenuScreen.InGame) { return false; }
 			TotemState state1 = GetCurrentStateP1();
 			TotemState state2 = GetCurrentStateP2();
-			MenuScreen currentMenu = GetCurrentMenu();
-
-			return frozen && !isDying && (state1 == TotemState.WALKING || state1 == TotemState.JUMP_UP || state2 == TotemState.WALKING || state2 == TotemState.JUMP_UP) && !isDisabled && currentMenu == MenuScreen.InGame;
+			return state1 == TotemState.WALKING || state1 == TotemState.JUMP_UP || state2 == TotemState.WALKING || state2 == TotemState.JUMP_UP;
 		}
 
 		private string GetString(IntPtr address) {
