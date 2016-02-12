@@ -11,7 +11,8 @@ namespace LiveSplit.Kalimba.Memory {
 					{"GlobalGameManager", "558BEC5783EC34C745E4000000008B4508C74034000000008B05????????83EC086A0050E8????????83C41085C0743A8B05????????8B4D0883EC085150|-12"},
 					{"MenuManager",       "558BEC53575683EC0C8B05????????83EC086A0050E8????????83C41085C074338B05????????83EC08FF750850E8????????83C41085C0741A83EC0CFF7508E8|-30"},
 					{"PlatformManager",   "558BEC535683EC108B05????????83EC0C50E8????????83C41085C0740B8B05"},
-					{"TotemPole",         "D95810D94510D958148B4D1489480CC9C3000000558BEC83EC08B8????????8B4D088908C9C3000000000000558BEC5683EC0483EC0C|-27"}
+					{"TotemPole",         "D95810D94510D958148B4D1489480CC9C3000000558BEC83EC08B8????????8B4D088908C9C3000000000000558BEC5683EC0483EC0C|-27"},
+					{"TransitionManager", "558BEC5783EC048B7D088B05????????83EC086A0050E8????????83C41085C074348B05????????83EC085750E8????????83C41085C0741D83EC0C57E8????????83C41083EC0C50E8????????83C410E9????????B8" }
 			}},
 		};
 
@@ -20,10 +21,33 @@ namespace LiveSplit.Kalimba.Memory {
 		private IntPtr menuManager = IntPtr.Zero;
 		private IntPtr totemPole = IntPtr.Zero;
 		private IntPtr platformManager = IntPtr.Zero;
+		private IntPtr transitionManager = IntPtr.Zero;
 		private Process proc;
 		private bool isHooked = false;
 		private DateTime hookedTime;
 
+		public TypingProgress GetTypingProgress() {
+			//TransitionManager.instance.hoebearLoadSpeech.speechBubble.typingProgress
+			TypingProgress tpHB = (TypingProgress)MemoryReader.Read<int>(proc, transitionManager, 0x1c, 0x1c, 0x138);
+			//TransitionManager.instance.darkShamanLoadSpeech.speechBubble.typingProgress
+			TypingProgress tpDS = (TypingProgress)MemoryReader.Read<int>(proc, transitionManager, 0x18, 0x1c, 0x138);
+			return tpHB == TypingProgress.None ? tpDS : tpHB;
+		}
+		public float GetTransition() {
+			//TransitionManager.instance.transitionEffect.transition
+			return MemoryReader.Read<float>(proc, transitionManager, 0x40, 0x40);
+		}
+		public bool GetInTransition() {
+			if (GetTransition() != 0) { return false; }
+			if (GetTypingProgress() != TypingProgress.EventsRaised) { return false; }
+			if (GetLevelTime() != 0) { return false; }
+			if (GetFrozen()) { return false; }
+			return GetCurrentMenu() == MenuScreen.Loading;
+		}
+		public PlatformLevelId GetPlatformLevelId() {
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.sceneFile.platformLevelId
+			return (PlatformLevelId)MemoryReader.Read<int>(proc, globalGameManager, 0x14, 0x0c, 0x10, 0x80);
+		}
 		public World GetWorld() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.sceneFile.world
 			return (World)MemoryReader.Read<int>(proc, globalGameManager, 0x14, 0x0c, 0x10, 0x5c);
@@ -141,6 +165,22 @@ namespace LiveSplit.Kalimba.Memory {
 			}
 			return null;
 		}
+		public void SetScore(PlatformLevelId id, int score) {
+			//PlatformManager.instance.imp.players[0].gameSinglePlayerStats._levels
+			IntPtr levels = MemoryReader.Read<IntPtr>(proc, platformManager, 0x10, 0x48, 0x10, 0x24, 0x0c);
+			int listSize = MemoryReader.Read<int>(proc, levels, 0x20);
+			IntPtr keys = MemoryReader.Read<IntPtr>(proc, levels, 0x10);
+			levels = MemoryReader.Read<IntPtr>(proc, levels, 0x14);
+
+			for (int i = 0; i < listSize; i++) {
+				IntPtr itemHead = MemoryReader.Read<IntPtr>(proc, levels, 0x10 + (i * 4));
+				PlatformLevelId levelID = (PlatformLevelId)MemoryReader.Read<int>(proc, keys, 0x10 + (i * 4));
+
+				if (levelID == id) {
+					MemoryReader.Write<int>(proc, itemHead, score, 0x0c);
+				}
+			}
+		}
 		public void EraseData() {
 			//PlatformManager.instance.imp.players[0].gameSinglePlayerStats._rememberedMoments
 			MemoryReader.Write<int>(proc, platformManager, 0, 0x10, 0x48, 0x10, 0x24, 0x08, 0x0c);
@@ -184,21 +224,13 @@ namespace LiveSplit.Kalimba.Memory {
 		public bool HookProcess() {
 			if (proc == null || proc.HasExited) {
 				Process[] processes = Process.GetProcessesByName("Kalimba");
-				if (processes.Length == 0) {
+				proc = processes.Length == 0 ? null : processes[0];
+				if (processes.Length == 0 || proc.HasExited) {
 					globalGameManager = IntPtr.Zero;
 					menuManager = IntPtr.Zero;
 					platformManager = IntPtr.Zero;
 					totemPole = IntPtr.Zero;
-					isHooked = false;
-					return isHooked;
-				}
-
-				proc = processes[0];
-				if (proc.HasExited) {
-					globalGameManager = IntPtr.Zero;
-					menuManager = IntPtr.Zero;
-					platformManager = IntPtr.Zero;
-					totemPole = IntPtr.Zero;
+					transitionManager = IntPtr.Zero;
 					isHooked = false;
 					return isHooked;
 				}
@@ -207,35 +239,21 @@ namespace LiveSplit.Kalimba.Memory {
 				hookedTime = DateTime.Now;
 			}
 
-			if (globalGameManager == IntPtr.Zero) {
-				globalGameManager = GetVersionedFunctionPointer("GlobalGameManager");
-				if (globalGameManager != IntPtr.Zero) {
-					globalGameManager = MemoryReader.Read<IntPtr>(proc, globalGameManager, 0, 0);
-				}
-			}
-
-			if (menuManager == IntPtr.Zero) {
-				menuManager = GetVersionedFunctionPointer("MenuManager");
-				if (menuManager != IntPtr.Zero) {
-					menuManager = MemoryReader.Read<IntPtr>(proc, menuManager, 0, 0);
-				}
-			}
-
-			if (platformManager == IntPtr.Zero) {
-				platformManager = GetVersionedFunctionPointer("PlatformManager");
-				if (platformManager != IntPtr.Zero) {
-					platformManager = MemoryReader.Read<IntPtr>(proc, platformManager, 0, 0);
-				}
-			}
-
-			if (totemPole == IntPtr.Zero) {
-				totemPole = GetVersionedFunctionPointer("TotemPole");
-				if (totemPole != IntPtr.Zero) {
-					totemPole = MemoryReader.Read<IntPtr>(proc, totemPole, 0, 0);
-				}
-			}
+			GetPointer(ref globalGameManager, "GlobalGameManager");
+			GetPointer(ref menuManager, "MenuManager");
+			GetPointer(ref platformManager, "PlatformManager");
+			GetPointer(ref totemPole, "TotemPole");
+			GetPointer(ref transitionManager, "TransitionManager");
 
 			return isHooked;
+		}
+		private void GetPointer(ref IntPtr ptr, string name) {
+			if (ptr == IntPtr.Zero) {
+				ptr = GetVersionedFunctionPointer(name);
+				if (ptr != IntPtr.Zero) {
+					ptr = MemoryReader.Read<IntPtr>(proc, ptr, 0, 0);
+				}
+			}
 		}
 
 		public void Dispose() {
@@ -319,6 +337,12 @@ namespace LiveSplit.Kalimba.Memory {
 	public enum Campaign {
 		Singleplayer,
 		Cooperative
+	}
+	public enum TypingProgress {
+		None,
+		Begun,
+		Done,
+		EventsRaised
 	}
 	public enum World {
 		None,

@@ -22,9 +22,8 @@ namespace LiveSplit.Kalimba {
 		private MenuScreen lastMenu = MenuScreen.MainMenu;
 		double levelTimes;
 		private int lastLevelComplete = 0;
-		internal static string[] keys = { "CurrentSplit", "World", "Campaign", "CurrentMenu", "PreviousMenu", "Cinematic", "LoadingLevel", "LevelTime", "Disabled", "Score", "Deaths", "LevelName", "Moving", "P1Y", "P2Y", "State", "EndLevel", "PlayerState", "Frozen" };
+		internal static string[] keys = { "CurrentSplit", "World", "Campaign", "CurrentMenu", "PreviousMenu", "Cinematic", "LoadingLevel", "LevelTime", "Disabled", "Score", "Deaths", "LevelName", "Moving", "P1Y", "P2Y", "State", "EndLevel", "PlayerState", "Frozen", "InTransition", "PlatformLevel" };
 		private Dictionary<string, string> currentValues = new Dictionary<string, string>();
-		private PlatformLevelId[] voidRun = { PlatformLevelId.DLC_SP_Eve, PlatformLevelId.DLC_SP_Diana, PlatformLevelId.DLC_SP_Alice, PlatformLevelId.DLC_SP_Carol, PlatformLevelId.DLC_SP_Bella, PlatformLevelId.DLC_SP_Gretchen, PlatformLevelId.DLC_SP_Fiona, PlatformLevelId.DLC_SP_Hillary, PlatformLevelId.DLC_SP_Ilene, PlatformLevelId.DLC_SP_Jocelyn };
 
 		public KalimbaComponent() {
 			mem = new KalimbaMemory();
@@ -43,8 +42,16 @@ namespace LiveSplit.Kalimba {
 
 			bool shouldSplit = false;
 			MenuScreen screen = mem.GetCurrentMenu();
-
-			if (currentSplit == 0) {
+			if (Model != null && Model.CurrentState.Run.Count == 1) {
+				if (currentSplit == 0) {
+					shouldSplit = mem.GetInTransition();
+					if (shouldSplit) {
+						mem.SetScore(mem.GetPlatformLevelId(), 0);
+					}
+				} else {
+					shouldSplit = mem.GetEndLevel();
+				}
+			} else if (currentSplit == 0) {
 				shouldSplit = screen == MenuScreen.SinglePlayerPathSelect && mem.GetPlayingCinematic();
 			} else if (Model != null && Model.CurrentState.CurrentPhase == TimerPhase.Running) {
 				MenuScreen prev = mem.GetPreviousMenu();
@@ -93,7 +100,7 @@ namespace LiveSplit.Kalimba {
 			}
 
 			if (Model != null && screen == MenuScreen.SinglePlayerEndLevelFeedBack && currentSplit > 0 && currentSplit != lastLevelComplete) {
-				PersistentLevelStats level = mem.GetLevelStats(Model.CurrentState.Run.Count == 10 ? voidRun[lastLevelComplete] : (PlatformLevelId)lastLevelComplete + 1);
+				PersistentLevelStats level = mem.GetLevelStats(mem.GetPlatformLevelId());
 				if (level.minMillisecondsForMaxScore != int.MaxValue) {
 					double levelTime = (double)level.minMillisecondsForMaxScore / (double)1000;
 					levelTimes += levelTime;
@@ -143,6 +150,8 @@ namespace LiveSplit.Kalimba {
 						case "EndLevel": curr = mem.GetEndLevel().ToString(); break;
 						case "Frozen": curr = mem.GetFrozen().ToString(); break;
 						case "PlayerState": curr = mem.GetCurrentStateP1().ToString(); break;
+						case "InTransition": curr = mem.GetInTransition().ToString(); break;
+						case "PlatformLevel": curr = mem.GetPlatformLevelId().ToString(); break;
 						default: curr = ""; break;
 					}
 
@@ -208,7 +217,7 @@ namespace LiveSplit.Kalimba {
 		}
 		private void WriteLog(string data) {
 			if (hasLog) {
-				//Console.WriteLine(data);
+				Console.WriteLine(data);
 				using (StreamWriter wr = new StreamWriter("_Kalimba.log", true)) {
 					wr.WriteLine(data);
 				}
