@@ -50,11 +50,11 @@ namespace LiveSplit.Kalimba {
 							mem.SetScore(mem.GetPlatformLevelId(), 0);
 							state++;
 						}
-					} else if (state == 1 && mem.GetInTransition()) {
+					} else if (state == 1 && mem.GetPreviousMenu() == MenuScreen.Loading) {
 						state++;
 						mem.SetScore(mem.GetPlatformLevelId(), 0);
-					} else if (state == 2) {
-						shouldSplit = !mem.GetInTransition();
+					} else if (state >= 2 && state <= 3) {
+						shouldSplit = state++ == 3;
 					}
 				} else {
 					shouldSplit = mem.GetEndLevel();
