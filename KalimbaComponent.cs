@@ -52,6 +52,7 @@ namespace LiveSplit.Kalimba {
 						}
 					} else if (state == 1 && mem.GetInTransition()) {
 						state++;
+						mem.SetScore(mem.GetPlatformLevelId(), 0);
 					} else if (state == 2) {
 						shouldSplit = !mem.GetInTransition();
 					}
