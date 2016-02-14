@@ -24,6 +24,7 @@ namespace LiveSplit.Kalimba.Memory {
 		private IntPtr transitionManager = IntPtr.Zero;
 		private Process proc;
 		private bool isHooked = false;
+		private bool hasResetLevel = false;
 		private DateTime hookedTime;
 
 		public TypingProgress GetTypingProgress() {
@@ -38,8 +39,15 @@ namespace LiveSplit.Kalimba.Memory {
 			return MemoryReader.Read<float>(proc, transitionManager, 0x40, 0x40);
 		}
 		public bool GetInTransition() {
-			if (GetTransition() != 0 || GetLevelTime() != 0 || GetFrozen() || GetTypingProgress() != TypingProgress.EventsRaised) { return false; }
-			return GetCurrentMenu() == MenuScreen.Loading;
+			if(GetCurrentMenu() != MenuScreen.Loading) {
+				hasResetLevel = false;
+				return false;
+			}
+			if (!hasResetLevel && !GetFrozen()) {
+				hasResetLevel = true;
+			}
+			
+			return hasResetLevel && GetTransition() == 0 && GetLevelTime() == 0 && GetTypingProgress() == TypingProgress.EventsRaised;
 		}
 		public PlatformLevelId GetPlatformLevelId() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.sceneFile.platformLevelId
