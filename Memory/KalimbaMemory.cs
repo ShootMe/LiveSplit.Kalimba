@@ -39,15 +39,17 @@ namespace LiveSplit.Kalimba.Memory {
 			return MemoryReader.Read<float>(proc, transitionManager, 0x40, 0x40);
 		}
 		public bool GetInTransition() {
-			if(GetCurrentMenu() != MenuScreen.Loading) {
+			if (GetCurrentMenu() != MenuScreen.Loading) {
 				hasResetLevel = false;
 				return false;
 			}
-			if (!hasResetLevel && !GetFrozen()) {
+			if (!hasResetLevel && string.IsNullOrEmpty(GetLevelName())) {
 				hasResetLevel = true;
 			}
-			
-			return hasResetLevel && GetTransition() == 0 && GetLevelTime() == 0 && GetTypingProgress() == TypingProgress.EventsRaised;
+
+			if (!hasResetLevel || GetTransition() != 0 || GetLevelTime() != 0 || GetTypingProgress() != TypingProgress.EventsRaised) { return false; }
+			hasResetLevel = false;
+			return true;
 		}
 		public PlatformLevelId GetPlatformLevelId() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.sceneFile.platformLevelId
@@ -183,6 +185,7 @@ namespace LiveSplit.Kalimba.Memory {
 
 				if (levelID == id) {
 					MemoryReader.Write<int>(proc, itemHead, score, 0x0c);
+					MemoryReader.Write<int>(proc, itemHead, int.MaxValue, 0x10);
 				}
 			}
 		}
@@ -213,7 +216,7 @@ namespace LiveSplit.Kalimba.Memory {
 			if (!GetFrozen() || GetIsDying() || GetIsDisabled() || GetCurrentMenu() != MenuScreen.InGame) { return false; }
 			TotemState state1 = GetCurrentStateP1();
 			TotemState state2 = GetCurrentStateP2();
-			return state1 == TotemState.WALKING || state1 == TotemState.JUMP_UP || state2 == TotemState.WALKING || state2 == TotemState.JUMP_UP;
+			return state1 == TotemState.WALKING || state1 == TotemState.JUMP_DOWN || state1 == TotemState.JUMP_UP || state2 == TotemState.WALKING || state2 == TotemState.JUMP_DOWN || state2 == TotemState.JUMP_UP;
 		}
 
 		private string GetString(IntPtr address) {
