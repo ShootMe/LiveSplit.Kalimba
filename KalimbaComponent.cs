@@ -40,37 +40,66 @@ namespace LiveSplit.Kalimba {
 				return;
 			}
 
-			bool shouldSplit = false;
 			MenuScreen screen = mem.GetCurrentMenu();
-			if (Model != null && Model.CurrentState.Run.Count == 1) {
-				if (currentSplit == 0) {
-					if (state == 0) {
-						MenuScreen prev = mem.GetPreviousMenu();
-						if (screen == MenuScreen.Loading && (prev == MenuScreen.SinglePlayerMap || prev == MenuScreen.SinglePlayerDLCMap)) {
-							mem.SetScore(mem.GetPlatformLevelId(), 0);
-							state++;
-						}
-					} else if (state == 1 && mem.GetPreviousMenu() == MenuScreen.Loading) {
-						state++;
-						mem.SetScore(mem.GetPlatformLevelId(), 0);
-					} else if (state >= 2 && state <= 3) {
-						shouldSplit = state++ == 3;
-					}
-				} else {
-					shouldSplit = mem.GetEndLevel();
+			if (Model != null) {
+				if (Model.CurrentState.Run.Count == 1) {
+					HandleIL(screen);
+				} else if (Model.CurrentState.Run.Count == 10) {
+					HandleDarkVoid(screen);
+				} else if (Model.CurrentState.Run.Count == 24) {
+					HandleJourney(screen);
 				}
-			} else if (currentSplit == 0) {
+
+				HandleGameTimes(screen);
+			}
+
+			LogValues();
+		}
+		private void HandleIL(MenuScreen screen) {
+			bool shouldSplit = false;
+
+			if (currentSplit == 0) {
+				if (state == 0) {
+					MenuScreen prev = mem.GetPreviousMenu();
+					if (mem.GetCurrentMenu() == MenuScreen.Loading && (prev == MenuScreen.SinglePlayerMap || prev == MenuScreen.SinglePlayerDLCMap)) {
+						mem.SetScore(mem.GetPlatformLevelId(), 0);
+						state++;
+					}
+				} else if (state == 1 && mem.GetPreviousMenu() == MenuScreen.Loading) {
+					state++;
+					mem.SetScore(mem.GetPlatformLevelId(), 0);
+				} else if (state >= 2 && state <= 3) {
+					shouldSplit = state++ == 3;
+				}
+			} else if (state == 0 && mem.GetEndLevel()) {
+				state++;
+			} else if (state >= 1) {
+				shouldSplit = state++ == 2;
+			}
+
+			if (currentSplit > 0 && (screen == MenuScreen.SinglePlayerMap || screen == MenuScreen.SinglePlayerDLCMap || screen == MenuScreen.CoopMap || screen == MenuScreen.CoopDLCMap)) {
+				Model.Reset();
+			} else if (shouldSplit) {
+				if (currentSplit == 0) {
+					Model.Start();
+				} else {
+					Model.Split();
+				}
+			}
+		}
+		private void HandleJourney(MenuScreen screen) {
+			bool shouldSplit = false;
+
+			if (currentSplit == 0) {
 				shouldSplit = screen == MenuScreen.SinglePlayerPathSelect && mem.GetPlayingCinematic();
-			} else if (Model != null && Model.CurrentState.CurrentPhase == TimerPhase.Running) {
+			} else if (Model.CurrentState.CurrentPhase == TimerPhase.Running) {
 				MenuScreen prev = mem.GetPreviousMenu();
-				if ((currentSplit < 24 && (Model == null || Model.CurrentState.Run.Count == 24)) || currentSplit < 10) {
-					shouldSplit = screen == MenuScreen.Loading && (prev == MenuScreen.SinglePlayerMap || prev == MenuScreen.SinglePlayerDLCMap) && lastMenu != MenuScreen.Loading;
+				if (currentSplit < 24) {
+					shouldSplit = screen == MenuScreen.Loading && prev == MenuScreen.SinglePlayerMap && lastMenu != MenuScreen.Loading;
 					if (shouldSplit && currentSplit == 1 && state == 0) {
 						state++;
 						shouldSplit = false;
 					}
-				} else if (currentSplit == 10) {
-					shouldSplit = mem.GetEndLevel();
 				} else if (currentSplit == 24) {
 					if (screen == MenuScreen.Loading && prev == MenuScreen.InGame) {
 						state = 0;
@@ -90,24 +119,58 @@ namespace LiveSplit.Kalimba {
 
 			lastMenu = screen;
 
-			if (currentSplit > 0 && (screen == MenuScreen.MainMenu || ((screen == MenuScreen.SinglePlayerMap || screen == MenuScreen.SinglePlayerDLCMap) && Model != null && Model.CurrentState.Run.Count == 1))) {
-				if (Model != null) { Model.Reset(); } else { currentSplit = 0; state = 0; }
-				if ((Model == null || Model.CurrentState.Run.Count > 1) && MessageBox.Show("Do you want to reset back to a new game state?", "Progression", MessageBoxButtons.YesNo) == DialogResult.Yes) {
+			if (currentSplit > 0 && screen == MenuScreen.MainMenu) {
+				Model.Reset();
+				if (MessageBox.Show("Do you want to reset back to a new game state?", "Progression", MessageBoxButtons.YesNo) == DialogResult.Yes) {
 					mem.EraseData();
 				}
 			} else if (shouldSplit) {
 				if (currentSplit == 0) {
-					if (Model != null) { Model.Start(); } else { currentSplit++; state = 0; }
+					Model.Start();
 				} else {
-					if (Model != null) { Model.Split(); } else { currentSplit++; state = 0; }
+					Model.Split();
+				}
+			}
+		}
+		private void HandleDarkVoid(MenuScreen screen) {
+			bool shouldSplit = false;
+
+			if (currentSplit == 0) {
+				shouldSplit = screen == MenuScreen.SinglePlayerPathSelect && mem.GetPlayingCinematic();
+			} else if (Model.CurrentState.CurrentPhase == TimerPhase.Running) {
+				MenuScreen prev = mem.GetPreviousMenu();
+				if (currentSplit < 10) {
+					shouldSplit = screen == MenuScreen.Loading && prev == MenuScreen.SinglePlayerDLCMap && lastMenu != MenuScreen.Loading;
+					if (shouldSplit && currentSplit == 1 && state == 0) {
+						state++;
+						shouldSplit = false;
+					}
+				} else if (currentSplit == 10) {
+					shouldSplit = mem.GetEndLevel();
 				}
 			}
 
-			if (Model != null && Model.CurrentState.IsGameTimePaused && screen == MenuScreen.InGame && !mem.GetFrozen() && mem.GetIsMoving()) {
+			lastMenu = screen;
+
+			if (currentSplit > 0 && screen == MenuScreen.MainMenu) {
+				Model.Reset();
+				if (MessageBox.Show("Do you want to reset back to a new game state?", "Progression", MessageBoxButtons.YesNo) == DialogResult.Yes) {
+					mem.EraseData();
+				}
+			} else if (shouldSplit) {
+				if (currentSplit == 0) {
+					Model.Start();
+				} else {
+					Model.Split();
+				}
+			}
+		}
+		private void HandleGameTimes(MenuScreen screen) {
+			if (Model.CurrentState.IsGameTimePaused && screen == MenuScreen.InGame && !mem.GetFrozen() && mem.GetIsMoving()) {
 				Model.CurrentState.IsGameTimePaused = false;
 			}
 
-			if (Model != null && screen == MenuScreen.SinglePlayerEndLevelFeedBack && currentSplit > 0 && currentSplit != lastLevelComplete) {
+			if (screen == MenuScreen.SinglePlayerEndLevelFeedBack && currentSplit > 0 && currentSplit != lastLevelComplete) {
 				PersistentLevelStats level = mem.GetLevelStats(mem.GetPlatformLevelId());
 				if (level.minMillisecondsForMaxScore != int.MaxValue) {
 					double levelTime = (double)level.minMillisecondsForMaxScore / (double)1000;
@@ -123,8 +186,6 @@ namespace LiveSplit.Kalimba {
 					WriteLog(DateTime.Now.ToString(@"HH\:mm\:ss.fff") + (Model != null ? " | " + Model.CurrentState.CurrentTime.RealTime.Value.ToString("G").Substring(3, 11) : "") + ": Set game time " + levelTime + " " + levelTimes);
 				}
 			}
-
-			LogValues();
 		}
 		private void LogValues() {
 			if (lastLogCheck == 0) {
@@ -212,9 +273,13 @@ namespace LiveSplit.Kalimba {
 			WriteLog("---------New Game-------------------------------");
 		}
 		public void OnUndoSplit(object sender, EventArgs e) {
+			currentSplit--;
+			state = 0;
 			WriteLog(DateTime.Now.ToString(@"HH\:mm\:ss.fff") + " | " + Model.CurrentState.CurrentTime.RealTime.Value.ToString("G").Substring(3, 11) + ": CurrentSplit: " + currentSplit.ToString().PadLeft(24, ' '));
 		}
 		public void OnSkipSplit(object sender, EventArgs e) {
+			currentSplit++;
+			state = 0;
 			WriteLog(DateTime.Now.ToString(@"HH\:mm\:ss.fff") + " | " + Model.CurrentState.CurrentTime.RealTime.Value.ToString("G").Substring(3, 11) + ": CurrentSplit: " + currentSplit.ToString().PadLeft(24, ' '));
 		}
 		public void OnSplit(object sender, EventArgs e) {
