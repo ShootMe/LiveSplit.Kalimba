@@ -20,6 +20,7 @@ namespace LiveSplit.Kalimba {
 		private int lastLogCheck = 0;
 		private float lastYP2;
 		private MenuScreen lastMenu = MenuScreen.MainMenu;
+		private MenuScreen mainMenu = MenuScreen.MainMenu;
 		double levelTimes;
 		private int lastLevelComplete = 0;
 		internal static string[] keys = { "CurrentSplit", "World", "Campaign", "CurrentMenu", "PreviousMenu", "Cinematic", "LoadingLevel", "LevelTime", "Disabled", "Score", "Deaths", "LevelName", "Moving", "P1Y", "P2Y", "State", "EndLevel", "PlayerState", "Frozen", "InTransition", "PlatformLevel" };
@@ -42,10 +43,22 @@ namespace LiveSplit.Kalimba {
 
 			MenuScreen screen = mem.GetCurrentMenu();
 			if (Model != null) {
+				if (Model.CurrentState.CurrentPhase == TimerPhase.NotRunning) {
+					mainMenu = screen;
+				}
 				if (Model.CurrentState.Run.Count == 1) {
 					HandleIL(screen);
 				} else if (Model.CurrentState.Run.Count == 10) {
-					HandleDarkVoid(screen);
+					if (mainMenu == MenuScreen.SinglePlayerPathSelect) {
+						HandleDarkVoid(screen);
+					} else if (mainMenu == MenuScreen.CoopMap) {
+						HandleJourneyCoop(screen);
+					} else {
+						HandleDarkVoidCoop(screen);
+					}
+					if (currentSplit == 1 && (screen == MenuScreen.CoopMap || screen == MenuScreen.CoopDLCMap)) {
+						mainMenu = screen;
+					}
 				} else if (Model.CurrentState.Run.Count == 24) {
 					HandleJourney(screen);
 				}
@@ -61,7 +74,7 @@ namespace LiveSplit.Kalimba {
 			if (currentSplit == 0) {
 				if (state == 0) {
 					MenuScreen prev = mem.GetPreviousMenu();
-					if (mem.GetCurrentMenu() == MenuScreen.Loading && (prev == MenuScreen.SinglePlayerMap || prev == MenuScreen.SinglePlayerDLCMap)) {
+					if (mem.GetCurrentMenu() == MenuScreen.Loading && (prev == MenuScreen.SinglePlayerMap || prev == MenuScreen.SinglePlayerDLCMap || prev == MenuScreen.CoopMap || prev == MenuScreen.CoopDLCMap)) {
 						mem.SetScore(mem.GetPlatformLevelId(), 0);
 						state++;
 					}
@@ -118,19 +131,7 @@ namespace LiveSplit.Kalimba {
 			}
 
 			lastMenu = screen;
-
-			if (currentSplit > 0 && screen == MenuScreen.MainMenu) {
-				Model.Reset();
-				if (MessageBox.Show("Do you want to reset back to a new game state?", "Progression", MessageBoxButtons.YesNo) == DialogResult.Yes) {
-					mem.EraseData();
-				}
-			} else if (shouldSplit) {
-				if (currentSplit == 0) {
-					Model.Start();
-				} else {
-					Model.Split();
-				}
-			}
+			HandleNormalSplit(shouldSplit, screen);
 		}
 		private void HandleDarkVoid(MenuScreen screen) {
 			bool shouldSplit = false;
@@ -151,11 +152,58 @@ namespace LiveSplit.Kalimba {
 			}
 
 			lastMenu = screen;
+			HandleNormalSplit(shouldSplit, screen);
+		}
+		private void HandleJourneyCoop(MenuScreen screen) {
+			bool shouldSplit = false;
 
+			if (currentSplit == 0) {
+				shouldSplit = screen == MenuScreen.CoopPathSelect && mem.GetPlayingCinematic();
+			} else if (Model.CurrentState.CurrentPhase == TimerPhase.Running) {
+				MenuScreen prev = mem.GetPreviousMenu();
+				if (currentSplit < 10) {
+					shouldSplit = screen == MenuScreen.Loading && prev == MenuScreen.CoopMap && lastMenu != MenuScreen.Loading;
+					if (shouldSplit && currentSplit == 1 && state == 0) {
+						state++;
+						shouldSplit = false;
+					}
+				} else if (currentSplit == 10) {
+					shouldSplit = mem.GetEndLevel();
+				}
+			}
+
+			lastMenu = screen;
+			HandleNormalSplit(shouldSplit, screen);
+		}
+		private void HandleDarkVoidCoop(MenuScreen screen) {
+			bool shouldSplit = false;
+
+			if (currentSplit == 0) {
+				shouldSplit = screen == MenuScreen.CoopPathSelect && mem.GetPlayingCinematic();
+			} else if (Model.CurrentState.CurrentPhase == TimerPhase.Running) {
+				MenuScreen prev = mem.GetPreviousMenu();
+				if (currentSplit < 10) {
+					shouldSplit = screen == MenuScreen.Loading && prev == MenuScreen.CoopDLCMap && lastMenu != MenuScreen.Loading;
+					if (shouldSplit && currentSplit == 1 && state == 0) {
+						state++;
+						shouldSplit = false;
+					}
+				} else if (currentSplit == 10) {
+					shouldSplit = mem.GetEndLevel();
+				}
+			}
+
+			lastMenu = screen;
+			HandleNormalSplit(shouldSplit, screen);
+		}
+		private void HandleNormalSplit(bool shouldSplit, MenuScreen screen) {
 			if (currentSplit > 0 && screen == MenuScreen.MainMenu) {
 				Model.Reset();
-				if (MessageBox.Show("Do you want to reset back to a new game state?", "Progression", MessageBoxButtons.YesNo) == DialogResult.Yes) {
+				DialogResult result = MessageBox.Show("Click YES to reset to a new Game.\r\nClick NO to activate all Totems.\r\nClick CANCEL to do nothing.", "Progression", MessageBoxButtons.YesNoCancel);
+				if (result == DialogResult.Yes) {
 					mem.EraseData();
+				} else if (result == DialogResult.No) {
+					mem.SetScore(PlatformLevelId.None, 40);
 				}
 			} else if (shouldSplit) {
 				if (currentSplit == 0) {

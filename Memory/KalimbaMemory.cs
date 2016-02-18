@@ -175,6 +175,11 @@ namespace LiveSplit.Kalimba.Memory {
 		public void SetScore(PlatformLevelId id, int score) {
 			//PlatformManager.instance.imp.players[0].gameSinglePlayerStats._levels
 			IntPtr levels = MemoryReader.Read<IntPtr>(proc, platformManager, 0x10, 0x48, 0x10, 0x24, 0x0c);
+			SetScore(levels, id, score);
+			levels = MemoryReader.Read<IntPtr>(proc, platformManager, 0x10, 0x48, 0x10, 0x34, 0x1c, 0x14, 0x10, 0x0c);
+			SetScore(levels, id, score);
+		}
+		private void SetScore(IntPtr levels, PlatformLevelId id, int score) {
 			int listSize = MemoryReader.Read<int>(proc, levels, 0x20);
 			IntPtr keys = MemoryReader.Read<IntPtr>(proc, levels, 0x10);
 			levels = MemoryReader.Read<IntPtr>(proc, levels, 0x14);
@@ -183,20 +188,26 @@ namespace LiveSplit.Kalimba.Memory {
 				IntPtr itemHead = MemoryReader.Read<IntPtr>(proc, levels, 0x10 + (i * 4));
 				PlatformLevelId levelID = (PlatformLevelId)MemoryReader.Read<int>(proc, keys, 0x10 + (i * 4));
 
-				if (levelID == id) {
+				if (levelID == id || id == PlatformLevelId.None) {
 					MemoryReader.Write<int>(proc, itemHead, score, 0x0c);
 					MemoryReader.Write<int>(proc, itemHead, int.MaxValue, 0x10);
+					MemoryReader.Write<int>(proc, itemHead, (int)PersistentLevelStats.State.Completed, 0x08);
 				}
 			}
 		}
 		public void EraseData() {
-			//PlatformManager.instance.imp.players[0].gameSinglePlayerStats._rememberedMoments
+			//PlatformManager.instance.imp.players[0].gameSinglePlayerStats._rememberedMoments.Count
 			MemoryReader.Write<int>(proc, platformManager, 0, 0x10, 0x48, 0x10, 0x24, 0x08, 0x0c);
-
 			//PlatformManager.instance.imp.players[0].gameSinglePlayerStats._levels
-			IntPtr levels = MemoryReader.Read<IntPtr>(proc, platformManager, 0x10, 0x48, 0x10, 0x24, 0x0c);
+			ClearStats(MemoryReader.Read<IntPtr>(proc, platformManager, 0x10, 0x48, 0x10, 0x24, 0x0c));
+			//PlatformManager.instance.imp.players[0].platformStats._coop["guest"]._levels
+			IntPtr coopDic = MemoryReader.Read<IntPtr>(proc, platformManager, 0x10, 0x48, 0x10, 0x34, 0x1c, 0x14, 0x10);
+			//PlatformManager.instance.imp.players[0].platformStats._coop["guest"]._rememberedMoments.Count
+			MemoryReader.Write<int>(proc, coopDic, 0, 0x08, 0x0c);
+			ClearStats(MemoryReader.Read<IntPtr>(proc, coopDic, 0x0c));
+		}
+		private void ClearStats(IntPtr levels) {
 			int listSize = MemoryReader.Read<int>(proc, levels, 0x20);
-			IntPtr keys = MemoryReader.Read<IntPtr>(proc, levels, 0x10);
 			levels = MemoryReader.Read<IntPtr>(proc, levels, 0x14);
 
 			for (int i = 0; i < listSize; i++) {
