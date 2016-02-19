@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 namespace LiveSplit.Kalimba.Memory {
-	public class KalimbaMemory {
+	public partial class KalimbaMemory {
 		//These are checked in order, so they should be in reverse release order
 		private string[] versions = new string[1] { "v1.0" };
 		private Dictionary<string, Dictionary<string, string>> funcPatterns = new Dictionary<string, Dictionary<string, string>>() {

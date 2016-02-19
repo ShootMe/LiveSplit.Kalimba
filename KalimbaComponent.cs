@@ -42,6 +42,7 @@ namespace LiveSplit.Kalimba {
 			}
 
 			MenuScreen screen = mem.GetCurrentMenu();
+
 			if (Model != null) {
 				if (Model.CurrentState.CurrentPhase == TimerPhase.NotRunning) {
 					mainMenu = screen;
@@ -72,13 +73,10 @@ namespace LiveSplit.Kalimba {
 			bool shouldSplit = false;
 
 			if (currentSplit == 0) {
-				if (state == 0) {
-					MenuScreen prev = mem.GetPreviousMenu();
-					if (mem.GetCurrentMenu() == MenuScreen.Loading && (prev == MenuScreen.SinglePlayerMap || prev == MenuScreen.SinglePlayerDLCMap || prev == MenuScreen.CoopMap || prev == MenuScreen.CoopDLCMap)) {
-						mem.SetScore(mem.GetPlatformLevelId(), 0);
-						state++;
-					}
-				} else if (state == 1 && mem.GetPreviousMenu() == MenuScreen.Loading) {
+				MenuScreen prev = mem.GetPreviousMenu();
+				if (state == 0 && screen == MenuScreen.Loading && (prev == MenuScreen.SinglePlayerMap || prev == MenuScreen.SinglePlayerDLCMap || prev == MenuScreen.CoopMap || prev == MenuScreen.CoopDLCMap)) {
+					state++;
+				} else if (state == 1 && prev == MenuScreen.Loading) {
 					state++;
 					mem.SetScore(mem.GetPlatformLevelId(), 0);
 				} else if (state >= 2 && state <= 3) {
@@ -87,18 +85,14 @@ namespace LiveSplit.Kalimba {
 			} else if (state == 0 && mem.GetEndLevel()) {
 				state++;
 			} else if (state >= 1) {
-				shouldSplit = state++ == 2;
-			}
-
-			if (currentSplit > 0 && (screen == MenuScreen.SinglePlayerMap || screen == MenuScreen.SinglePlayerDLCMap || screen == MenuScreen.CoopMap || screen == MenuScreen.CoopDLCMap)) {
-				Model.Reset();
-			} else if (shouldSplit) {
-				if (currentSplit == 0) {
-					Model.Start();
+				if (screen != MenuScreen.InGame) {
+					state = 0;
 				} else {
-					Model.Split();
+					shouldSplit = state++ == 2;
 				}
 			}
+
+			HandleSplit(shouldSplit, screen, screen == MenuScreen.SinglePlayerMap || screen == MenuScreen.SinglePlayerDLCMap || screen == MenuScreen.CoopMap || screen == MenuScreen.CoopDLCMap);
 		}
 		private void HandleJourney(MenuScreen screen) {
 			bool shouldSplit = false;
@@ -131,7 +125,7 @@ namespace LiveSplit.Kalimba {
 			}
 
 			lastMenu = screen;
-			HandleNormalSplit(shouldSplit, screen);
+			HandleSplit(shouldSplit, screen);
 		}
 		private void HandleDarkVoid(MenuScreen screen) {
 			bool shouldSplit = false;
@@ -152,7 +146,7 @@ namespace LiveSplit.Kalimba {
 			}
 
 			lastMenu = screen;
-			HandleNormalSplit(shouldSplit, screen);
+			HandleSplit(shouldSplit, screen);
 		}
 		private void HandleJourneyCoop(MenuScreen screen) {
 			bool shouldSplit = false;
@@ -173,7 +167,7 @@ namespace LiveSplit.Kalimba {
 			}
 
 			lastMenu = screen;
-			HandleNormalSplit(shouldSplit, screen);
+			HandleSplit(shouldSplit, screen);
 		}
 		private void HandleDarkVoidCoop(MenuScreen screen) {
 			bool shouldSplit = false;
@@ -194,10 +188,10 @@ namespace LiveSplit.Kalimba {
 			}
 
 			lastMenu = screen;
-			HandleNormalSplit(shouldSplit, screen);
+			HandleSplit(shouldSplit, screen);
 		}
-		private void HandleNormalSplit(bool shouldSplit, MenuScreen screen) {
-			if (currentSplit > 0 && screen == MenuScreen.MainMenu) {
+		private void HandleSplit(bool shouldSplit, MenuScreen screen, bool shouldReset = false) {
+			if (currentSplit > 0 && (screen == MenuScreen.MainMenu || shouldReset)) {
 				Model.Reset();
 				DialogResult result = MessageBox.Show("Click YES to reset to a new Game.\r\nClick NO to activate all Totems.\r\nClick CANCEL to do nothing.", "Progression", MessageBoxButtons.YesNoCancel);
 				if (result == DialogResult.Yes) {
