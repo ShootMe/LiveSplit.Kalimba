@@ -42,7 +42,7 @@ namespace LiveSplit.Kalimba {
 			}
 
 			MenuScreen screen = mem.GetCurrentMenu();
-
+			
 			if (Model != null) {
 				if (Model.CurrentState.CurrentPhase == TimerPhase.NotRunning) {
 					mainMenu = screen;
@@ -193,11 +193,13 @@ namespace LiveSplit.Kalimba {
 		private void HandleSplit(bool shouldSplit, MenuScreen screen, bool shouldReset = false) {
 			if (currentSplit > 0 && (screen == MenuScreen.MainMenu || shouldReset)) {
 				Model.Reset();
-				DialogResult result = MessageBox.Show("Click YES to reset to a new Game.\r\nClick NO to activate all Totems.\r\nClick CANCEL to do nothing.", "Progression", MessageBoxButtons.YesNoCancel);
-				if (result == DialogResult.Yes) {
-					mem.EraseData();
-				} else if (result == DialogResult.No) {
-					mem.SetScore(PlatformLevelId.None, 40);
+				if (screen == MenuScreen.MainMenu) {
+					DialogResult result = MessageBox.Show("Click YES to reset to a new Game.\r\nClick NO to activate all Totems.\r\nClick CANCEL to do nothing.", "Progression", MessageBoxButtons.YesNoCancel);
+					if (result == DialogResult.Yes) {
+						mem.EraseData();
+					} else if (result == DialogResult.No) {
+						mem.SetScore(PlatformLevelId.None, 40);
+					}
 				}
 			} else if (shouldSplit) {
 				if (currentSplit == 0) {
