@@ -34,12 +34,7 @@ namespace LiveSplit.Kalimba {
 		}
 
 		public void GetValues() {
-			if (!mem.HookProcess()) {
-				if (currentSplit > 0) {
-					if (Model != null) { Model.Reset(); }
-				}
-				return;
-			}
+			if (!mem.HookProcess()) { return; }
 
 			MenuScreen screen = mem.GetCurrentMenu();
 			

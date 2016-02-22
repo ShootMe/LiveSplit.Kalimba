@@ -227,7 +227,7 @@ namespace LiveSplit.Kalimba.Memory {
 			if (!GetFrozen() || GetIsDying() || GetIsDisabled() || GetCurrentMenu() != MenuScreen.InGame) { return false; }
 			TotemState state1 = GetCurrentStateP1();
 			TotemState state2 = GetCurrentStateP2();
-			return state1 == TotemState.WALKING || state1 == TotemState.JUMP_DOWN || state1 == TotemState.JUMP_UP || state2 == TotemState.WALKING || state2 == TotemState.JUMP_DOWN || state2 == TotemState.JUMP_UP;
+			return state1 != TotemState.IDLE && state2 != TotemState.IDLE;
 		}
 
 		private string GetString(IntPtr address) {
