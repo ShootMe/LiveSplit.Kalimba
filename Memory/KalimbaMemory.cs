@@ -27,6 +27,27 @@ namespace LiveSplit.Kalimba.Memory {
 		private bool hasResetLevel = false;
 		private DateTime hookedTime;
 
+		public int GetCheckpointCount() {
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.checkpointManager.checkPoints.Length
+			return MemoryReader.Read<int>(proc, globalGameManager, 0x14, 0x0c, 0x14, 0x18, 0x0c);
+		}
+		public void SetCheckpoint(int num) {
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.checkpointManager.checkPoints.Length
+			int cpCount = GetCheckpointCount();
+			if (num >= cpCount) { num = cpCount - 1; }
+			if (num < 0) { num = 0; }
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].reachedCheckpoint
+			MemoryReader.Write<int>(proc, globalGameManager, num, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x18);
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].currentCheckpoint
+			MemoryReader.Write<int>(proc, globalGameManager, num, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x1c);
+		}
+		public int GetCurrentCheckpoint() {
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].reachedCheckpoint
+			int rCp = MemoryReader.Read<int>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x18);
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].currentCheckpoint
+			int cCp = MemoryReader.Read<int>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x1c);
+			return rCp > cCp ? rCp : cCp;
+		}
 		public TypingProgress GetTypingProgress() {
 			//TransitionManager.instance.hoebearLoadSpeech.speechBubble.typingProgress
 			TypingProgress tpHB = (TypingProgress)MemoryReader.Read<int>(proc, transitionManager, 0x1c, 0x1c, 0x138);
@@ -224,10 +245,7 @@ namespace LiveSplit.Kalimba.Memory {
 			}
 		}
 		public bool GetEndLevel() {
-			if (!GetFrozen() || GetIsDying() || GetIsDisabled() || GetCurrentMenu() != MenuScreen.InGame) { return false; }
-			TotemState state1 = GetCurrentStateP1();
-			TotemState state2 = GetCurrentStateP2();
-			return state1 != TotemState.IDLE && state2 != TotemState.IDLE;
+			return GetFrozen() && !GetIsDying() && !GetIsDisabled() && GetCurrentMenu() == MenuScreen.InGame;
 		}
 
 		private string GetString(IntPtr address) {

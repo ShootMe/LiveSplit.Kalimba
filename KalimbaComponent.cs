@@ -23,7 +23,7 @@ namespace LiveSplit.Kalimba {
 		private MenuScreen mainMenu = MenuScreen.MainMenu;
 		double levelTimes;
 		private int lastLevelComplete = 0;
-		internal static string[] keys = { "CurrentSplit", "World", "Campaign", "CurrentMenu", "PreviousMenu", "Cinematic", "LoadingLevel", "LevelTime", "Disabled", "Score", "Deaths", "LevelName", "Moving", "P1Y", "P2Y", "State", "EndLevel", "PlayerState", "Frozen", "InTransition", "PlatformLevel" };
+		internal static string[] keys = { "CurrentSplit", "World", "Campaign", "CurrentMenu", "PreviousMenu", "Cinematic", "LoadingLevel", "LevelTime", "Disabled", "Score", "Deaths", "LevelName", "P1Y", "P2Y", "State", "EndLevel", "PlayerState", "Frozen", "InTransition", "PlatformLevel", "Checkpoint", "CheckpointCount" };
 		private Dictionary<string, string> currentValues = new Dictionary<string, string>();
 
 		public KalimbaComponent() {
@@ -37,7 +37,7 @@ namespace LiveSplit.Kalimba {
 			if (!mem.HookProcess()) { return; }
 
 			MenuScreen screen = mem.GetCurrentMenu();
-			
+
 			if (Model != null) {
 				if (Model.CurrentState.CurrentPhase == TimerPhase.NotRunning) {
 					mainMenu = screen;
@@ -250,7 +250,6 @@ namespace LiveSplit.Kalimba {
 						case "Score": curr = mem.GetCurrentScore().ToString(); break;
 						case "Deaths": curr = mem.GetCurrentDeaths().ToString(); break;
 						case "LevelName": curr = mem.GetLevelName(); break;
-						//case "Moving": curr = mem.GetIsMoving().ToString(); break;
 						//case "P1Y": curr = mem.GetLastYP1().ToString("0"); break;
 						//case "P2Y": curr = mem.GetLastYP2().ToString("0"); break;
 						case "CurrentSplit": curr = currentSplit.ToString(); break;
@@ -260,6 +259,8 @@ namespace LiveSplit.Kalimba {
 						case "PlayerState": curr = mem.GetCurrentStateP1().ToString(); break;
 						case "InTransition": curr = mem.GetInTransition().ToString(); break;
 						case "PlatformLevel": curr = mem.GetPlatformLevelId().ToString(); break;
+						case "Checkpoint": curr = mem.GetCurrentCheckpoint().ToString(); break;
+						case "CheckpointCount": curr = mem.GetCheckpointCount().ToString(); break;
 						default: curr = ""; break;
 					}
 
