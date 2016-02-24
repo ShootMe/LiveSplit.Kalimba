@@ -151,6 +151,7 @@
 			this.MinimizeBox = false;
 			this.Name = "KalimbaManager";
 			this.Text = "Kalimba Manager";
+			this.TopMost = true;
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.KalimbaManager_FormClosing);
 			this.ResumeLayout(false);
 			this.PerformLayout();
