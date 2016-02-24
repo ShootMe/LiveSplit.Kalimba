@@ -25,19 +25,29 @@ namespace LiveSplit.Kalimba {
 		private int lastLevelComplete = 0;
 		internal static string[] keys = { "CurrentSplit", "World", "Campaign", "CurrentMenu", "PreviousMenu", "Cinematic", "LoadingLevel", "LevelTime", "Disabled", "Score", "Deaths", "LevelName", "P1Y", "P2Y", "State", "EndLevel", "PlayerState", "Frozen", "InTransition", "PlatformLevel", "Checkpoint", "CheckpointCount" };
 		private Dictionary<string, string> currentValues = new Dictionary<string, string>();
+		private KalimbaManager manager;
 
 		public KalimbaComponent() {
 			mem = new KalimbaMemory();
 			foreach (string key in keys) {
 				currentValues[key] = "";
 			}
+			manager = new KalimbaManager();
+			manager.Memory = mem;
+			manager.Show();
+			manager.Visible = false;
 		}
 
 		public void GetValues() {
-			if (!mem.HookProcess()) { return; }
+			if (!mem.HookProcess()) {
+				if (manager.Visible) { manager.Invoke((Action)delegate () { manager.Hide(); }); }
+				return;
+			} else if (!manager.Visible) {
+				manager.Invoke((Action)delegate () { manager.Show(); });
+			}
 
 			MenuScreen screen = mem.GetCurrentMenu();
-
+			
 			if (Model != null) {
 				if (Model.CurrentState.CurrentPhase == TimerPhase.NotRunning) {
 					mainMenu = screen;
@@ -188,14 +198,6 @@ namespace LiveSplit.Kalimba {
 		private void HandleSplit(bool shouldSplit, MenuScreen screen, bool shouldReset = false) {
 			if (currentSplit > 0 && (screen == MenuScreen.MainMenu || shouldReset)) {
 				Model.Reset();
-				if (screen == MenuScreen.MainMenu) {
-					DialogResult result = MessageBox.Show("Click YES to reset to a new Game.\r\nClick NO to activate all Totems.\r\nClick CANCEL to do nothing.", "Progression", MessageBoxButtons.YesNoCancel);
-					if (result == DialogResult.Yes) {
-						mem.EraseData();
-					} else if (result == DialogResult.No) {
-						mem.SetScore(PlatformLevelId.None, 40);
-					}
-				}
 			} else if (shouldSplit) {
 				if (currentSplit == 0) {
 					Model.Start();

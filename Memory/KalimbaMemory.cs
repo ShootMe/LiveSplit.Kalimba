@@ -23,7 +23,7 @@ namespace LiveSplit.Kalimba.Memory {
 		private IntPtr platformManager = IntPtr.Zero;
 		private IntPtr transitionManager = IntPtr.Zero;
 		private Process proc;
-		private bool isHooked = false;
+		public bool IsHooked { get; set; } = false;
 		private bool hasResetLevel = false;
 		private DateTime hookedTime;
 
@@ -264,11 +264,11 @@ namespace LiveSplit.Kalimba.Memory {
 					platformManager = IntPtr.Zero;
 					totemPole = IntPtr.Zero;
 					transitionManager = IntPtr.Zero;
-					isHooked = false;
-					return isHooked;
+					IsHooked = false;
+					return IsHooked;
 				}
 
-				isHooked = true;
+				IsHooked = true;
 				hookedTime = DateTime.Now;
 			}
 
@@ -278,7 +278,7 @@ namespace LiveSplit.Kalimba.Memory {
 			GetPointer(ref totemPole, "TotemPole");
 			GetPointer(ref transitionManager, "TransitionManager");
 
-			return isHooked;
+			return IsHooked;
 		}
 		private void GetPointer(ref IntPtr ptr, string name) {
 			if (ptr == IntPtr.Zero) {
