@@ -30,8 +30,8 @@
 			this.btnNextCheckpoint = new System.Windows.Forms.Button();
 			this.lblCurrentCheckpoint = new System.Windows.Forms.Label();
 			this.lblP1Pos = new System.Windows.Forms.Label();
-			this.lblP2Pos = new System.Windows.Forms.Label();
 			this.lblLevel = new System.Windows.Forms.Label();
+			this.lblP2Pos = new System.Windows.Forms.Label();
 			this.SuspendLayout();
 			// 
 			// btnNewGame
@@ -40,7 +40,7 @@
 			this.btnNewGame.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.btnNewGame.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.btnNewGame.ForeColor = System.Drawing.Color.Black;
-			this.btnNewGame.Location = new System.Drawing.Point(12, 12);
+			this.btnNewGame.Location = new System.Drawing.Point(41, 12);
 			this.btnNewGame.Name = "btnNewGame";
 			this.btnNewGame.Size = new System.Drawing.Size(113, 29);
 			this.btnNewGame.TabIndex = 0;
@@ -54,7 +54,7 @@
 			this.btnAllTotems.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.btnAllTotems.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.btnAllTotems.ForeColor = System.Drawing.Color.Black;
-			this.btnAllTotems.Location = new System.Drawing.Point(131, 12);
+			this.btnAllTotems.Location = new System.Drawing.Point(160, 12);
 			this.btnAllTotems.Name = "btnAllTotems";
 			this.btnAllTotems.Size = new System.Drawing.Size(113, 29);
 			this.btnAllTotems.TabIndex = 1;
@@ -68,7 +68,7 @@
 			this.btnPreviousCheckpoint.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.btnPreviousCheckpoint.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.btnPreviousCheckpoint.ForeColor = System.Drawing.Color.Black;
-			this.btnPreviousCheckpoint.Location = new System.Drawing.Point(12, 40);
+			this.btnPreviousCheckpoint.Location = new System.Drawing.Point(41, 40);
 			this.btnPreviousCheckpoint.Name = "btnPreviousCheckpoint";
 			this.btnPreviousCheckpoint.Size = new System.Drawing.Size(113, 29);
 			this.btnPreviousCheckpoint.TabIndex = 2;
@@ -82,7 +82,7 @@
 			this.btnNextCheckpoint.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.btnNextCheckpoint.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.btnNextCheckpoint.ForeColor = System.Drawing.Color.Black;
-			this.btnNextCheckpoint.Location = new System.Drawing.Point(131, 40);
+			this.btnNextCheckpoint.Location = new System.Drawing.Point(160, 40);
 			this.btnNextCheckpoint.Name = "btnNextCheckpoint";
 			this.btnNextCheckpoint.Size = new System.Drawing.Size(113, 29);
 			this.btnNextCheckpoint.TabIndex = 3;
@@ -106,19 +106,9 @@
 			this.lblP1Pos.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.lblP1Pos.Location = new System.Drawing.Point(12, 112);
 			this.lblP1Pos.Name = "lblP1Pos";
-			this.lblP1Pos.Size = new System.Drawing.Size(116, 20);
+			this.lblP1Pos.Size = new System.Drawing.Size(115, 20);
 			this.lblP1Pos.TabIndex = 5;
-			this.lblP1Pos.Text = "P1: (0.00, 0.00)";
-			// 
-			// lblP2Pos
-			// 
-			this.lblP2Pos.AutoSize = true;
-			this.lblP2Pos.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblP2Pos.Location = new System.Drawing.Point(12, 132);
-			this.lblP2Pos.Name = "lblP2Pos";
-			this.lblP2Pos.Size = new System.Drawing.Size(116, 20);
-			this.lblP2Pos.TabIndex = 6;
-			this.lblP2Pos.Text = "P2: (0.00, 0.00)";
+			this.lblP1Pos.Text = "T1: (0.00, 0.00)";
 			// 
 			// lblLevel
 			// 
@@ -130,12 +120,22 @@
 			this.lblLevel.TabIndex = 7;
 			this.lblLevel.Text = "Level: ";
 			// 
+			// lblP2Pos
+			// 
+			this.lblP2Pos.AutoSize = true;
+			this.lblP2Pos.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.lblP2Pos.Location = new System.Drawing.Point(160, 112);
+			this.lblP2Pos.Name = "lblP2Pos";
+			this.lblP2Pos.Size = new System.Drawing.Size(115, 20);
+			this.lblP2Pos.TabIndex = 6;
+			this.lblP2Pos.Text = "T2: (0.00, 0.00)";
+			// 
 			// KalimbaManager
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.Color.White;
-			this.ClientSize = new System.Drawing.Size(256, 161);
+			this.ClientSize = new System.Drawing.Size(314, 145);
 			this.Controls.Add(this.lblLevel);
 			this.Controls.Add(this.lblP2Pos);
 			this.Controls.Add(this.lblP1Pos);
@@ -166,7 +166,7 @@
 		private System.Windows.Forms.Button btnNextCheckpoint;
 		private System.Windows.Forms.Label lblCurrentCheckpoint;
 		private System.Windows.Forms.Label lblP1Pos;
-		private System.Windows.Forms.Label lblP2Pos;
 		private System.Windows.Forms.Label lblLevel;
+		private System.Windows.Forms.Label lblP2Pos;
 	}
 }

@@ -104,9 +104,17 @@ namespace LiveSplit.Kalimba.Memory {
 			//GlobalGameManager.instance.currentSession.currentScore
 			return MemoryReader.Read<int>(proc, globalGameManager, 0x14, 0x10);
 		}
+		public void SetCurrentScore(int score) {
+			//GlobalGameManager.instance.currentSession.currentScore
+			MemoryReader.Write<int>(proc, globalGameManager, score, 0x14, 0x10);
+		}
 		public int GetCurrentDeaths() {
 			//GlobalGameManager.instance.currentSession.currentDeaths
 			return MemoryReader.Read<int>(proc, globalGameManager, 0x14, 0x14);
+		}
+		public void SetCurrentDeaths(int deaths) {
+			//GlobalGameManager.instance.currentSession.currentDeaths
+			MemoryReader.Write<int>(proc, globalGameManager, deaths, 0x14, 0x14);
 		}
 		public float GetLevelTime() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.levelMetric.completionTime
@@ -193,10 +201,11 @@ namespace LiveSplit.Kalimba.Memory {
 			}
 			return null;
 		}
-		public void SetScore(PlatformLevelId id, int score) {
+		public void SetLevelScore(PlatformLevelId id, int score) {
 			//PlatformManager.instance.imp.players[0].gameSinglePlayerStats._levels
 			IntPtr levels = MemoryReader.Read<IntPtr>(proc, platformManager, 0x10, 0x48, 0x10, 0x24, 0x0c);
 			SetScore(levels, id, score);
+			//PlatformManager.instance.imp.players[0].platformStats._coop["guest"]._levels
 			levels = MemoryReader.Read<IntPtr>(proc, platformManager, 0x10, 0x48, 0x10, 0x34, 0x1c, 0x14, 0x10, 0x0c);
 			SetScore(levels, id, score);
 		}

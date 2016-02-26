@@ -11,7 +11,7 @@ using LiveSplit.Kalimba.Memory;
 namespace LiveSplit.Kalimba {
 	public class KalimbaComponent : IComponent {
 		public string ComponentName { get { return "Kalimba Autosplitter"; } }
-		protected TimerModel Model { get; set; }
+		public TimerModel Model { get; set; }
 		public IDictionary<string, Action> ContextMenuControls { get { return null; } }
 		private KalimbaMemory mem;
 		private int currentSplit = 0;
@@ -34,6 +34,7 @@ namespace LiveSplit.Kalimba {
 			}
 			manager = new KalimbaManager();
 			manager.Memory = mem;
+			manager.Component = this;
 			manager.Show();
 			manager.Visible = false;
 		}
@@ -47,7 +48,7 @@ namespace LiveSplit.Kalimba {
 			}
 
 			MenuScreen screen = mem.GetCurrentMenu();
-			
+
 			if (Model != null) {
 				if (Model.CurrentState.CurrentPhase == TimerPhase.NotRunning) {
 					mainMenu = screen;
@@ -83,7 +84,7 @@ namespace LiveSplit.Kalimba {
 					state++;
 				} else if (state == 1 && prev == MenuScreen.Loading) {
 					state++;
-					mem.SetScore(mem.GetPlatformLevelId(), 0);
+					mem.SetLevelScore(mem.GetPlatformLevelId(), 0);
 				} else if (state >= 2 && state <= 3) {
 					shouldSplit = state++ == 3;
 				}
@@ -251,18 +252,12 @@ namespace LiveSplit.Kalimba {
 						case "LevelTime": curr = mem.GetLevelTime().ToString(); break;
 						case "Score": curr = mem.GetCurrentScore().ToString(); break;
 						case "Deaths": curr = mem.GetCurrentDeaths().ToString(); break;
-						case "LevelName": curr = mem.GetLevelName(); break;
-						//case "P1Y": curr = mem.GetLastYP1().ToString("0"); break;
-						//case "P2Y": curr = mem.GetLastYP2().ToString("0"); break;
 						case "CurrentSplit": curr = currentSplit.ToString(); break;
 						case "State": curr = state.ToString(); break;
 						case "EndLevel": curr = mem.GetEndLevel().ToString(); break;
 						case "Frozen": curr = mem.GetFrozen().ToString(); break;
 						case "PlayerState": curr = mem.GetCurrentStateP1().ToString(); break;
 						case "InTransition": curr = mem.GetInTransition().ToString(); break;
-						case "PlatformLevel": curr = mem.GetPlatformLevelId().ToString(); break;
-						case "Checkpoint": curr = mem.GetCurrentCheckpoint().ToString(); break;
-						case "CheckpointCount": curr = mem.GetCheckpointCount().ToString(); break;
 						default: curr = ""; break;
 					}
 
@@ -352,6 +347,10 @@ namespace LiveSplit.Kalimba {
 		public float PaddingRight { get { return 0; } }
 		public float PaddingTop { get { return 0; } }
 		public float VerticalHeight { get { return 0; } }
-		public void Dispose() { }
+		public void Dispose() {
+			manager.Memory = null;
+			manager.Close();
+			manager.Dispose();
+		}
 	}
 }
