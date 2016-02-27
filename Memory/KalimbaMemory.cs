@@ -178,6 +178,15 @@ namespace LiveSplit.Kalimba.Memory {
 		public PersistentLevelStats GetLevelStats(PlatformLevelId id) {
 			//PlatformManager.instance.imp.players[0].gameSinglePlayerStats._levels
 			IntPtr levels = MemoryReader.Read<IntPtr>(proc, platformManager, 0x10, 0x48, 0x10, 0x24, 0x0c);
+			PersistentLevelStats level = GetLevelStats(levels, id);
+			if (level == null) {
+				//PlatformManager.instance.imp.players[0].platformStats._coop["guest"]._levels
+				levels = MemoryReader.Read<IntPtr>(proc, platformManager, 0x10, 0x48, 0x10, 0x34, 0x1c, 0x14, 0x10, 0x0c);
+				return GetLevelStats(levels, id);
+			}
+			return level;
+		}
+		private PersistentLevelStats GetLevelStats(IntPtr levels, PlatformLevelId id) {
 			int listSize = MemoryReader.Read<int>(proc, levels, 0x20);
 			IntPtr keys = MemoryReader.Read<IntPtr>(proc, levels, 0x10);
 			levels = MemoryReader.Read<IntPtr>(proc, levels, 0x14);

@@ -23,7 +23,7 @@ namespace LiveSplit.Kalimba {
 		private MenuScreen mainMenu = MenuScreen.MainMenu;
 		double levelTimes;
 		private int lastLevelComplete = 0;
-		internal static string[] keys = { "CurrentSplit", "World", "Campaign", "CurrentMenu", "PreviousMenu", "Cinematic", "LoadingLevel", "LevelTime", "Disabled", "Score", "Deaths", "LevelName", "P1Y", "P2Y", "State", "EndLevel", "PlayerState", "Frozen", "InTransition", "PlatformLevel", "Checkpoint", "CheckpointCount" };
+		internal static string[] keys = { "CurrentSplit", "World", "Campaign", "CurrentMenu", "PreviousMenu", "Cinematic", "LoadingLevel", "LevelTime", "Disabled", "Score", "Deaths", "LevelName", "P1Y", "P2Y", "State", "EndLevel", "PlayerState", "Frozen", "InTransition", "PlatformLevel", "Checkpoint", "CheckpointCount", "Stats" };
 		private Dictionary<string, string> currentValues = new Dictionary<string, string>();
 		private KalimbaManager manager;
 
@@ -73,7 +73,7 @@ namespace LiveSplit.Kalimba {
 				HandleGameTimes(screen);
 			}
 
-			LogValues();
+			LogValues(screen);
 		}
 		private void HandleIL(MenuScreen screen) {
 			bool shouldSplit = false;
@@ -229,7 +229,7 @@ namespace LiveSplit.Kalimba {
 				}
 			}
 		}
-		private void LogValues() {
+		private void LogValues(MenuScreen screen) {
 			if (lastLogCheck == 0) {
 				hasLog = File.Exists("_Kalimba.log");
 				lastLogCheck = 300;
@@ -258,6 +258,14 @@ namespace LiveSplit.Kalimba {
 						case "Frozen": curr = mem.GetFrozen().ToString(); break;
 						case "PlayerState": curr = mem.GetCurrentStateP1().ToString(); break;
 						case "InTransition": curr = mem.GetInTransition().ToString(); break;
+						case "Stats":
+							if (screen == MenuScreen.SinglePlayerEndLevelFeedBack) {
+								PersistentLevelStats level = mem.GetLevelStats(mem.GetPlatformLevelId());
+								curr = level == null ? "" : level.maxScore + " - " + level.minMillisecondsForMaxScore;
+							} else {
+								curr = "";
+							}
+							break;
 						default: curr = ""; break;
 					}
 
