@@ -40,12 +40,16 @@ namespace LiveSplit.Kalimba.Memory {
 			MemoryReader.Write<int>(proc, globalGameManager, num, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x18);
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].currentCheckpoint
 			MemoryReader.Write<int>(proc, globalGameManager, num, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x1c);
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[1].reachedCheckpoint
+			MemoryReader.Write<int>(proc, globalGameManager, num, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x18);
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[1].currentCheckpoint
+			MemoryReader.Write<int>(proc, globalGameManager, num, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x1c);
 		}
 		public int GetCurrentCheckpoint() {
-			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].reachedCheckpoint
-			int rCp = MemoryReader.Read<int>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x18);
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].currentCheckpoint
-			int cCp = MemoryReader.Read<int>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x1c);
+			int rCp = MemoryReader.Read<int>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x1c);
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[1].currentCheckpoint
+			int cCp = MemoryReader.Read<int>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x1c);
 			return rCp > cCp ? rCp : cCp;
 		}
 		public TypingProgress GetTypingProgress() {
