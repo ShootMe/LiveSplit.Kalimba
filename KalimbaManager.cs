@@ -6,6 +6,7 @@ namespace LiveSplit.Kalimba {
 	public partial class KalimbaManager : Form {
 		public KalimbaMemory Memory { get; set; }
 		public KalimbaComponent Component { get; set; }
+		private int lockedCheckpoint = -1;
 		public KalimbaManager() {
 			InitializeComponent();
 			Visible = false;
@@ -40,12 +41,18 @@ namespace LiveSplit.Kalimba {
 			try {
 				int cp = Memory.GetCurrentCheckpoint();
 				Memory.SetCheckpoint(cp - 1);
+				if (lockedCheckpoint >= 0) {
+					lockedCheckpoint = Memory.GetCurrentCheckpoint();
+				}
 			} catch { }
 		}
 		private void btnNextCheckpoint_Click(object sender, System.EventArgs e) {
 			try {
 				int cp = Memory.GetCurrentCheckpoint();
 				Memory.SetCheckpoint(cp + 1);
+				if (lockedCheckpoint >= 0) {
+					lockedCheckpoint = Memory.GetCurrentCheckpoint();
+				}
 			} catch { }
 		}
 
@@ -62,15 +69,38 @@ namespace LiveSplit.Kalimba {
 				this.Invoke((Action)UpdateValues);
 			} else if (this.Visible && Memory != null && Memory.IsHooked) {
 				MenuScreen menu = Memory.GetCurrentMenu();
-				btnNextCheckpoint.Enabled = menu == MenuScreen.InGame && (Component == null || Component.Model == null || Component.Model.CurrentState.CurrentPhase != Model.TimerPhase.Running);
-				btnPreviousCheckpoint.Enabled = menu == MenuScreen.InGame && (Component == null || Component.Model == null || Component.Model.CurrentState.CurrentPhase != Model.TimerPhase.Running);
+				bool inGameNotRunning = menu == MenuScreen.InGame && (Component == null || Component.Model == null || Component.Model.CurrentState.CurrentPhase != Model.TimerPhase.Running);
+				btnNextCheckpoint.Enabled = inGameNotRunning;
+				btnPreviousCheckpoint.Enabled = inGameNotRunning;
 				lblLevel.Text = "Level: " + Memory.GetLevelName();
-				lblCurrentCheckpoint.Text = "Checkpoint: " + (Memory.GetCurrentCheckpoint() + 1) + " / " + Memory.GetCheckpointCount();
+				int currentCheckpoint = Memory.GetCurrentCheckpoint();
+				if (chkLockCheckpoint.Checked && currentCheckpoint != lockedCheckpoint) {
+					Memory.SetCheckpoint(lockedCheckpoint);
+					currentCheckpoint = lockedCheckpoint;
+				}
+				lblCurrentCheckpoint.Text = "Checkpoint: " + (currentCheckpoint + 1) + " / " + Memory.GetCheckpointCount();
 				lblP1Pos.Text = "T1: (" + Memory.GetLastXP1().ToString("0.00") + ", " + Memory.GetLastYP1().ToString("0.00") + ")";
 				lblP2Pos.Text = "T2: (" + Memory.GetLastXP2().ToString("0.00") + ", " + Memory.GetLastYP2().ToString("0.00") + ")";
+				chkPickups.Enabled = inGameNotRunning;
+				chkLockCheckpoint.Enabled = inGameNotRunning;
+
+				if (!inGameNotRunning) {
+					chkLockCheckpoint.Checked = false;
+					chkPickups.Checked = false;
+				}
 			} else if (Memory == null && this.Visible) {
 				this.Hide();
 			}
+		}
+		private void chkLockCheckpoint_CheckedChanged(object sender, EventArgs e) {
+			if (chkLockCheckpoint.Checked) {
+				lockedCheckpoint = Memory.GetCurrentCheckpoint();
+			} else {
+				lockedCheckpoint = -1;
+			}
+		}
+		private void chkPickups_CheckedChanged(object sender, EventArgs e) {
+			Memory.PassthroughPickups(chkPickups.Checked);
 		}
 	}
 }

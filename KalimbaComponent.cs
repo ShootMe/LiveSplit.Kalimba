@@ -73,6 +73,7 @@ namespace LiveSplit.Kalimba {
 				HandleGameTimes(screen);
 			}
 
+			lastMenu = screen;
 			LogValues(screen);
 		}
 		private void HandleIL(MenuScreen screen) {
@@ -130,7 +131,6 @@ namespace LiveSplit.Kalimba {
 				}
 			}
 
-			lastMenu = screen;
 			HandleSplit(shouldSplit, screen);
 		}
 		private void HandleDarkVoid(MenuScreen screen) {
@@ -151,7 +151,6 @@ namespace LiveSplit.Kalimba {
 				}
 			}
 
-			lastMenu = screen;
 			HandleSplit(shouldSplit, screen);
 		}
 		private void HandleJourneyCoop(MenuScreen screen) {
@@ -172,7 +171,6 @@ namespace LiveSplit.Kalimba {
 				}
 			}
 
-			lastMenu = screen;
 			HandleSplit(shouldSplit, screen);
 		}
 		private void HandleDarkVoidCoop(MenuScreen screen) {
@@ -193,7 +191,6 @@ namespace LiveSplit.Kalimba {
 				}
 			}
 
-			lastMenu = screen;
 			HandleSplit(shouldSplit, screen);
 		}
 		private void HandleSplit(bool shouldSplit, MenuScreen screen, bool shouldReset = false) {

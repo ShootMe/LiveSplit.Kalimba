@@ -32,6 +32,8 @@
 			this.lblP1Pos = new System.Windows.Forms.Label();
 			this.lblLevel = new System.Windows.Forms.Label();
 			this.lblP2Pos = new System.Windows.Forms.Label();
+			this.chkLockCheckpoint = new System.Windows.Forms.CheckBox();
+			this.chkPickups = new System.Windows.Forms.CheckBox();
 			this.SuspendLayout();
 			// 
 			// btnNewGame
@@ -96,9 +98,9 @@
 			this.lblCurrentCheckpoint.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.lblCurrentCheckpoint.Location = new System.Drawing.Point(12, 92);
 			this.lblCurrentCheckpoint.Name = "lblCurrentCheckpoint";
-			this.lblCurrentCheckpoint.Size = new System.Drawing.Size(106, 20);
+			this.lblCurrentCheckpoint.Size = new System.Drawing.Size(128, 20);
 			this.lblCurrentCheckpoint.TabIndex = 4;
-			this.lblCurrentCheckpoint.Text = "Checkpoint: 0";
+			this.lblCurrentCheckpoint.Text = "Checkpoint: 1/12";
 			// 
 			// lblP1Pos
 			// 
@@ -130,12 +132,38 @@
 			this.lblP2Pos.TabIndex = 6;
 			this.lblP2Pos.Text = "T2: (0.00, 0.00)";
 			// 
+			// chkLockCheckpoint
+			// 
+			this.chkLockCheckpoint.AutoSize = true;
+			this.chkLockCheckpoint.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.chkLockCheckpoint.Location = new System.Drawing.Point(156, 91);
+			this.chkLockCheckpoint.Name = "chkLockCheckpoint";
+			this.chkLockCheckpoint.Size = new System.Drawing.Size(146, 24);
+			this.chkLockCheckpoint.TabIndex = 8;
+			this.chkLockCheckpoint.Text = "Lock Checkpoint";
+			this.chkLockCheckpoint.UseVisualStyleBackColor = true;
+			this.chkLockCheckpoint.CheckedChanged += new System.EventHandler(this.chkLockCheckpoint_CheckedChanged);
+			// 
+			// chkPickups
+			// 
+			this.chkPickups.AutoSize = true;
+			this.chkPickups.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.chkPickups.Location = new System.Drawing.Point(16, 139);
+			this.chkPickups.Name = "chkPickups";
+			this.chkPickups.Size = new System.Drawing.Size(177, 24);
+			this.chkPickups.TabIndex = 9;
+			this.chkPickups.Text = "Passthrough Pickups";
+			this.chkPickups.UseVisualStyleBackColor = true;
+			this.chkPickups.CheckedChanged += new System.EventHandler(this.chkPickups_CheckedChanged);
+			// 
 			// KalimbaManager
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.Color.White;
-			this.ClientSize = new System.Drawing.Size(314, 145);
+			this.ClientSize = new System.Drawing.Size(314, 171);
+			this.Controls.Add(this.chkPickups);
+			this.Controls.Add(this.chkLockCheckpoint);
 			this.Controls.Add(this.lblLevel);
 			this.Controls.Add(this.lblP2Pos);
 			this.Controls.Add(this.lblP1Pos);
@@ -168,5 +196,7 @@
 		private System.Windows.Forms.Label lblP1Pos;
 		private System.Windows.Forms.Label lblLevel;
 		private System.Windows.Forms.Label lblP2Pos;
+		private System.Windows.Forms.CheckBox chkLockCheckpoint;
+		private System.Windows.Forms.CheckBox chkPickups;
 	}
 }

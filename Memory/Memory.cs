@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 namespace LiveSplit.Kalimba.Memory {
@@ -161,7 +162,55 @@ namespace LiveSplit.Kalimba.Memory {
 
 			return returnAddresses;
 		}
+		public static List<IntPtr> FindAllSignatures(Process targetProcess, string searchString) {
+			List<IntPtr> returnAddresses = new List<IntPtr>();
+			MemorySignature byteCode = GetSignature(searchString);
 
+			try {
+				long minAddress = 0;
+				long maxAddress = 0x7fffffff;
+
+				MEMORY_BASIC_INFORMATION memInfo;
+
+				int totalBytesRead = 0;
+				while (minAddress < maxAddress) {
+					SafeNativeMethods.VirtualQueryEx(targetProcess.Handle, (IntPtr)minAddress, out memInfo, (uint)Marshal.SizeOf(typeof(MEMORY_BASIC_INFORMATION)));
+
+					// if this memory chunk is accessible
+					if ((memInfo.AllocationProtect & PAGE_EXECUTE_READWRITE) != 0 && memInfo.Type == MEM_PRIVATE && memInfo.State == MEM_COMMIT) {
+						byte[] buffer = new byte[memInfo.RegionSize.ToInt32()];
+
+						int bytesRead = 0;
+						// read everything in the buffer above
+						if (SafeNativeMethods.ReadProcessMemory(targetProcess.Handle, memInfo.BaseAddress, buffer, memInfo.RegionSize.ToInt32(), out bytesRead)) {
+							totalBytesRead += bytesRead;
+
+							SearchAllMemory(buffer, byteCode, (IntPtr)minAddress, returnAddresses);
+						}
+					}
+
+					// move to the next memory chunk
+					minAddress += memInfo.RegionSize.ToInt32();
+				}
+
+			} catch { }
+
+			return returnAddresses;
+		}
+		private static void SearchAllMemory(byte[] buffer, MemorySignature byteCode, IntPtr currentAddress, List<IntPtr> foundAddresses) {
+			byte[] bytes = byteCode.byteCode;
+			byte[] wild = byteCode.wildCards;
+			for (int i = 0, j = 0; i <= buffer.Length - bytes.Length; i++) {
+				int k = i;
+				while (j < bytes.Length && (wild[j] == 1 || buffer[k] == bytes[j])) {
+					k++; j++;
+				}
+				if (j == bytes.Length) {
+					foundAddresses.Add(currentAddress + i + bytes.Length + byteCode.offset);
+				}
+				j = 0;
+			}
+		}
 		private static bool SearchMemory(byte[] buffer, MemorySignature byteCode, IntPtr currentAddress, ref IntPtr foundAddress) {
 			byte[] bytes = byteCode.byteCode;
 			byte[] wild = byteCode.wildCards;

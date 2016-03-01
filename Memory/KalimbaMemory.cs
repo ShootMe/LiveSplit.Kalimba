@@ -27,6 +27,13 @@ namespace LiveSplit.Kalimba.Memory {
 		private bool hasResetLevel = false;
 		private DateTime hookedTime;
 
+		public void PassthroughPickups(bool passthrough) {
+			List<IntPtr> pickups = MemoryReader.FindAllSignatures(proc, "000000000000000000????000000A040????????????????00000000000000000000003f");
+			for (int i = 0; i < pickups.Count; i++) {
+				IntPtr pickup = pickups[i] - 0x4c;
+				MemoryReader.Write<bool>(proc, pickup, passthrough, 0x31);
+			}
+		}
 		public int GetCheckpointCount() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.checkpointManager.checkPoints.Length
 			return MemoryReader.Read<int>(proc, globalGameManager, 0x14, 0x0c, 0x14, 0x18, 0x0c);
