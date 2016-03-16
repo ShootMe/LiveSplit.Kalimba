@@ -341,7 +341,7 @@ namespace LiveSplit.Kalimba {
 
 		public Control GetSettingsControl(LayoutMode mode) { return null; }
 		public void SetSettings(XmlNode settings) { }
-		public XmlNode GetSettings(XmlDocument document) { return null; }
+		public XmlNode GetSettings(XmlDocument document) { return document.CreateElement("Settings"); }
 		public void DrawHorizontal(Graphics g, LiveSplitState state, float height, Region clipRegion) { }
 		public void DrawVertical(Graphics g, LiveSplitState state, float width, Region clipRegion) { }
 		public float HorizontalWidth { get { return 0; } }
