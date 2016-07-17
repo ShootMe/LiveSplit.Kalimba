@@ -4,39 +4,31 @@ using System.Diagnostics;
 using System.Text;
 namespace LiveSplit.Kalimba.Memory {
 	public partial class KalimbaMemory {
-		//These are checked in order, so they should be in reverse release order
-		private string[] versions = new string[1] { "v1.0" };
-		private Dictionary<string, Dictionary<string, string>> funcPatterns = new Dictionary<string, Dictionary<string, string>>() {
-			{"v1.0", new Dictionary<string, string>() {
-					{"GlobalGameManager", "558BEC5783EC34C745E4000000008B4508C74034000000008B05????????83EC086A0050E8????????83C41085C0743A8B05????????8B4D0883EC085150|-12"},
-					{"MenuManager",       "558BEC53575683EC0C8B05????????83EC086A0050E8????????83C41085C074338B05????????83EC08FF750850E8????????83C41085C0741A83EC0CFF7508E8|-30"},
-					{"PlatformManager",   "558BEC535683EC108B05????????83EC0C50E8????????83C41085C0740B8B05"},
-					{"TotemPole",         "D95810D94510D958148B4D1489480CC9C3000000558BEC83EC08B8????????8B4D088908C9C3000000000000558BEC5683EC0483EC0C|-27"},
-					{"TransitionManager", "558BEC5783EC048B7D088B05????????83EC086A0050E8????????83C41085C074348B05????????83EC085750E8????????83C41085C0741D83EC0C57E8????????83C41083EC0C50E8????????83C410E9????????B8" }
-			}},
-		};
-
-		private Dictionary<string, string> versionedFuncPatterns = new Dictionary<string, string>();
-		private IntPtr globalGameManager = IntPtr.Zero;
-		private IntPtr menuManager = IntPtr.Zero;
-		private IntPtr totemPole = IntPtr.Zero;
-		private IntPtr platformManager = IntPtr.Zero;
-		private IntPtr transitionManager = IntPtr.Zero;
-		private Process proc;
-		public bool IsHooked { get; set; } = false;
+		private ProgramPointer globalGameManager, menuManager, totemPole, platformManager, transitionManager;
 		private bool hasResetLevel = false;
-		private DateTime hookedTime;
+		public Process Program { get; set; }
+		public bool IsHooked { get; set; } = false;
+		private DateTime lastHooked;
+
+		public KalimbaMemory() {
+			globalGameManager = new ProgramPointer(this, "GlobalGameManager");
+			menuManager = new ProgramPointer(this, "MenuManager");
+			totemPole = new ProgramPointer(this, "TotemPole");
+			platformManager = new ProgramPointer(this, "PlatformManager");
+			transitionManager = new ProgramPointer(this, "TransitionManager");
+			lastHooked = DateTime.MinValue;
+		}
 
 		public void PassthroughPickups(bool passthrough) {
-			List<IntPtr> pickups = MemoryReader.FindAllSignatures(proc, "000000000000000000????000000A040????????????????00000000000000000000003f");
+			List<IntPtr> pickups = Program.FindAllSignatures("000000000000000000????000000A040????????????????00000000000000000000003f");
 			for (int i = 0; i < pickups.Count; i++) {
 				IntPtr pickup = pickups[i] - 0x4c;
-				MemoryReader.Write<bool>(proc, pickup, passthrough, 0x31);
+				Program.Write<bool>(pickup, passthrough, 0x31);
 			}
 		}
 		public int GetCheckpointCount() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.checkpointManager.checkPoints.Length
-			return MemoryReader.Read<int>(proc, globalGameManager, 0x14, 0x0c, 0x14, 0x18, 0x0c);
+			return globalGameManager.Read<int>(0x14, 0x0c, 0x14, 0x18, 0x0c);
 		}
 		public void SetCheckpoint(int num) {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.checkpointManager.checkPoints.Length
@@ -44,31 +36,31 @@ namespace LiveSplit.Kalimba.Memory {
 			if (num >= cpCount) { num = cpCount - 1; }
 			if (num < 0) { num = 0; }
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].reachedCheckpoint
-			MemoryReader.Write<int>(proc, globalGameManager, num, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x18);
+			globalGameManager.Write<int>(num, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x18);
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].currentCheckpoint
-			MemoryReader.Write<int>(proc, globalGameManager, num, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x1c);
+			globalGameManager.Write<int>(num, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x1c);
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[1].reachedCheckpoint
-			MemoryReader.Write<int>(proc, globalGameManager, num, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x18);
+			globalGameManager.Write<int>(num, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x18);
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[1].currentCheckpoint
-			MemoryReader.Write<int>(proc, globalGameManager, num, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x1c);
+			globalGameManager.Write<int>(num, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x1c);
 		}
 		public int GetCurrentCheckpoint() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].currentCheckpoint
-			int rCp = MemoryReader.Read<int>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x1c);
+			int rCp = globalGameManager.Read<int>(0x14, 0x0c, 0x18, 0x28, 0x10, 0x1c);
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[1].currentCheckpoint
-			int cCp = MemoryReader.Read<int>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x1c);
+			int cCp = globalGameManager.Read<int>(0x14, 0x0c, 0x18, 0x28, 0x14, 0x1c);
 			return rCp > cCp ? rCp : cCp;
 		}
 		public TypingProgress GetTypingProgress() {
 			//TransitionManager.instance.hoebearLoadSpeech.speechBubble.typingProgress
-			TypingProgress tpHB = (TypingProgress)MemoryReader.Read<int>(proc, transitionManager, 0x1c, 0x1c, 0x138);
+			TypingProgress tpHB = (TypingProgress)transitionManager.Read<int>(0x1c, 0x1c, 0x138);
 			//TransitionManager.instance.darkShamanLoadSpeech.speechBubble.typingProgress
-			TypingProgress tpDS = (TypingProgress)MemoryReader.Read<int>(proc, transitionManager, 0x18, 0x1c, 0x138);
+			TypingProgress tpDS = (TypingProgress)transitionManager.Read<int>(0x18, 0x1c, 0x138);
 			return tpHB == TypingProgress.None ? tpDS : tpHB;
 		}
 		public float GetTransition() {
 			//TransitionManager.instance.transitionEffect.transition
-			return MemoryReader.Read<float>(proc, transitionManager, 0x40, 0x40);
+			return transitionManager.Read<float>(0x40, 0x40);
 		}
 		public bool GetInTransition() {
 			if (GetCurrentMenu() != MenuScreen.Loading) {
@@ -85,137 +77,137 @@ namespace LiveSplit.Kalimba.Memory {
 		}
 		public PlatformLevelId GetPlatformLevelId() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.sceneFile.platformLevelId
-			return (PlatformLevelId)MemoryReader.Read<int>(proc, globalGameManager, 0x14, 0x0c, 0x10, 0x80);
+			return (PlatformLevelId)globalGameManager.Read<int>(0x14, 0x0c, 0x10, 0x80);
 		}
 		public World GetWorld() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.sceneFile.world
-			return (World)MemoryReader.Read<int>(proc, globalGameManager, 0x14, 0x0c, 0x10, 0x5c);
+			return (World)globalGameManager.Read<int>(0x14, 0x0c, 0x10, 0x5c);
 		}
 		public Campaign GetCampaign() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.sceneFile.campaign
-			return (Campaign)MemoryReader.Read<int>(proc, globalGameManager, 0x14, 0x0c, 0x10, 0x60);
+			return (Campaign)globalGameManager.Read<int>(0x14, 0x0c, 0x10, 0x60);
 		}
 		public MenuScreen GetCurrentMenu() {
 			//MenuManager.instance._currentMenu
-			return (MenuScreen)MemoryReader.Read<int>(proc, menuManager, 0x34);
+			return (MenuScreen)menuManager.Read<int>(0x34);
 		}
 		public MenuScreen GetPreviousMenu() {
 			//MenuManager.instance._previousMenu
-			return (MenuScreen)MemoryReader.Read<int>(proc, menuManager, 0x38);
+			return (MenuScreen)menuManager.Read<int>(0x38);
 		}
 		public bool GetPlayingCinematic() {
 			//GlobalGameManager.instance.isPlayingCinematic
-			return MemoryReader.Read<bool>(proc, globalGameManager, 0x46);
+			return globalGameManager.Read<bool>(0x46);
 		}
 		public bool GetIsLoadingLevel() {
 			//GlobalGameManager.instance.levelIsLoading
-			return MemoryReader.Read<bool>(proc, globalGameManager, 0x4c);
+			return globalGameManager.Read<bool>(0x4c);
 		}
 		public int GetCurrentScore() {
 			//GlobalGameManager.instance.currentSession.currentScore
-			return MemoryReader.Read<int>(proc, globalGameManager, 0x14, 0x10);
+			return globalGameManager.Read<int>(0x14, 0x10);
 		}
 		public void SetCurrentScore(int score) {
 			//GlobalGameManager.instance.currentSession.currentScore
-			MemoryReader.Write<int>(proc, globalGameManager, score, 0x14, 0x10);
+			globalGameManager.Write<int>(score, 0x14, 0x10);
 		}
 		public int GetCurrentDeaths() {
 			//GlobalGameManager.instance.currentSession.currentDeaths
-			return MemoryReader.Read<int>(proc, globalGameManager, 0x14, 0x14);
+			return globalGameManager.Read<int>(0x14, 0x14);
 		}
 		public void SetCurrentDeaths(int deaths) {
 			//GlobalGameManager.instance.currentSession.currentDeaths
-			MemoryReader.Write<int>(proc, globalGameManager, deaths, 0x14, 0x14);
+			globalGameManager.Write<int>(deaths, 0x14, 0x14);
 		}
 		public float GetLevelTime() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.levelMetric.completionTime
-			return MemoryReader.Read<float>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x30, 0x20);
+			return globalGameManager.Read<float>(0x14, 0x0c, 0x18, 0x30, 0x20);
 		}
 		public string GetLevelName() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.levelMetric.levelName
-			return GetString(MemoryReader.Read<IntPtr>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x30, 0x14));
+			return globalGameManager.ReadString(0x14, 0x0c, 0x18, 0x30, 0x14);
 		}
 		public bool GetIsDisabled() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.(noJump | noSwap | noMove)
-			return MemoryReader.Read<int>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x64) == 65793;
+			return globalGameManager.Read<int>(0x14, 0x0c, 0x18, 0x64) == 65793;
 		}
 		public bool GetIsMoving() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.totemsIsMoving
-			return MemoryReader.Read<bool>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x88);
+			return globalGameManager.Read<bool>(0x14, 0x0c, 0x18, 0x88);
 		}
 		public float GetXCenter() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].bounceCenter.X
-			return MemoryReader.Read<float>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x30);
+			return globalGameManager.Read<float>(0x14, 0x0c, 0x18, 0x28, 0x10, 0x30);
 		}
 		public float GetYCenter() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].bounceCenter.Y
-			return MemoryReader.Read<float>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x34);
+			return globalGameManager.Read<float>(0x14, 0x0c, 0x18, 0x28, 0x10, 0x34);
 		}
 		public float GetLastXP1() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].controlledPlayers[0].animationHandler.lastPos.X
-			return MemoryReader.Read<float>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0xd4, 0xd0);
+			return globalGameManager.Read<float>(0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0xd4, 0xd0);
 		}
 		public float GetLastYP1() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].controlledPlayers[0].animationHandler.lastPos.Y
-			return MemoryReader.Read<float>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0xd4, 0xd4);
+			return globalGameManager.Read<float>(0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0xd4, 0xd4);
 		}
 		public float GetLastXP2() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].controlledPlayers[1].animationHandler.lastPos.X
-			return MemoryReader.Read<float>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0xd4, 0xd0);
+			return globalGameManager.Read<float>(0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0xd4, 0xd0);
 		}
 		public float GetLastYP2() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].controlledPlayers[1].animationHandler.lastPos.Y
-			return MemoryReader.Read<float>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0xd4, 0xd4);
+			return globalGameManager.Read<float>(0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0xd4, 0xd4);
 		}
 		public bool GetFrozen() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].controlledPlayers[0].frozen
-			return MemoryReader.Read<bool>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0x3c);
+			return globalGameManager.Read<bool>(0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0x3c);
 		}
 		public bool GetIsDying() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].controlledPlayers[0].isDying
-			bool p1 = MemoryReader.Read<bool>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0x146);
+			bool p1 = globalGameManager.Read<bool>(0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0x146);
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].controlledPlayers[1].isDying
-			bool p2 = MemoryReader.Read<bool>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0x146);
+			bool p2 = globalGameManager.Read<bool>(0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0x146);
 			return p1 | p2;
 		}
 		public TotemState GetCurrentStateP1() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].controlledPlayers[0]._currentState
-			return (TotemState)MemoryReader.Read<int>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0x148);
+			return (TotemState)globalGameManager.Read<int>(0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0x148);
 		}
 		public TotemState GetCurrentStateP2() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].controlledPlayers[1]._currentState
-			return (TotemState)MemoryReader.Read<int>(proc, globalGameManager, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0x148);
+			return (TotemState)globalGameManager.Read<int>(0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0x148);
 		}
 		public PersistentLevelStats GetLevelStats(PlatformLevelId id) {
 			//PlatformManager.instance.imp.players[0].gameSinglePlayerStats._levels
-			IntPtr levels = MemoryReader.Read<IntPtr>(proc, platformManager, 0x10, 0x48, 0x10, 0x24, 0x0c);
+			IntPtr levels = platformManager.Read<IntPtr>(0x10, 0x48, 0x10, 0x24, 0x0c);
 			PersistentLevelStats level = GetLevelStats(levels, id);
 			if (level == null) {
 				//PlatformManager.instance.imp.players[0].platformStats._coop["guest"]._levels
-				levels = MemoryReader.Read<IntPtr>(proc, platformManager, 0x10, 0x48, 0x10, 0x34, 0x1c, 0x14, 0x10, 0x0c);
+				levels = platformManager.Read<IntPtr>(0x10, 0x48, 0x10, 0x34, 0x1c, 0x14, 0x10, 0x0c);
 				return GetLevelStats(levels, id);
 			}
 			return level;
 		}
 		private PersistentLevelStats GetLevelStats(IntPtr levels, PlatformLevelId id) {
-			int listSize = MemoryReader.Read<int>(proc, levels, 0x20);
-			IntPtr keys = MemoryReader.Read<IntPtr>(proc, levels, 0x10);
-			levels = MemoryReader.Read<IntPtr>(proc, levels, 0x14);
+			int listSize = Program.Read<int>(levels, 0x20);
+			IntPtr keys = Program.Read<IntPtr>(levels, 0x10);
+			levels = Program.Read<IntPtr>(levels, 0x14);
 
 			for (int i = 0; i < listSize; i++) {
-				IntPtr itemHead = MemoryReader.Read<IntPtr>(proc, levels, 0x10 + (i * 4));
-				PlatformLevelId levelID = (PlatformLevelId)MemoryReader.Read<int>(proc, keys, 0x10 + (i * 4));
+				IntPtr itemHead = Program.Read<IntPtr>(levels, 0x10 + (i * 4));
+				PlatformLevelId levelID = (PlatformLevelId)Program.Read<int>(keys, 0x10 + (i * 4));
 
 				if (levelID == id) {
 					PersistentLevelStats level = new PersistentLevelStats();
 					level.id = levelID;
-					level.awardedGoldenTotemPiece = MemoryReader.Read<bool>(proc, itemHead, 0x20);
-					level.maxScore = MemoryReader.Read<int>(proc, itemHead, 0x0c);
-					level.minDeaths = MemoryReader.Read<int>(proc, itemHead, 0x18);
-					level.minKills = MemoryReader.Read<int>(proc, itemHead, 0x1c);
-					level.minMillisecondsForMaxScore = MemoryReader.Read<int>(proc, itemHead, 0x10);
-					level.minPickups = MemoryReader.Read<int>(proc, itemHead, 0x14);
-					level.state = (PersistentLevelStats.State)MemoryReader.Read<int>(proc, itemHead, 0x08);
+					level.awardedGoldenTotemPiece = Program.Read<bool>(itemHead, 0x20);
+					level.maxScore = Program.Read<int>(itemHead, 0x0c);
+					level.minDeaths = Program.Read<int>(itemHead, 0x18);
+					level.minKills = Program.Read<int>(itemHead, 0x1c);
+					level.minMillisecondsForMaxScore = Program.Read<int>(itemHead, 0x10);
+					level.minPickups = Program.Read<int>(itemHead, 0x14);
+					level.state = (PersistentLevelStats.State)Program.Read<int>(itemHead, 0x08);
 					return level;
 				}
 			}
@@ -223,127 +215,152 @@ namespace LiveSplit.Kalimba.Memory {
 		}
 		public void SetLevelScore(PlatformLevelId id, int score) {
 			//PlatformManager.instance.imp.players[0].gameSinglePlayerStats._levels
-			IntPtr levels = MemoryReader.Read<IntPtr>(proc, platformManager, 0x10, 0x48, 0x10, 0x24, 0x0c);
+			IntPtr levels = platformManager.Read<IntPtr>(0x10, 0x48, 0x10, 0x24, 0x0c);
 			SetScore(levels, id, score);
 			//PlatformManager.instance.imp.players[0].platformStats._coop["guest"]._levels
-			levels = MemoryReader.Read<IntPtr>(proc, platformManager, 0x10, 0x48, 0x10, 0x34, 0x1c, 0x14, 0x10, 0x0c);
+			levels = platformManager.Read<IntPtr>(0x10, 0x48, 0x10, 0x34, 0x1c, 0x14, 0x10, 0x0c);
 			SetScore(levels, id, score);
 		}
 		private void SetScore(IntPtr levels, PlatformLevelId id, int score) {
-			int listSize = MemoryReader.Read<int>(proc, levels, 0x20);
-			IntPtr keys = MemoryReader.Read<IntPtr>(proc, levels, 0x10);
-			levels = MemoryReader.Read<IntPtr>(proc, levels, 0x14);
+			int listSize = Program.Read<int>(levels, 0x20);
+			IntPtr keys = Program.Read<IntPtr>(levels, 0x10);
+			levels = Program.Read<IntPtr>(levels, 0x14);
 
 			for (int i = 0; i < listSize; i++) {
-				IntPtr itemHead = MemoryReader.Read<IntPtr>(proc, levels, 0x10 + (i * 4));
-				PlatformLevelId levelID = (PlatformLevelId)MemoryReader.Read<int>(proc, keys, 0x10 + (i * 4));
+				IntPtr itemHead = Program.Read<IntPtr>(levels, 0x10 + (i * 4));
+				PlatformLevelId levelID = (PlatformLevelId)Program.Read<int>(keys, 0x10 + (i * 4));
 
 				if (levelID == id || id == PlatformLevelId.None) {
-					MemoryReader.Write<int>(proc, itemHead, score, 0x0c);
-					MemoryReader.Write<int>(proc, itemHead, int.MaxValue, 0x10);
-					MemoryReader.Write<int>(proc, itemHead, (int)PersistentLevelStats.State.Completed, 0x08);
+					Program.Write<int>(itemHead, score, 0x0c);
+					Program.Write<int>(itemHead, int.MaxValue, 0x10);
+					Program.Write<int>(itemHead, (int)PersistentLevelStats.State.Completed, 0x08);
 				}
 			}
 		}
 		public void EraseData() {
 			//PlatformManager.instance.imp.players[0].gameSinglePlayerStats._rememberedMoments.Count
-			MemoryReader.Write<int>(proc, platformManager, 0, 0x10, 0x48, 0x10, 0x24, 0x08, 0x0c);
+			platformManager.Write<int>(0, 0x10, 0x48, 0x10, 0x24, 0x08, 0x0c);
 			//PlatformManager.instance.imp.players[0].gameSinglePlayerStats._levels
-			ClearStats(MemoryReader.Read<IntPtr>(proc, platformManager, 0x10, 0x48, 0x10, 0x24, 0x0c));
+			ClearStats(platformManager.Read<IntPtr>(0x10, 0x48, 0x10, 0x24, 0x0c));
 			//PlatformManager.instance.imp.players[0].platformStats._coop["guest"]._levels
-			IntPtr coopDic = MemoryReader.Read<IntPtr>(proc, platformManager, 0x10, 0x48, 0x10, 0x34, 0x1c, 0x14, 0x10);
+			IntPtr coopDic = platformManager.Read<IntPtr>(0x10, 0x48, 0x10, 0x34, 0x1c, 0x14, 0x10);
 			//PlatformManager.instance.imp.players[0].platformStats._coop["guest"]._rememberedMoments.Count
-			MemoryReader.Write<int>(proc, coopDic, 0, 0x08, 0x0c);
-			ClearStats(MemoryReader.Read<IntPtr>(proc, coopDic, 0x0c));
+			Program.Write<int>(coopDic, 0, 0x08, 0x0c);
+			ClearStats(Program.Read<IntPtr>(coopDic, 0x0c));
 		}
 		private void ClearStats(IntPtr levels) {
-			int listSize = MemoryReader.Read<int>(proc, levels, 0x20);
-			levels = MemoryReader.Read<IntPtr>(proc, levels, 0x14);
+			int listSize = Program.Read<int>(levels, 0x20);
+			levels = Program.Read<IntPtr>(levels, 0x14);
 
 			for (int i = 0; i < listSize; i++) {
-				IntPtr itemHead = MemoryReader.Read<IntPtr>(proc, levels, 0x10 + (i * 4));
+				IntPtr itemHead = Program.Read<IntPtr>(levels, 0x10 + (i * 4));
 
-				MemoryReader.Write<long>(proc, itemHead, 0L, 0x08);
-				MemoryReader.Write<int>(proc, itemHead, int.MaxValue, 0x10);
-				MemoryReader.Write<long>(proc, itemHead, 0L, 0x14);
-				MemoryReader.Write<long>(proc, itemHead, 0L, 0x1c);
-				MemoryReader.Write<long>(proc, itemHead, 0L, 0x24);
-				MemoryReader.Write<int>(proc, itemHead, int.MaxValue, 0x2c);
-				MemoryReader.Write<long>(proc, itemHead, 0L, 0x30);
-				MemoryReader.Write<short>(proc, itemHead, 0, 0x38);
+				Program.Write<long>(itemHead, 0L, 0x08);
+				Program.Write<int>(itemHead, int.MaxValue, 0x10);
+				Program.Write<long>(itemHead, 0L, 0x14);
+				Program.Write<long>(itemHead, 0L, 0x1c);
+				Program.Write<long>(itemHead, 0L, 0x24);
+				Program.Write<int>(itemHead, int.MaxValue, 0x2c);
+				Program.Write<long>(itemHead, 0L, 0x30);
+				Program.Write<short>(itemHead, 0, 0x38);
 			}
 		}
 		public bool GetEndLevel() {
 			return GetFrozen() && !GetIsDying() && !GetIsDisabled() && GetCurrentMenu() == MenuScreen.InGame;
 		}
-
-		private string GetString(IntPtr address) {
-			if (address == IntPtr.Zero) { return string.Empty; }
-			int length = MemoryReader.Read<int>(proc, address, 0x8);
-			return Encoding.Unicode.GetString(MemoryReader.GetBytes(proc, address + 0x0C, 2 * length));
-		}
-
 		public bool HookProcess() {
-			if (proc == null || proc.HasExited) {
+			if ((Program == null || Program.HasExited) && DateTime.Now > lastHooked.AddSeconds(1)) {
+				lastHooked = DateTime.Now;
 				Process[] processes = Process.GetProcessesByName("Kalimba");
-				proc = processes.Length == 0 ? null : processes[0];
-				if (processes.Length == 0 || proc.HasExited) {
-					globalGameManager = IntPtr.Zero;
-					menuManager = IntPtr.Zero;
-					platformManager = IntPtr.Zero;
-					totemPole = IntPtr.Zero;
-					transitionManager = IntPtr.Zero;
-					IsHooked = false;
-					return IsHooked;
-				}
-
+				Program = processes.Length == 0 ? null : processes[0];
 				IsHooked = true;
-				hookedTime = DateTime.Now;
 			}
 
-			GetPointer(ref globalGameManager, "GlobalGameManager");
-			GetPointer(ref menuManager, "MenuManager");
-			GetPointer(ref platformManager, "PlatformManager");
-			GetPointer(ref totemPole, "TotemPole");
-			GetPointer(ref transitionManager, "TransitionManager");
+			if (Program == null || Program.HasExited) {
+				IsHooked = false;
+			}
 
 			return IsHooked;
 		}
-		private void GetPointer(ref IntPtr ptr, string name) {
-			if (ptr == IntPtr.Zero) {
-				ptr = GetVersionedFunctionPointer(name);
-				if (ptr != IntPtr.Zero) {
-					ptr = MemoryReader.Read<IntPtr>(proc, ptr, 0, 0);
-				}
+		public void Dispose() {
+			if (Program != null) {
+				Program.Dispose();
 			}
 		}
-
-		public void Dispose() {
-			// We want to appropriately dispose of the `Process` that is attached 
-			// to the process to avoid being unable to close LiveSplit.
-			if (proc != null) this.proc.Dispose();
+	}
+	public class ProgramPointer {
+		private static string[] versions = new string[1] { "v1.0" };
+		private static Dictionary<string, Dictionary<string, string>> funcPatterns = new Dictionary<string, Dictionary<string, string>>() {
+			{"v1.0", new Dictionary<string, string>() {
+					{"GlobalGameManager", "558BEC5783EC34C745E4000000008B4508C74034000000008B05????????83EC086A0050E8????????83C41085C0743A8B05????????8B4D0883EC085150|-12"},
+					{"MenuManager",       "558BEC53575683EC0C8B05????????83EC086A0050E8????????83C41085C074338B05????????83EC08FF750850E8????????83C41085C0741A83EC0CFF7508E8|-30"},
+					{"PlatformManager",   "558BEC535683EC108B05????????83EC0C50E8????????83C41085C0740B8B05"},
+					{"TotemPole",         "D95810D94510D958148B4D1489480CC9C3000000558BEC83EC08B8????????8B4D088908C9C3000000000000558BEC5683EC0483EC0C|-27"},
+					{"TransitionManager", "558BEC5783EC048B7D088B05????????83EC086A0050E8????????83C41085C074348B05????????83EC085750E8????????83C41085C0741D83EC0C57E8????????83C41083EC0C50E8????????83C410E9????????B8" }
+			}},
+		};
+		private IntPtr pointer;
+		public KalimbaMemory Memory { get; set; }
+		public string Name { get; set; }
+		public bool IsStatic { get; set; }
+		private int lastID;
+		private DateTime lastTry;
+		public ProgramPointer(KalimbaMemory memory, string name) {
+			this.Memory = memory;
+			this.Name = name;
+			this.IsStatic = true;
+			lastID = memory.Program == null ? -1 : memory.Program.Id;
+			lastTry = DateTime.MinValue;
 		}
 
-		public IntPtr GetVersionedFunctionPointer(string name) {
-			// If we haven't already worked out what version is needed for this function signature, 
-			// then iterate the versions checking each until we get a positive result. Store the
-			// version so we don't need to search again in the future, and return the address.
-			if (!versionedFuncPatterns.ContainsKey(name)) {
-				foreach (string version in this.versions) {
-					if (funcPatterns[version].ContainsKey(name)) {
-						IntPtr[] addrs = MemoryReader.FindSignatures(proc, funcPatterns[version][name]);
-						if (addrs[0] != IntPtr.Zero) {
-							versionedFuncPatterns[name] = version;
-							return addrs[0];
+		public IntPtr Value {
+			get {
+				if (!Memory.IsHooked) {
+					pointer = IntPtr.Zero;
+				} else {
+					GetPointer(ref pointer, Name);
+				}
+				return pointer;
+			}
+		}
+		public T Read<T>(params int[] offsets) {
+			if (!Memory.IsHooked) { return default(T); }
+			return Memory.Program.Read<T>(Value, offsets);
+		}
+		public string ReadString(params int[] offsets) {
+			if (!Memory.IsHooked) { return string.Empty; }
+			IntPtr p = Memory.Program.Read<IntPtr>(Value, offsets);
+			return Memory.Program.GetString(p);
+		}
+		public void Write<T>(T value, params int[] offsets) {
+			if (!Memory.IsHooked) { return; }
+			Memory.Program.Write<T>(Value, value, offsets);
+		}
+		private void GetPointer(ref IntPtr ptr, string name) {
+			if (Memory.IsHooked) {
+				if (Memory.Program.Id != lastID) {
+					ptr = IntPtr.Zero;
+					lastID = Memory.Program.Id;
+				}
+				if (ptr == IntPtr.Zero && DateTime.Now > lastTry.AddSeconds(1)) {
+					lastTry = DateTime.Now;
+					ptr = GetVersionedFunctionPointer(name);
+					if (ptr != IntPtr.Zero) {
+						if (IsStatic) {
+							ptr = Memory.Program.Read<IntPtr>(ptr, 0, 0);
+						} else {
+							ptr = Memory.Program.Read<IntPtr>(ptr, 0);
 						}
 					}
 				}
-			} else {
-				string version = versionedFuncPatterns[name];
-				IntPtr[] addrs = MemoryReader.FindSignatures(proc, funcPatterns[version][name]);
-				return addrs[0];
 			}
-
+		}
+		public IntPtr GetVersionedFunctionPointer(string name) {
+			foreach (string version in versions) {
+				if (funcPatterns[version].ContainsKey(name)) {
+					return Memory.Program.FindSignatures(funcPatterns[version][name])[0];
+				}
+			}
 			return IntPtr.Zero;
 		}
 	}

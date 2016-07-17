@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 namespace LiveSplit.Kalimba.Memory {
-	public class MemoryReader {
+	public static class MemoryReader {
 		const int MEM_COMMIT = 0x00001000;
 		const int MEM_PRIVATE = 0x00020000;
 		const int PAGE_EXECUTE_READWRITE = 0x40;
@@ -33,7 +33,7 @@ namespace LiveSplit.Kalimba.Memory {
 			public uint Type;
 		}
 
-		public static T Read<T>(Process targetProcess, IntPtr address, params int[] offsets) {
+		public static T Read<T>(this Process targetProcess, IntPtr address, params int[] offsets) {
 			byte[] buffer = new byte[8];
 			int bytesRead;
 
@@ -72,13 +72,18 @@ namespace LiveSplit.Kalimba.Memory {
 			} catch { }
 			return default(T);
 		}
-		public static byte[] GetBytes(Process proc, IntPtr addr, int numBytes) {
+		public static byte[] GetBytes(this Process proc, IntPtr addr, int numBytes) {
 			byte[] buffer = new byte[numBytes];
 			int bytesRead;
 			SafeNativeMethods.ReadProcessMemory(proc.Handle, addr, buffer, numBytes, out bytesRead);
 			return buffer;
 		}
-		public static void Write<T>(Process targetProcess, IntPtr address, T value, params int[] offsets) {
+		public static string GetString(this Process proc, IntPtr address) {
+			if (address == IntPtr.Zero) { return string.Empty; }
+			int length = Read<int>(proc, address, 0x8);
+			return System.Text.Encoding.Unicode.GetString(GetBytes(proc, address + 0x0C, 2 * length));
+		}
+		public static void Write<T>(this Process targetProcess, IntPtr address, T value, params int[] offsets) {
 			byte[] buffer = new byte[8];
 			int bytesRead;
 
@@ -112,12 +117,12 @@ namespace LiveSplit.Kalimba.Memory {
 				}
 			} catch { }
 		}
-		public static void WriteBytes(Process proc, IntPtr addr, byte[] data) {
+		public static void WriteBytes(this Process proc, IntPtr addr, byte[] data) {
 			int num = 0;
 			SafeNativeMethods.WriteProcessMemory(proc.Handle, addr, data, data.Length, out num);
 		}
 
-		public static IntPtr[] FindSignatures(Process targetProcess, params string[] searchStrings) {
+		public static IntPtr[] FindSignatures(this Process targetProcess, params string[] searchStrings) {
 			IntPtr[] returnAddresses = new IntPtr[searchStrings.Length];
 			MemorySignature[] byteCodes = new MemorySignature[searchStrings.Length];
 			for (int i = 0; i < searchStrings.Length; i++) {
@@ -162,7 +167,7 @@ namespace LiveSplit.Kalimba.Memory {
 
 			return returnAddresses;
 		}
-		public static List<IntPtr> FindAllSignatures(Process targetProcess, string searchString) {
+		public static List<IntPtr> FindAllSignatures(this Process targetProcess, string searchString) {
 			List<IntPtr> returnAddresses = new List<IntPtr>();
 			MemorySignature byteCode = GetSignature(searchString);
 

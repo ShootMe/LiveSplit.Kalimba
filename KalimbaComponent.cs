@@ -209,7 +209,7 @@ namespace LiveSplit.Kalimba {
 				Model.CurrentState.IsGameTimePaused = false;
 			}
 
-			if (screen == MenuScreen.SinglePlayerEndLevelFeedBack && currentSplit > 0 && currentSplit != lastLevelComplete) {
+			if (screen == MenuScreen.SinglePlayerEndLevelFeedBack && currentSplit > 0 && currentSplit != lastLevelComplete && lastLevelComplete < Model.CurrentState.Run.Count) {
 				PersistentLevelStats level = mem.GetLevelStats(mem.GetPlatformLevelId());
 				if (level.minMillisecondsForMaxScore != int.MaxValue) {
 					double levelTime = (double)level.minMillisecondsForMaxScore / (double)1000;
@@ -233,7 +233,7 @@ namespace LiveSplit.Kalimba {
 			}
 			lastLogCheck--;
 
-			if (hasLog) {
+			if (hasLog || !Console.IsOutputRedirected) {
 				string prev = "", curr = "";
 				foreach (string key in keys) {
 					prev = currentValues[key];
@@ -331,10 +331,13 @@ namespace LiveSplit.Kalimba {
 			WriteLog(DateTime.Now.ToString(@"HH\:mm\:ss.fff") + " | " + Model.CurrentState.CurrentTime.RealTime.Value.ToString("G").Substring(3, 11) + ": CurrentSplit: " + currentSplit.ToString().PadLeft(24, ' '));
 		}
 		private void WriteLog(string data) {
-			if (hasLog) {
-				Console.WriteLine(data);
-				using (StreamWriter wr = new StreamWriter("_Kalimba.log", true)) {
-					wr.WriteLine(data);
+			if (hasLog || !Console.IsOutputRedirected) {
+				if (Console.IsOutputRedirected) {
+					using (StreamWriter wr = new StreamWriter("_Kalimba.log", true)) {
+						wr.WriteLine(data);
+					}
+				} else {
+					Console.WriteLine(data);
 				}
 			}
 		}
