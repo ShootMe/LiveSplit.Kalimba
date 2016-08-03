@@ -10,9 +10,11 @@ namespace LiveSplit.Kalimba {
 		}
 		private static void GetVals() {
 			while (true) {
-				comp.GetValues();
+				try {
+					comp.GetValues();
 
-				Thread.Sleep(5);
+					Thread.Sleep(5);
+				} catch { }
 			}
 		}
 	}

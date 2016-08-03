@@ -1,5 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <updates>
+	<update version="1.6.5">
+		<files>
+			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
+		</files>
+		<changelog>
+			<change>
+				Added in fix for Puma Mode when the game won't load the level
+			</change>
+		</changelog>
+	</update>
 	<update version="1.6.4">
 		<files>
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>

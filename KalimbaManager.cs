@@ -7,6 +7,7 @@ namespace LiveSplit.Kalimba {
 		public KalimbaMemory Memory { get; set; }
 		public KalimbaComponent Component { get; set; }
 		private int lockedCheckpoint = -1;
+		private DateTime lastCheckLoading = DateTime.MinValue;
 		public KalimbaManager() {
 			InitializeComponent();
 			Visible = false;
@@ -69,6 +70,7 @@ namespace LiveSplit.Kalimba {
 				this.Invoke((Action)UpdateValues);
 			} else if (this.Visible && Memory != null && Memory.IsHooked) {
 				MenuScreen menu = Memory.GetCurrentMenu();
+				MenuScreen prevMenu = Memory.GetPreviousMenu();
 				bool inGameNotRunning = menu == MenuScreen.InGame && (Component == null || Component.Model == null || Component.Model.CurrentState.CurrentPhase != Model.TimerPhase.Running);
 				btnNextCheckpoint.Enabled = inGameNotRunning;
 				btnPreviousCheckpoint.Enabled = inGameNotRunning;
@@ -87,6 +89,15 @@ namespace LiveSplit.Kalimba {
 				if (!inGameNotRunning) {
 					chkLockCheckpoint.Checked = false;
 					chkPickups.Checked = false;
+				}
+
+				if(prevMenu == MenuScreen.SpeedRunLevelSelect && menu == MenuScreen.Loading && !Memory.SpeedrunLoaded()) {
+					if (lastCheckLoading == DateTime.MinValue) {
+						lastCheckLoading = DateTime.Now;
+					} else if(lastCheckLoading.AddSeconds(5) < DateTime.Now) {
+						Memory.FixSpeedrun();
+						lastCheckLoading = DateTime.MinValue;
+					}
 				}
 			} else if (Memory == null && this.Visible) {
 				this.Hide();
