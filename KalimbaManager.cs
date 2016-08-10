@@ -74,12 +74,13 @@ namespace LiveSplit.Kalimba {
 				bool inGameNotRunning = menu == MenuScreen.InGame && (Component == null || Component.Model == null || Component.Model.CurrentState.CurrentPhase != Model.TimerPhase.Running);
 				btnNextCheckpoint.Enabled = inGameNotRunning;
 				btnPreviousCheckpoint.Enabled = inGameNotRunning;
-				lblLevel.Text = "Level: " + Memory.GetLevelName();
+				lblLevel.Text = "Level: " + Memory.SelectedLevel().ToString();
 				int currentCheckpoint = Memory.GetCurrentCheckpoint();
 				if (chkLockCheckpoint.Checked && currentCheckpoint != lockedCheckpoint) {
 					Memory.SetCheckpoint(lockedCheckpoint);
 					currentCheckpoint = lockedCheckpoint;
 				}
+				
 				lblCurrentCheckpoint.Text = "Checkpoint: " + (currentCheckpoint + 1) + " / " + Memory.GetCheckpointCount();
 				lblP1Pos.Text = "T1: (" + Memory.GetLastXP1().ToString("0.00") + ", " + Memory.GetLastYP1().ToString("0.00") + ")";
 				lblP2Pos.Text = "T2: (" + Memory.GetLastXP2().ToString("0.00") + ", " + Memory.GetLastYP2().ToString("0.00") + ")";

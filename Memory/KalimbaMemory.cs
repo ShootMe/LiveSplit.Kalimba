@@ -20,6 +20,26 @@ namespace LiveSplit.Kalimba.Memory {
 			lastHooked = DateTime.MinValue;
 		}
 
+		public PlatformLevelId SelectedLevel() {
+			//TotemWorldMap.instance.levelInfo.sceneFile.platformLevelId
+			return (PlatformLevelId)totemPole.Read<int>(0x28, 0x8c, 0x80);
+		}
+		public int SinglePlayerIndex() {
+			//TotemWorldMap.instance.singleplayerTotemPole.menu.selectedIndex
+			return totemPole.Read<int>(0x18, 0x40, 0x44);
+		}
+		public int CoopIndex() {
+			//TotemWorldMap.instance.multiplayerTotemPole.menu.selectedIndex
+			return totemPole.Read<int>(0x1c, 0x40, 0x44);
+		}
+		public int SinglePlayerDVIndex() {
+			//TotemWorldMap.instance.singleplayerDLCTotemPole.menu.selectedIndex
+			return totemPole.Read<int>(0x20, 0x40, 0x44);
+		}
+		public int CoopDVIndex() {
+			//TotemWorldMap.instance.multiplayerDLCTotemPole.menu.selectedIndex
+			return totemPole.Read<int>(0x24, 0x40, 0x44);
+		}
 		public void FixSpeedrun() {
 			ghostManager.Write<bool>(true, 0x24);
 		}

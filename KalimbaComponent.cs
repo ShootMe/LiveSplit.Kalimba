@@ -109,11 +109,7 @@ namespace LiveSplit.Kalimba {
 			} else if (Model.CurrentState.CurrentPhase == TimerPhase.Running) {
 				MenuScreen prev = mem.GetPreviousMenu();
 				if (currentSplit < 24) {
-					shouldSplit = screen == MenuScreen.Loading && prev == MenuScreen.SinglePlayerMap && lastMenu != MenuScreen.Loading;
-					if (shouldSplit && currentSplit == 1 && state == 0) {
-						state++;
-						shouldSplit = false;
-					}
+					shouldSplit = screen == MenuScreen.Loading && prev == MenuScreen.SinglePlayerMap && lastMenu != MenuScreen.Loading && (23 - mem.SinglePlayerIndex()) == currentSplit;
 				} else if (currentSplit == 24) {
 					if (screen == MenuScreen.Loading && prev == MenuScreen.InGame) {
 						state = 0;
@@ -141,11 +137,7 @@ namespace LiveSplit.Kalimba {
 			} else if (Model.CurrentState.CurrentPhase == TimerPhase.Running) {
 				MenuScreen prev = mem.GetPreviousMenu();
 				if (currentSplit < 10) {
-					shouldSplit = screen == MenuScreen.Loading && prev == MenuScreen.SinglePlayerDLCMap && lastMenu != MenuScreen.Loading;
-					if (shouldSplit && currentSplit == 1 && state == 0) {
-						state++;
-						shouldSplit = false;
-					}
+					shouldSplit = screen == MenuScreen.Loading && prev == MenuScreen.SinglePlayerDLCMap && lastMenu != MenuScreen.Loading && (9 - mem.SinglePlayerDVIndex()) == currentSplit;
 				} else if (currentSplit == 10) {
 					shouldSplit = mem.GetEndLevel();
 				}
@@ -161,11 +153,7 @@ namespace LiveSplit.Kalimba {
 			} else if (Model.CurrentState.CurrentPhase == TimerPhase.Running) {
 				MenuScreen prev = mem.GetPreviousMenu();
 				if (currentSplit < 10) {
-					shouldSplit = screen == MenuScreen.Loading && prev == MenuScreen.CoopMap && lastMenu != MenuScreen.Loading;
-					if (shouldSplit && currentSplit == 1 && state == 0) {
-						state++;
-						shouldSplit = false;
-					}
+					shouldSplit = screen == MenuScreen.Loading && prev == MenuScreen.CoopMap && lastMenu != MenuScreen.Loading && (9 - mem.CoopIndex()) == currentSplit;
 				} else if (currentSplit == 10) {
 					shouldSplit = mem.GetEndLevel();
 				}
@@ -181,11 +169,7 @@ namespace LiveSplit.Kalimba {
 			} else if (Model.CurrentState.CurrentPhase == TimerPhase.Running) {
 				MenuScreen prev = mem.GetPreviousMenu();
 				if (currentSplit < 10) {
-					shouldSplit = screen == MenuScreen.Loading && prev == MenuScreen.CoopDLCMap && lastMenu != MenuScreen.Loading;
-					if (shouldSplit && currentSplit == 1 && state == 0) {
-						state++;
-						shouldSplit = false;
-					}
+					shouldSplit = screen == MenuScreen.Loading && prev == MenuScreen.CoopDLCMap && lastMenu != MenuScreen.Loading && (9 - mem.CoopDVIndex()) == currentSplit;
 				} else if (currentSplit == 10) {
 					shouldSplit = mem.GetEndLevel();
 				}
