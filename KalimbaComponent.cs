@@ -99,6 +99,9 @@ namespace LiveSplit.Kalimba {
 				}
 
 				shouldSplit = pickups > 0 && mem.GetCurrentScore() >= pickups;
+				if(shouldSplit) {
+					lastLevelComplete++;
+				}
 			} else if (state == 0 && mem.GetEndLevel()) {
 				state++;
 			} else if (state >= 1) {
