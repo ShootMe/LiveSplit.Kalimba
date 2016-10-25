@@ -61,7 +61,7 @@ namespace LiveSplit.Kalimba {
 			try {
 				while (true) {
 					UpdateValues();
-					Thread.Sleep(33);
+					Thread.Sleep(15);
 				}
 			} catch { }
 		}

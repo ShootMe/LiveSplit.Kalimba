@@ -13,7 +13,7 @@ namespace LiveSplit.Kalimba {
 				try {
 					comp.GetValues();
 
-					Thread.Sleep(5);
+					Thread.Sleep(12);
 				} catch { }
 			}
 		}

@@ -53,7 +53,7 @@ namespace LiveSplit.Kalimba {
 				if (Model.CurrentState.CurrentPhase == TimerPhase.NotRunning) {
 					mainMenu = screen;
 				}
-				if (Model.CurrentState.Run.Count == 1) {
+				if (Model.CurrentState.Run.Count < 10) {
 					HandleIL(screen);
 				} else if (Model.CurrentState.Run.Count == 10) {
 					if (mainMenu == MenuScreen.SinglePlayerPathSelect) {
@@ -89,6 +89,16 @@ namespace LiveSplit.Kalimba {
 				} else if (state >= 2 && state <= 3) {
 					shouldSplit = state++ == 3;
 				}
+			} else if (currentSplit < Model.CurrentState.Run.Count) {
+				string[] splits = Model.CurrentState.Run[currentSplit - 1].Name.Split(' ');
+				int pickups = -1;
+				for (int i = 0; i < splits.Length; i++) {
+					if (int.TryParse(splits[i], out pickups)) {
+						break;
+					}
+				}
+
+				shouldSplit = pickups > 0 && mem.GetCurrentScore() >= pickups;
 			} else if (state == 0 && mem.GetEndLevel()) {
 				state++;
 			} else if (state >= 1) {
