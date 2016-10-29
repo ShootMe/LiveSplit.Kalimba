@@ -20,7 +20,7 @@ namespace LiveSplit.Kalimba.Memory {
 		}
 
 		public bool LevelComplete() {
-			return levelComplete.Read<bool>();
+			return levelComplete.Read<bool>() && (MenuScreen)menuManager.Read<int>(0x34) == MenuScreen.InGame;
 		}
 		public void ZoomOut() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.cameraController._currentZone.cameraSettings.size
