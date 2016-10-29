@@ -23,7 +23,7 @@ namespace LiveSplit.Kalimba {
 		private MenuScreen mainMenu = MenuScreen.MainMenu;
 		double levelTimes;
 		private int lastLevelComplete = 0;
-		internal static string[] keys = { "CurrentSplit", "World", "Campaign", "CurrentMenu", "PreviousMenu", "Cinematic", "LoadingLevel", "LevelTime", "Disabled", "Score", "Deaths", "LevelName", "P1Y", "P2Y", "State", "EndLevel", "PlayerState", "Frozen", "InTransition", "PlatformLevel", "Checkpoint", "CheckpointCount", "Stats" };
+		internal static string[] keys = { "CurrentSplit", "World", "Campaign", "CurrentMenu", "PreviousMenu", "Cinematic", "LoadingLevel", "LevelTime", "Disabled", "Score", "Deaths", "LevelName", "P1Y", "P2Y", "State", "EndLevel", "PlayerState", "Frozen", "PlatformLevel", "Checkpoint", "CheckpointCount", "Stats" };
 		private Dictionary<string, string> currentValues = new Dictionary<string, string>();
 		private KalimbaManager manager;
 
@@ -103,8 +103,8 @@ namespace LiveSplit.Kalimba {
 					lastLevelComplete++;
 				}
 			} else {
-				PersistentLevelStats level = mem.GetLevelStats(mem.GetPlatformLevelId());
-				shouldSplit = level != null && level.minMillisecondsForMaxScore != int.MaxValue;
+				//PersistentLevelStats level = mem.GetLevelStats(mem.GetPlatformLevelId());
+				shouldSplit = mem.LevelComplete();// level != null && level.minMillisecondsForMaxScore != int.MaxValue;
 			}
 
 			HandleSplit(shouldSplit, screen, screen == MenuScreen.SinglePlayerMap || screen == MenuScreen.SinglePlayerDLCMap || screen == MenuScreen.CoopMap || screen == MenuScreen.CoopDLCMap);
@@ -147,7 +147,7 @@ namespace LiveSplit.Kalimba {
 				if (currentSplit < 10) {
 					shouldSplit = screen == MenuScreen.Loading && prev == MenuScreen.SinglePlayerDLCMap && lastMenu != MenuScreen.Loading && (9 - mem.SinglePlayerDVIndex()) == currentSplit;
 				} else if (currentSplit == 10) {
-					shouldSplit = mem.GetEndLevel();
+					shouldSplit = mem.LevelComplete();
 				}
 			}
 
@@ -163,7 +163,7 @@ namespace LiveSplit.Kalimba {
 				if (currentSplit < 10) {
 					shouldSplit = screen == MenuScreen.Loading && prev == MenuScreen.CoopMap && lastMenu != MenuScreen.Loading && (9 - mem.CoopIndex()) == currentSplit;
 				} else if (currentSplit == 10) {
-					shouldSplit = mem.GetEndLevel();
+					shouldSplit = mem.LevelComplete();
 				}
 			}
 
@@ -179,7 +179,7 @@ namespace LiveSplit.Kalimba {
 				if (currentSplit < 10) {
 					shouldSplit = screen == MenuScreen.Loading && prev == MenuScreen.CoopDLCMap && lastMenu != MenuScreen.Loading && (9 - mem.CoopDVIndex()) == currentSplit;
 				} else if (currentSplit == 10) {
-					shouldSplit = mem.GetEndLevel();
+					shouldSplit = mem.LevelComplete();
 				}
 			}
 
@@ -243,10 +243,8 @@ namespace LiveSplit.Kalimba {
 						case "Deaths": curr = mem.GetCurrentDeaths().ToString(); break;
 						case "CurrentSplit": curr = currentSplit.ToString(); break;
 						case "State": curr = state.ToString(); break;
-						case "EndLevel": curr = mem.GetEndLevel().ToString(); break;
+						case "EndLevel": curr = mem.LevelComplete().ToString(); break;
 						case "Frozen": curr = mem.GetFrozen().ToString(); break;
-						case "PlayerState": curr = mem.GetCurrentStateP1().ToString(); break;
-						case "InTransition": curr = mem.GetInTransition().ToString(); break;
 						case "Stats":
 							if (screen == MenuScreen.SinglePlayerEndLevelFeedBack) {
 								PersistentLevelStats level = mem.GetLevelStats(mem.GetPlatformLevelId());

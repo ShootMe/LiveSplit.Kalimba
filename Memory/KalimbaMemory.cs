@@ -4,8 +4,7 @@ using System.Diagnostics;
 using System.Text;
 namespace LiveSplit.Kalimba.Memory {
 	public partial class KalimbaMemory {
-		private ProgramPointer globalGameManager, menuManager, totemPole, platformManager, transitionManager, ghostManager;
-		private bool hasResetLevel = false;
+		private ProgramPointer globalGameManager, menuManager, totemPole, platformManager, ghostManager, levelComplete;
 		public Process Program { get; set; }
 		public bool IsHooked { get; set; } = false;
 		private DateTime lastHooked;
@@ -15,11 +14,14 @@ namespace LiveSplit.Kalimba.Memory {
 			menuManager = new ProgramPointer(this, "MenuManager");
 			totemPole = new ProgramPointer(this, "TotemPole");
 			platformManager = new ProgramPointer(this, "PlatformManager");
-			transitionManager = new ProgramPointer(this, "TransitionManager");
 			ghostManager = new ProgramPointer(this, "GhostManager");
+			levelComplete = new ProgramPointer(this, "LevelComplete") { IsStatic = false };
 			lastHooked = DateTime.MinValue;
 		}
 
+		public bool LevelComplete() {
+			return levelComplete.Read<bool>();
+		}
 		public void ZoomOut() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.cameraController._currentZone.cameraSettings.size
 			globalGameManager.Write<float>(85, 0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x24);
@@ -86,30 +88,6 @@ namespace LiveSplit.Kalimba.Memory {
 			int cCp = globalGameManager.Read<int>(0x14, 0x0c, 0x18, 0x28, 0x14, 0x1c);
 			return rCp > cCp ? rCp : cCp;
 		}
-		public TypingProgress GetTypingProgress() {
-			//TransitionManager.instance.hoebearLoadSpeech.speechBubble.typingProgress
-			TypingProgress tpHB = (TypingProgress)transitionManager.Read<int>(0x1c, 0x1c, 0x138);
-			//TransitionManager.instance.darkShamanLoadSpeech.speechBubble.typingProgress
-			TypingProgress tpDS = (TypingProgress)transitionManager.Read<int>(0x18, 0x1c, 0x138);
-			return tpHB == TypingProgress.None ? tpDS : tpHB;
-		}
-		public float GetTransition() {
-			//TransitionManager.instance.transitionEffect.transition
-			return transitionManager.Read<float>(0x40, 0x40);
-		}
-		public bool GetInTransition() {
-			if (GetCurrentMenu() != MenuScreen.Loading) {
-				hasResetLevel = false;
-				return false;
-			}
-			if (!hasResetLevel && string.IsNullOrEmpty(GetLevelName())) {
-				hasResetLevel = true;
-			}
-
-			if (!hasResetLevel || GetTransition() != 0 || GetLevelTime() != 0 || GetTypingProgress() != TypingProgress.EventsRaised) { return false; }
-			hasResetLevel = false;
-			return true;
-		}
 		public PlatformLevelId GetPlatformLevelId() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.sceneFile.platformLevelId
 			return (PlatformLevelId)globalGameManager.Read<int>(0x14, 0x0c, 0x10, 0x80);
@@ -166,18 +144,6 @@ namespace LiveSplit.Kalimba.Memory {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.(noJump | noSwap | noMove)
 			return globalGameManager.Read<int>(0x14, 0x0c, 0x18, 0x64) == 65793;
 		}
-		public bool GetIsMoving() {
-			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.totemsIsMoving
-			return globalGameManager.Read<bool>(0x14, 0x0c, 0x18, 0x88);
-		}
-		public float GetXCenter() {
-			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].bounceCenter.X
-			return globalGameManager.Read<float>(0x14, 0x0c, 0x18, 0x28, 0x10, 0x30);
-		}
-		public float GetYCenter() {
-			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].bounceCenter.Y
-			return globalGameManager.Read<float>(0x14, 0x0c, 0x18, 0x28, 0x10, 0x34);
-		}
 		public float GetLastXP1() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].controlledPlayers[0].animationHandler.lastPos.X
 			return globalGameManager.Read<float>(0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0xd4, 0xd0);
@@ -197,21 +163,6 @@ namespace LiveSplit.Kalimba.Memory {
 		public bool GetFrozen() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].controlledPlayers[0].frozen
 			return globalGameManager.Read<bool>(0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0x3c);
-		}
-		public bool GetIsDying() {
-			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].controlledPlayers[0].isDying
-			bool p1 = globalGameManager.Read<bool>(0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0x146);
-			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].controlledPlayers[1].isDying
-			bool p2 = globalGameManager.Read<bool>(0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0x146);
-			return p1 | p2;
-		}
-		public TotemState GetCurrentStateP1() {
-			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].controlledPlayers[0]._currentState
-			return (TotemState)globalGameManager.Read<int>(0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0x148);
-		}
-		public TotemState GetCurrentStateP2() {
-			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].controlledPlayers[1]._currentState
-			return (TotemState)globalGameManager.Read<int>(0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0x148);
 		}
 		public PersistentLevelStats GetLevelStats(PlatformLevelId id) {
 			//PlatformManager.instance.imp.players[0].gameSinglePlayerStats._levels
@@ -300,9 +251,6 @@ namespace LiveSplit.Kalimba.Memory {
 				Program.Write<short>(itemHead, 0, 0x38);
 			}
 		}
-		public bool GetEndLevel() {
-			return GetFrozen() && !GetIsDying() && !GetIsDisabled() && GetCurrentMenu() == MenuScreen.InGame;
-		}
 		public bool HookProcess() {
 			if ((Program == null || Program.HasExited) && DateTime.Now > lastHooked.AddSeconds(1)) {
 				lastHooked = DateTime.Now;
@@ -331,8 +279,8 @@ namespace LiveSplit.Kalimba.Memory {
 					{"MenuManager",       "558BEC53575683EC0C8B05????????83EC086A0050E8????????83C41085C074338B05????????83EC08FF750850E8????????83C41085C0741A83EC0CFF7508E8|-30"},
 					{"PlatformManager",   "558BEC535683EC108B05????????83EC0C50E8????????83C41085C0740B8B05"},
 					{"TotemPole",         "D95810D94510D958148B4D1489480CC9C3000000558BEC83EC08B8????????8B4D088908C9C3000000000000558BEC5683EC0483EC0C|-27"},
-					{"TransitionManager", "558BEC5783EC048B7D088B05????????83EC086A0050E8????????83C41085C074348B05????????83EC085750E8????????83C41085C0741D83EC0C57E8????????83C41083EC0C50E8????????83C410E9????????B8" },
-					{"GhostManager",      "EC5783EC148B7D088B05????????83EC0C503900E8????????83C41083EC086A01503900E8????????83C410C647240083EC0C68????????E8????????83C41083EC0C8945F450E8????????83C4108B45F489471883EC0C|-78" }
+					{"GhostManager",      "EC5783EC148B7D088B05????????83EC0C503900E8????????83C41083EC086A01503900E8????????83C410C647240083EC0C68????????E8????????83C41083EC0C8945F450E8????????83C4108B45F489471883EC0C|-78" },
+					{"LevelComplete",     "558BEC5783EC648B7D0883EC0C57E8????????83C410B8????????C60000D9EED99F????????8B474083EC086A0050E8????????83C41085C0743083EC0C57|-40" }
 			}},
 		};
 		private IntPtr pointer;
@@ -453,12 +401,6 @@ namespace LiveSplit.Kalimba.Memory {
 		Singleplayer,
 		Cooperative
 	}
-	public enum TypingProgress {
-		None,
-		Begun,
-		Done,
-		EventsRaised
-	}
 	public enum World {
 		None,
 		Underground,
@@ -466,26 +408,6 @@ namespace LiveSplit.Kalimba.Memory {
 		Sky,
 		Space,
 		Challenge
-	}
-	public enum PlayerStatus {
-		Disabled,
-		WaitingForController,
-		WaitingForUser,
-		WaitingForPersistentUserStats,
-		WaitingForControllerMapping,
-		Ready
-	}
-	public enum TotemState {
-		IDLE,
-		WALKING,
-		JUMP_UP,
-		JUMP_DOWN,
-		PASSIVE,
-		TUMPLING,
-		ON_SLOPE,
-		ON_ICE,
-		DEAD,
-		IN_CANNON
 	}
 	public enum PlatformLevelId {
 		None,
