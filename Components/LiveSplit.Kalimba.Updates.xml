@@ -1,5 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <updates>
+	<update version="1.7.1">
+		<files>
+			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
+		</files>
+		<changelog>
+			<change>
+				Changed how IL splits happen
+			</change>
+		</changelog>
+	</update>
 	<update version="1.7.0">
 		<files>
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>

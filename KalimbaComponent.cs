@@ -86,8 +86,8 @@ namespace LiveSplit.Kalimba {
 				} else if (state == 1 && prev == MenuScreen.Loading) {
 					state++;
 					mem.SetLevelScore(mem.GetPlatformLevelId(), 0);
-				} else if (state >= 2 && state <= 3) {
-					shouldSplit = state++ == 3;
+				} else if (state == 2) {
+					shouldSplit = true;
 				}
 			} else if (currentSplit < Model.CurrentState.Run.Count) {
 				string[] splits = Model.CurrentState.Run[currentSplit - 1].Name.Split(' ');
@@ -98,18 +98,13 @@ namespace LiveSplit.Kalimba {
 					}
 				}
 
-				shouldSplit = pickups > 0 && mem.GetCurrentScore() >= pickups;
-				if(shouldSplit) {
+				shouldSplit = pickups > 0 && mem.GetCurrentScore() == pickups;
+				if (shouldSplit) {
 					lastLevelComplete++;
 				}
-			} else if (state == 0 && mem.GetEndLevel()) {
-				state++;
-			} else if (state >= 1) {
-				if (screen != MenuScreen.InGame) {
-					state = 0;
-				} else {
-					shouldSplit = state++ == 2;
-				}
+			} else {
+				PersistentLevelStats level = mem.GetLevelStats(mem.GetPlatformLevelId());
+				shouldSplit = level != null && level.minMillisecondsForMaxScore != int.MaxValue;
 			}
 
 			HandleSplit(shouldSplit, screen, screen == MenuScreen.SinglePlayerMap || screen == MenuScreen.SinglePlayerDLCMap || screen == MenuScreen.CoopMap || screen == MenuScreen.CoopDLCMap);
@@ -202,7 +197,7 @@ namespace LiveSplit.Kalimba {
 			}
 		}
 		private void HandleGameTimes(MenuScreen screen) {
-			if (Model.CurrentState.IsGameTimePaused && screen == MenuScreen.InGame && !mem.GetFrozen() && mem.GetIsMoving()) {
+			if (Model.CurrentState.IsGameTimePaused && screen == MenuScreen.InGame && !mem.GetFrozen()) {
 				Model.CurrentState.IsGameTimePaused = false;
 			}
 
@@ -313,11 +308,13 @@ namespace LiveSplit.Kalimba {
 		}
 		public void OnUndoSplit(object sender, EventArgs e) {
 			currentSplit--;
+			lastLevelComplete--;
 			state = 0;
 			WriteLog(DateTime.Now.ToString(@"HH\:mm\:ss.fff") + " | " + Model.CurrentState.CurrentTime.RealTime.Value.ToString("G").Substring(3, 11) + ": CurrentSplit: " + currentSplit.ToString().PadLeft(24, ' '));
 		}
 		public void OnSkipSplit(object sender, EventArgs e) {
 			currentSplit++;
+			lastLevelComplete++;
 			state = 0;
 			WriteLog(DateTime.Now.ToString(@"HH\:mm\:ss.fff") + " | " + Model.CurrentState.CurrentTime.RealTime.Value.ToString("G").Substring(3, 11) + ": CurrentSplit: " + currentSplit.ToString().PadLeft(24, ' '));
 		}
