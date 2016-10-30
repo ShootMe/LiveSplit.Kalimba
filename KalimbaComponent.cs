@@ -103,8 +103,8 @@ namespace LiveSplit.Kalimba {
 					lastLevelComplete++;
 				}
 			} else {
-				//PersistentLevelStats level = mem.GetLevelStats(mem.GetPlatformLevelId());
-				shouldSplit = mem.LevelComplete();// level != null && level.minMillisecondsForMaxScore != int.MaxValue;
+				PersistentLevelStats level = mem.GetLevelStats(mem.GetPlatformLevelId());
+				shouldSplit = level != null && level.minMillisecondsForMaxScore != int.MaxValue;
 			}
 
 			HandleSplit(shouldSplit, screen, screen == MenuScreen.SinglePlayerMap || screen == MenuScreen.SinglePlayerDLCMap || screen == MenuScreen.CoopMap || screen == MenuScreen.CoopDLCMap);
