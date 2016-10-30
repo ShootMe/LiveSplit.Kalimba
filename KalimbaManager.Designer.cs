@@ -192,7 +192,7 @@
 			this.MaximizeBox = false;
 			this.Name = "KalimbaManager";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-			this.Text = "Kalimba Manager 1.7.5";
+			this.Text = "Kalimba Manager 1.7.6";
 			this.TopMost = true;
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.KalimbaManager_FormClosing);
 			this.ResumeLayout(false);
