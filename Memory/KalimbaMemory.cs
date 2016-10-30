@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Text;
 namespace LiveSplit.Kalimba.Memory {
 	public partial class KalimbaMemory {
-		private ProgramPointer globalGameManager, menuManager, totemPole, platformManager, ghostManager, levelComplete;
+		private ProgramPointer globalGameManager, menuManager, totemPole, platformManager, ghostManager, levelComplete, musicMachine;
 		public Process Program { get; set; }
 		public bool IsHooked { get; set; } = false;
 		private DateTime lastHooked;
@@ -16,9 +16,14 @@ namespace LiveSplit.Kalimba.Memory {
 			platformManager = new ProgramPointer(this, "PlatformManager");
 			ghostManager = new ProgramPointer(this, "GhostManager");
 			levelComplete = new ProgramPointer(this, "LevelComplete") { IsStatic = false };
+			musicMachine = new ProgramPointer(this, "MusicMachine");
 			lastHooked = DateTime.MinValue;
 		}
 
+		public void SetMusicVolume(float volume) {
+			musicMachine.Write<float>(volume, 0x1c, 0x24);
+			musicMachine.Write<float>(volume, 0x20, 0x24);
+		}
 		public bool LevelComplete() {
 			return levelComplete.Read<bool>() && (MenuScreen)menuManager.Read<int>(0x34) == MenuScreen.InGame;
 		}
@@ -280,7 +285,8 @@ namespace LiveSplit.Kalimba.Memory {
 					{"PlatformManager",   "558BEC535683EC108B05????????83EC0C50E8????????83C41085C0740B8B05"},
 					{"TotemPole",         "D95810D94510D958148B4D1489480CC9C3000000558BEC83EC08B8????????8B4D088908C9C3000000000000558BEC5683EC0483EC0C|-27"},
 					{"GhostManager",      "EC5783EC148B7D088B05????????83EC0C503900E8????????83C41083EC086A01503900E8????????83C410C647240083EC0C68????????E8????????83C41083EC0C8945F450E8????????83C4108B45F489471883EC0C|-78" },
-					{"LevelComplete",     "558BEC5783EC648B7D0883EC0C57E8????????83C410B8????????C60000D9EED99F????????8B474083EC086A0050E8????????83C41085C0743083EC0C57|-40" }
+					{"LevelComplete",     "558BEC5783EC648B7D0883EC0C57E8????????83C410B8????????C60000D9EED99F????????8B474083EC086A0050E8????????83C41085C0743083EC0C57|-40" },
+					{"MusicMachine",      "558BEC575683EC108B75088B7D0C83FF060F85????????8B05????????83EC0C503900E8????????83C4108945F48B45F43D????????74268B05" }
 			}},
 		};
 		private IntPtr pointer;

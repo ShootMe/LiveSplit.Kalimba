@@ -34,6 +34,7 @@
 			this.lblP2Pos = new System.Windows.Forms.Label();
 			this.chkLockCheckpoint = new System.Windows.Forms.CheckBox();
 			this.chkPickups = new System.Windows.Forms.CheckBox();
+			this.chkNoMusic = new System.Windows.Forms.CheckBox();
 			this.SuspendLayout();
 			// 
 			// btnNewGame
@@ -138,9 +139,9 @@
 			this.chkLockCheckpoint.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.chkLockCheckpoint.Location = new System.Drawing.Point(156, 91);
 			this.chkLockCheckpoint.Name = "chkLockCheckpoint";
-			this.chkLockCheckpoint.Size = new System.Drawing.Size(146, 24);
+			this.chkLockCheckpoint.Size = new System.Drawing.Size(62, 24);
 			this.chkLockCheckpoint.TabIndex = 8;
-			this.chkLockCheckpoint.Text = "Lock Checkpoint";
+			this.chkLockCheckpoint.Text = "Lock";
 			this.chkLockCheckpoint.UseVisualStyleBackColor = true;
 			this.chkLockCheckpoint.CheckedChanged += new System.EventHandler(this.chkLockCheckpoint_CheckedChanged);
 			// 
@@ -156,12 +157,25 @@
 			this.chkPickups.UseVisualStyleBackColor = true;
 			this.chkPickups.CheckedChanged += new System.EventHandler(this.chkPickups_CheckedChanged);
 			// 
+			// chkNoMusic
+			// 
+			this.chkNoMusic.AutoSize = true;
+			this.chkNoMusic.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.chkNoMusic.Location = new System.Drawing.Point(199, 139);
+			this.chkNoMusic.Name = "chkNoMusic";
+			this.chkNoMusic.Size = new System.Drawing.Size(93, 24);
+			this.chkNoMusic.TabIndex = 10;
+			this.chkNoMusic.Text = "No Music";
+			this.chkNoMusic.UseVisualStyleBackColor = true;
+			this.chkNoMusic.CheckedChanged += new System.EventHandler(this.chkNoMusic_CheckedChanged);
+			// 
 			// KalimbaManager
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.Color.White;
 			this.ClientSize = new System.Drawing.Size(314, 171);
+			this.Controls.Add(this.chkNoMusic);
 			this.Controls.Add(this.chkPickups);
 			this.Controls.Add(this.chkLockCheckpoint);
 			this.Controls.Add(this.lblLevel);
@@ -178,7 +192,7 @@
 			this.MaximizeBox = false;
 			this.Name = "KalimbaManager";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-			this.Text = "Kalimba Manager 1.7.4";
+			this.Text = "Kalimba Manager 1.7.5";
 			this.TopMost = true;
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.KalimbaManager_FormClosing);
 			this.ResumeLayout(false);
@@ -198,5 +212,6 @@
 		private System.Windows.Forms.Label lblP2Pos;
 		private System.Windows.Forms.CheckBox chkLockCheckpoint;
 		private System.Windows.Forms.CheckBox chkPickups;
+		private System.Windows.Forms.CheckBox chkNoMusic;
 	}
 }

@@ -80,7 +80,7 @@ namespace LiveSplit.Kalimba {
 					Memory.SetCheckpoint(lockedCheckpoint);
 					currentCheckpoint = lockedCheckpoint;
 				}
-				
+
 				lblCurrentCheckpoint.Text = "Checkpoint: " + (currentCheckpoint + 1) + " / " + Memory.GetCheckpointCount();
 				lblP1Pos.Text = "T1: (" + Memory.GetLastXP1().ToString("0.00") + ", " + Memory.GetLastYP1().ToString("0.00") + ")";
 				lblP2Pos.Text = "T2: (" + Memory.GetLastXP2().ToString("0.00") + ", " + Memory.GetLastYP2().ToString("0.00") + ")";
@@ -92,10 +92,10 @@ namespace LiveSplit.Kalimba {
 					chkPickups.Checked = false;
 				}
 
-				if(prevMenu == MenuScreen.SpeedRunLevelSelect && menu == MenuScreen.Loading && !Memory.SpeedrunLoaded()) {
+				if (prevMenu == MenuScreen.SpeedRunLevelSelect && menu == MenuScreen.Loading && !Memory.SpeedrunLoaded()) {
 					if (lastCheckLoading == DateTime.MinValue) {
 						lastCheckLoading = DateTime.Now;
-					} else if(lastCheckLoading.AddSeconds(5) < DateTime.Now) {
+					} else if (lastCheckLoading.AddSeconds(5) < DateTime.Now) {
 						Memory.FixSpeedrun();
 						lastCheckLoading = DateTime.MinValue;
 					}
@@ -113,6 +113,9 @@ namespace LiveSplit.Kalimba {
 		}
 		private void chkPickups_CheckedChanged(object sender, EventArgs e) {
 			Memory.PassthroughPickups(chkPickups.Checked);
+		}
+		private void chkNoMusic_CheckedChanged(object sender, EventArgs e) {
+			Memory.SetMusicVolume(chkNoMusic.Checked ? 0f : 1f);
 		}
 	}
 }
