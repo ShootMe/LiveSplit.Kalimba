@@ -87,9 +87,7 @@ namespace LiveSplit.Kalimba {
 				chkPickups.Enabled = inGameNotRunning;
 				chkLockCheckpoint.Enabled = inGameNotRunning;
 
-				if(chkNoMusic.Checked) {
-					Memory.SetMusicVolume(0f);
-				}
+				Memory.SetMusicVolume((float)musicVolume.Value / 20f);
 
 				if (!inGameNotRunning) {
 					chkLockCheckpoint.Checked = false;
@@ -117,9 +115,6 @@ namespace LiveSplit.Kalimba {
 		}
 		private void chkPickups_CheckedChanged(object sender, EventArgs e) {
 			Memory.PassthroughPickups(chkPickups.Checked);
-		}
-		private void chkNoMusic_CheckedChanged(object sender, EventArgs e) {
-			Memory.SetMusicVolume(chkNoMusic.Checked ? 0f : 1f);
 		}
 	}
 }
