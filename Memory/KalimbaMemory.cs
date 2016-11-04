@@ -29,11 +29,14 @@ namespace LiveSplit.Kalimba.Memory {
 		}
 		public void ZoomOut() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.cameraController._currentZone.cameraSettings.size
-			globalGameManager.Write<float>(85, 0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x24);
+			globalGameManager.Write<float>(130, 0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x24);
 		}
 		public float Zoom() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.cameraController._currentZone.cameraSettings.size
 			return globalGameManager.Read<float>(0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x24);
+		}
+		public int FrameCount() {
+			return Program.Read<int>(Program.MainModule.BaseAddress, 0xa1e97c);
 		}
 		public PlatformLevelId SelectedLevel() {
 			//TotemWorldMap.instance.levelInfo.sceneFile.platformLevelId
