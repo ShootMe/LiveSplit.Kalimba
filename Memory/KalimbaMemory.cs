@@ -27,13 +27,33 @@ namespace LiveSplit.Kalimba.Memory {
 		public bool LevelComplete() {
 			return levelComplete.Read<bool>() && (MenuScreen)menuManager.Read<int>(0x34) == MenuScreen.InGame;
 		}
-		public void ZoomOut() {
+		public void SetZoom(float zoom) {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.cameraController._currentZone.cameraSettings.size
-			globalGameManager.Write<float>(130, 0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x24);
+			globalGameManager.Write<float>(zoom, 0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x24);
 		}
 		public float Zoom() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.cameraController._currentZone.cameraSettings.size
 			return globalGameManager.Read<float>(0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x24);
+		}
+		public int CameraZone() {
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.cameraController._currentZone
+			return globalGameManager.Read<int>(0x14, 0x0c, 0x1c, 0x4c, 0x1c);
+		}
+		public float CameraCenterX() {
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.cameraController.oldCenter.x
+			//return globalGameManager.Read<float>(0x14, 0x0c, 0x1c, 0x9c);
+			return globalGameManager.Read<float>(0x14, 0x0c, 0x1c, 0x2c, 0x58);
+		}
+		public void ResetCamera() {
+			globalGameManager.Write<int>(0, 0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x40);
+			globalGameManager.Write<float>(0, 0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x1c);
+			globalGameManager.Write<int>(0, 0x14, 0x0c, 0x1c, 0x68);
+		}
+		public void SetCameraOffset(float x) {
+			globalGameManager.Write<int>(2, 0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x40);
+			globalGameManager.Write<int>(2, 0x14, 0x0c, 0x1c, 0x68);
+			globalGameManager.Write<float>(x, 0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x1c);
+			globalGameManager.Write<bool>(false, 0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x28);
 		}
 		public int FrameCount() {
 			return Program.Read<int>(Program.MainModule.BaseAddress, 0xa1e97c);

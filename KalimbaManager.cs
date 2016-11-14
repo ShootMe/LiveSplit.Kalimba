@@ -81,7 +81,30 @@ namespace LiveSplit.Kalimba {
 					currentCheckpoint = lockedCheckpoint;
 				}
 
-				//Memory.ZoomOut();
+				chkLockZoom.Enabled = inGameNotRunning;
+				chkCameraLead.Enabled = inGameNotRunning;
+				chkCameraTrail.Enabled = inGameNotRunning;
+				float zoom = Memory.Zoom();
+				if (chkLockZoom.Checked) {
+					Memory.SetZoom(zoomValue.Value);
+					zoomValue.Enabled = true;
+				} else {
+					zoomValue.Enabled = false;
+					zoomValue.Value = Math.Min(Math.Max(0, (int)Memory.Zoom()), 150);
+				}
+
+				if (chkCameraLead.Checked || chkCameraTrail.Checked) {
+					float currentZoneCenter = Memory.CameraCenterX();
+					float p1x = Memory.GetLastXP1();
+					float p2x = Memory.GetLastXP2();
+					if ((int)currentZoneCenter == 0) {
+						currentZoneCenter = p1x;
+					}
+					float min = Math.Min(p1x, p2x);
+					float max = Math.Max(p1x, p2x);
+					Memory.SetCameraOffset((chkCameraLead.Checked ? max : min) - currentZoneCenter);
+				}
+
 				lblCurrentCheckpoint.Text = "Checkpoint: " + (currentCheckpoint + 1) + " / " + Memory.GetCheckpointCount();
 				lblP1Pos.Text = "T1: (" + Memory.GetLastXP1().ToString("0.00") + ", " + Memory.GetLastYP1().ToString("0.00") + ")";
 				lblP2Pos.Text = "T2: (" + Memory.GetLastXP2().ToString("0.00") + ", " + Memory.GetLastYP2().ToString("0.00") + ")";
@@ -93,6 +116,9 @@ namespace LiveSplit.Kalimba {
 				if (!inGameNotRunning) {
 					chkLockCheckpoint.Checked = false;
 					chkPickups.Checked = false;
+					chkLockZoom.Checked = false;
+					chkCameraLead.Checked = false;
+					chkCameraTrail.Checked = false;
 				}
 
 				if (prevMenu == MenuScreen.SpeedRunLevelSelect && menu == MenuScreen.Loading && !Memory.SpeedrunLoaded()) {
@@ -116,6 +142,20 @@ namespace LiveSplit.Kalimba {
 		}
 		private void chkPickups_CheckedChanged(object sender, EventArgs e) {
 			Memory.PassthroughPickups(chkPickups.Checked);
+		}
+		private void chkCameraLead_CheckedChanged(object sender, EventArgs e) {
+			if (chkCameraLead.Checked && chkCameraTrail.Checked) {
+				chkCameraTrail.Checked = false;
+			} else if (!chkCameraLead.Checked && !chkCameraTrail.Checked) {
+				Memory.ResetCamera();
+			}
+		}
+		private void chkCameraTrail_CheckedChanged(object sender, EventArgs e) {
+			if (chkCameraLead.Checked && chkCameraTrail.Checked) {
+				chkCameraLead.Checked = false;
+			} else if (!chkCameraLead.Checked && !chkCameraTrail.Checked) {
+				Memory.ResetCamera();
+			}
 		}
 	}
 }

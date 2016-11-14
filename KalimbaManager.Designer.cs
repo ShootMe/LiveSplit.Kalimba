@@ -36,7 +36,12 @@
 			this.chkPickups = new System.Windows.Forms.CheckBox();
 			this.musicVolume = new System.Windows.Forms.TrackBar();
 			this.lblMusic = new System.Windows.Forms.Label();
+			this.zoomValue = new System.Windows.Forms.TrackBar();
+			this.chkCameraLead = new System.Windows.Forms.CheckBox();
+			this.chkCameraTrail = new System.Windows.Forms.CheckBox();
+			this.chkLockZoom = new System.Windows.Forms.CheckBox();
 			((System.ComponentModel.ISupportInitialize)(this.musicVolume)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.zoomValue)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// btnNewGame
@@ -151,7 +156,7 @@
 			// 
 			this.chkPickups.AutoSize = true;
 			this.chkPickups.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.chkPickups.Location = new System.Drawing.Point(162, 112);
+			this.chkPickups.Location = new System.Drawing.Point(224, 92);
 			this.chkPickups.Name = "chkPickups";
 			this.chkPickups.Size = new System.Drawing.Size(107, 24);
 			this.chkPickups.TabIndex = 9;
@@ -161,7 +166,7 @@
 			// 
 			// musicVolume
 			// 
-			this.musicVolume.Location = new System.Drawing.Point(206, 134);
+			this.musicVolume.Location = new System.Drawing.Point(55, 154);
 			this.musicVolume.Maximum = 20;
 			this.musicVolume.Name = "musicVolume";
 			this.musicVolume.Size = new System.Drawing.Size(94, 45);
@@ -173,18 +178,69 @@
 			// 
 			this.lblMusic.AutoSize = true;
 			this.lblMusic.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblMusic.Location = new System.Drawing.Point(158, 139);
+			this.lblMusic.Location = new System.Drawing.Point(7, 159);
 			this.lblMusic.Name = "lblMusic";
-			this.lblMusic.Size = new System.Drawing.Size(58, 20);
+			this.lblMusic.Size = new System.Drawing.Size(54, 20);
 			this.lblMusic.TabIndex = 10;
-			this.lblMusic.Text = "Music: ";
+			this.lblMusic.Text = "Music:";
+			// 
+			// zoomValue
+			// 
+			this.zoomValue.Location = new System.Drawing.Point(226, 154);
+			this.zoomValue.Maximum = 150;
+			this.zoomValue.Name = "zoomValue";
+			this.zoomValue.Size = new System.Drawing.Size(94, 45);
+			this.zoomValue.TabIndex = 13;
+			this.zoomValue.TickFrequency = 8;
+			this.zoomValue.TickStyle = System.Windows.Forms.TickStyle.TopLeft;
+			this.zoomValue.Value = 50;
+			// 
+			// chkCameraLead
+			// 
+			this.chkCameraLead.AutoSize = true;
+			this.chkCameraLead.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.chkCameraLead.Location = new System.Drawing.Point(162, 111);
+			this.chkCameraLead.Name = "chkCameraLead";
+			this.chkCameraLead.Size = new System.Drawing.Size(124, 24);
+			this.chkCameraLead.TabIndex = 14;
+			this.chkCameraLead.Text = "Camera Lead";
+			this.chkCameraLead.UseVisualStyleBackColor = true;
+			this.chkCameraLead.CheckedChanged += new System.EventHandler(this.chkCameraLead_CheckedChanged);
+			// 
+			// chkCameraTrail
+			// 
+			this.chkCameraTrail.AutoSize = true;
+			this.chkCameraTrail.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.chkCameraTrail.Location = new System.Drawing.Point(162, 131);
+			this.chkCameraTrail.Name = "chkCameraTrail";
+			this.chkCameraTrail.Size = new System.Drawing.Size(117, 24);
+			this.chkCameraTrail.TabIndex = 15;
+			this.chkCameraTrail.Text = "Camera Trail";
+			this.chkCameraTrail.UseVisualStyleBackColor = true;
+			this.chkCameraTrail.CheckedChanged += new System.EventHandler(this.chkCameraTrail_CheckedChanged);
+			// 
+			// chkLockZoom
+			// 
+			this.chkLockZoom.AutoSize = true;
+			this.chkLockZoom.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.chkLockZoom.Location = new System.Drawing.Point(162, 158);
+			this.chkLockZoom.Name = "chkLockZoom";
+			this.chkLockZoom.Size = new System.Drawing.Size(69, 24);
+			this.chkLockZoom.TabIndex = 16;
+			this.chkLockZoom.Text = "Zoom";
+			this.chkLockZoom.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			this.chkLockZoom.UseVisualStyleBackColor = true;
 			// 
 			// KalimbaManager
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.Color.White;
-			this.ClientSize = new System.Drawing.Size(298, 171);
+			this.ClientSize = new System.Drawing.Size(335, 190);
+			this.Controls.Add(this.chkLockZoom);
+			this.Controls.Add(this.chkCameraTrail);
+			this.Controls.Add(this.chkCameraLead);
+			this.Controls.Add(this.zoomValue);
 			this.Controls.Add(this.musicVolume);
 			this.Controls.Add(this.chkPickups);
 			this.Controls.Add(this.chkLockCheckpoint);
@@ -203,10 +259,11 @@
 			this.MaximizeBox = false;
 			this.Name = "KalimbaManager";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-			this.Text = "Kalimba Manager 1.7.8";
+			this.Text = "Kalimba Manager 1.7.9";
 			this.TopMost = true;
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.KalimbaManager_FormClosing);
 			((System.ComponentModel.ISupportInitialize)(this.musicVolume)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.zoomValue)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -226,5 +283,9 @@
 		private System.Windows.Forms.CheckBox chkPickups;
 		private System.Windows.Forms.TrackBar musicVolume;
 		private System.Windows.Forms.Label lblMusic;
+		private System.Windows.Forms.TrackBar zoomValue;
+		private System.Windows.Forms.CheckBox chkCameraLead;
+		private System.Windows.Forms.CheckBox chkCameraTrail;
+		private System.Windows.Forms.CheckBox chkLockZoom;
 	}
 }
