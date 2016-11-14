@@ -1,5 +1,6 @@
 ﻿using LiveSplit.Kalimba.Memory;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Windows.Forms;
 namespace LiveSplit.Kalimba {
@@ -8,6 +9,7 @@ namespace LiveSplit.Kalimba {
 		public KalimbaComponent Component { get; set; }
 		private int lockedCheckpoint = -1;
 		private DateTime lastCheckLoading = DateTime.MinValue;
+		private Dictionary<int, float> oldZoomValues = new Dictionary<int, float>();
 		public KalimbaManager() {
 			InitializeComponent();
 			Visible = false;
@@ -86,6 +88,10 @@ namespace LiveSplit.Kalimba {
 				chkCameraTrail.Enabled = inGameNotRunning;
 				float zoom = Memory.Zoom();
 				if (chkLockZoom.Checked) {
+					int cameraZone = Memory.CameraZone();
+					if (!oldZoomValues.ContainsKey(cameraZone)) {
+						oldZoomValues.Add(cameraZone, Memory.Zoom());
+					}
 					Memory.SetZoom(zoomValue.Value);
 					zoomValue.Enabled = true;
 				} else {
@@ -155,6 +161,14 @@ namespace LiveSplit.Kalimba {
 				chkCameraLead.Checked = false;
 			} else if (!chkCameraLead.Checked && !chkCameraTrail.Checked) {
 				Memory.ResetCamera();
+			}
+		}
+		private void chkLockZoom_CheckedChanged(object sender, EventArgs e) {
+			if (!chkLockZoom.Checked) {
+				foreach (KeyValuePair<int, float> pair in oldZoomValues) {
+					Memory.Program.Write<float>((IntPtr)pair.Key, pair.Value, 0x24);
+				}
+				oldZoomValues.Clear();
 			}
 		}
 	}

@@ -230,6 +230,7 @@
 			this.chkLockZoom.Text = "Zoom";
 			this.chkLockZoom.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			this.chkLockZoom.UseVisualStyleBackColor = true;
+			this.chkLockZoom.CheckedChanged += new System.EventHandler(this.chkLockZoom_CheckedChanged);
 			// 
 			// KalimbaManager
 			// 
@@ -259,7 +260,7 @@
 			this.MaximizeBox = false;
 			this.Name = "KalimbaManager";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-			this.Text = "Kalimba Manager 1.7.9";
+			this.Text = "Kalimba Manager 1.8.0";
 			this.TopMost = true;
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.KalimbaManager_FormClosing);
 			((System.ComponentModel.ISupportInitialize)(this.musicVolume)).EndInit();

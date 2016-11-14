@@ -36,24 +36,35 @@ namespace LiveSplit.Kalimba.Memory {
 			return globalGameManager.Read<float>(0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x24);
 		}
 		public int CameraZone() {
-			//GlobalGameManager.instance.currentSession.activeSessionHolder.cameraController._currentZone
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.cameraController._currentZone.cameraSettings
 			return globalGameManager.Read<int>(0x14, 0x0c, 0x1c, 0x4c, 0x1c);
 		}
 		public float CameraCenterX() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.cameraController.oldCenter.x
-			//return globalGameManager.Read<float>(0x14, 0x0c, 0x1c, 0x9c);
 			return globalGameManager.Read<float>(0x14, 0x0c, 0x1c, 0x2c, 0x58);
 		}
 		public void ResetCamera() {
 			globalGameManager.Write<int>(0, 0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x40);
-			globalGameManager.Write<float>(0, 0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x1c);
 			globalGameManager.Write<int>(0, 0x14, 0x0c, 0x1c, 0x68);
+			globalGameManager.Write<float>(0, 0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x1c);
+			globalGameManager.Write<int>(0, 0x14, 0x0c, 0x1c, 0x2c);
 		}
 		public void SetCameraOffset(float x) {
 			globalGameManager.Write<int>(2, 0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x40);
 			globalGameManager.Write<int>(2, 0x14, 0x0c, 0x1c, 0x68);
 			globalGameManager.Write<float>(x, 0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x1c);
 			globalGameManager.Write<bool>(false, 0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x28);
+
+			if (globalGameManager.Read<int>(0x14, 0x0c, 0x1c, 0x2c) == 0) {
+				int checkPoints = GetCheckpointCount();
+				int currentCheckpoint = GetCurrentCheckpoint();
+				for (int i = 0; i < checkPoints; i++) {
+					if (globalGameManager.Read<int>(0x14, 0x0c, 0x14, 0x18, 0x10 + (i * 4), 0x50) == currentCheckpoint) {
+						globalGameManager.Write<int>(globalGameManager.Read<int>(0x14, 0x0c, 0x14, 0x18, 0x10 + (i * 4)), 0x14, 0x0c, 0x1c, 0x2c);
+						break;
+					}
+				}
+			}
 		}
 		public int FrameCount() {
 			return Program.Read<int>(Program.MainModule.BaseAddress, 0xa1e97c);
