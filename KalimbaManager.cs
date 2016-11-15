@@ -100,15 +100,24 @@ namespace LiveSplit.Kalimba {
 				}
 
 				if (chkCameraLead.Checked || chkCameraTrail.Checked) {
-					float currentZoneCenter = Memory.CameraCenterX();
+					float currentZoneCenterX = Memory.CameraCenterX();
+					float currentZoneCenterY = Memory.CameraCenterY();
 					float p1x = Memory.GetLastXP1();
 					float p2x = Memory.GetLastXP2();
-					if ((int)currentZoneCenter == 0) {
-						currentZoneCenter = p1x;
+					float p1y = Memory.GetLastYP1();
+					float p2y = Memory.GetLastYP2();
+					float minX = p1x;
+					float maxX = p2x;
+					float minY = p1y;
+					float maxY = p2y;
+					if (maxX < minX) {
+						minX = p2x;
+						maxX = p1x;
+						minY = p2y;
+						maxY = p1y;
 					}
-					float min = Math.Min(p1x, p2x);
-					float max = Math.Max(p1x, p2x);
-					Memory.SetCameraOffset((chkCameraLead.Checked ? max : min) - currentZoneCenter);
+
+					Memory.SetCameraOffset((chkCameraLead.Checked ? maxX : minX) - currentZoneCenterX, (chkCameraLead.Checked ? maxY : minY) - currentZoneCenterY);
 				}
 
 				lblCurrentCheckpoint.Text = "Checkpoint: " + (currentCheckpoint + 1) + " / " + Memory.GetCheckpointCount();
