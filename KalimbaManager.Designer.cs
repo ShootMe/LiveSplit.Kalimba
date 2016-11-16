@@ -40,6 +40,8 @@
 			this.chkCameraLead = new System.Windows.Forms.CheckBox();
 			this.chkCameraTrail = new System.Windows.Forms.CheckBox();
 			this.chkLockZoom = new System.Windows.Forms.CheckBox();
+			this.lblCamera = new System.Windows.Forms.Label();
+			this.chkInvincible = new System.Windows.Forms.CheckBox();
 			((System.ComponentModel.ISupportInitialize)(this.musicVolume)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.zoomValue)).BeginInit();
 			this.SuspendLayout();
@@ -50,7 +52,7 @@
 			this.btnNewGame.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.btnNewGame.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.btnNewGame.ForeColor = System.Drawing.Color.Black;
-			this.btnNewGame.Location = new System.Drawing.Point(33, 12);
+			this.btnNewGame.Location = new System.Drawing.Point(66, 12);
 			this.btnNewGame.Name = "btnNewGame";
 			this.btnNewGame.Size = new System.Drawing.Size(113, 29);
 			this.btnNewGame.TabIndex = 0;
@@ -64,7 +66,7 @@
 			this.btnAllTotems.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.btnAllTotems.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.btnAllTotems.ForeColor = System.Drawing.Color.Black;
-			this.btnAllTotems.Location = new System.Drawing.Point(152, 12);
+			this.btnAllTotems.Location = new System.Drawing.Point(185, 12);
 			this.btnAllTotems.Name = "btnAllTotems";
 			this.btnAllTotems.Size = new System.Drawing.Size(113, 29);
 			this.btnAllTotems.TabIndex = 1;
@@ -78,7 +80,7 @@
 			this.btnPreviousCheckpoint.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.btnPreviousCheckpoint.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.btnPreviousCheckpoint.ForeColor = System.Drawing.Color.Black;
-			this.btnPreviousCheckpoint.Location = new System.Drawing.Point(33, 40);
+			this.btnPreviousCheckpoint.Location = new System.Drawing.Point(66, 40);
 			this.btnPreviousCheckpoint.Name = "btnPreviousCheckpoint";
 			this.btnPreviousCheckpoint.Size = new System.Drawing.Size(113, 29);
 			this.btnPreviousCheckpoint.TabIndex = 2;
@@ -92,7 +94,7 @@
 			this.btnNextCheckpoint.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.btnNextCheckpoint.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.btnNextCheckpoint.ForeColor = System.Drawing.Color.Black;
-			this.btnNextCheckpoint.Location = new System.Drawing.Point(152, 40);
+			this.btnNextCheckpoint.Location = new System.Drawing.Point(185, 40);
 			this.btnNextCheckpoint.Name = "btnNextCheckpoint";
 			this.btnNextCheckpoint.Size = new System.Drawing.Size(113, 29);
 			this.btnNextCheckpoint.TabIndex = 3;
@@ -156,7 +158,7 @@
 			// 
 			this.chkPickups.AutoSize = true;
 			this.chkPickups.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.chkPickups.Location = new System.Drawing.Point(224, 92);
+			this.chkPickups.Location = new System.Drawing.Point(228, 92);
 			this.chkPickups.Name = "chkPickups";
 			this.chkPickups.Size = new System.Drawing.Size(107, 24);
 			this.chkPickups.TabIndex = 9;
@@ -189,7 +191,7 @@
 			this.zoomValue.Location = new System.Drawing.Point(226, 154);
 			this.zoomValue.Maximum = 150;
 			this.zoomValue.Name = "zoomValue";
-			this.zoomValue.Size = new System.Drawing.Size(94, 45);
+			this.zoomValue.Size = new System.Drawing.Size(116, 45);
 			this.zoomValue.TabIndex = 13;
 			this.zoomValue.TickFrequency = 8;
 			this.zoomValue.TickStyle = System.Windows.Forms.TickStyle.TopLeft;
@@ -199,11 +201,11 @@
 			// 
 			this.chkCameraLead.AutoSize = true;
 			this.chkCameraLead.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.chkCameraLead.Location = new System.Drawing.Point(162, 111);
+			this.chkCameraLead.Location = new System.Drawing.Point(228, 112);
 			this.chkCameraLead.Name = "chkCameraLead";
-			this.chkCameraLead.Size = new System.Drawing.Size(124, 24);
+			this.chkCameraLead.Size = new System.Drawing.Size(64, 24);
 			this.chkCameraLead.TabIndex = 14;
-			this.chkCameraLead.Text = "Camera Lead";
+			this.chkCameraLead.Text = "Lead";
 			this.chkCameraLead.UseVisualStyleBackColor = true;
 			this.chkCameraLead.CheckedChanged += new System.EventHandler(this.chkCameraLead_CheckedChanged);
 			// 
@@ -211,11 +213,11 @@
 			// 
 			this.chkCameraTrail.AutoSize = true;
 			this.chkCameraTrail.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.chkCameraTrail.Location = new System.Drawing.Point(162, 131);
+			this.chkCameraTrail.Location = new System.Drawing.Point(290, 112);
 			this.chkCameraTrail.Name = "chkCameraTrail";
-			this.chkCameraTrail.Size = new System.Drawing.Size(117, 24);
+			this.chkCameraTrail.Size = new System.Drawing.Size(57, 24);
 			this.chkCameraTrail.TabIndex = 15;
-			this.chkCameraTrail.Text = "Camera Trail";
+			this.chkCameraTrail.Text = "Trail";
 			this.chkCameraTrail.UseVisualStyleBackColor = true;
 			this.chkCameraTrail.CheckedChanged += new System.EventHandler(this.chkCameraTrail_CheckedChanged);
 			// 
@@ -232,12 +234,36 @@
 			this.chkLockZoom.UseVisualStyleBackColor = true;
 			this.chkLockZoom.CheckedChanged += new System.EventHandler(this.chkLockZoom_CheckedChanged);
 			// 
+			// lblCamera
+			// 
+			this.lblCamera.AutoSize = true;
+			this.lblCamera.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.lblCamera.Location = new System.Drawing.Point(158, 112);
+			this.lblCamera.Name = "lblCamera";
+			this.lblCamera.Size = new System.Drawing.Size(65, 20);
+			this.lblCamera.TabIndex = 17;
+			this.lblCamera.Text = "Camera";
+			// 
+			// chkInvincible
+			// 
+			this.chkInvincible.AutoSize = true;
+			this.chkInvincible.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.chkInvincible.Location = new System.Drawing.Point(162, 132);
+			this.chkInvincible.Name = "chkInvincible";
+			this.chkInvincible.Size = new System.Drawing.Size(153, 24);
+			this.chkInvincible.TabIndex = 18;
+			this.chkInvincible.Text = "Invincible to Ooze";
+			this.chkInvincible.UseVisualStyleBackColor = true;
+			this.chkInvincible.CheckedChanged += new System.EventHandler(this.chkInvincible_CheckedChanged);
+			// 
 			// KalimbaManager
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.Color.White;
-			this.ClientSize = new System.Drawing.Size(335, 190);
+			this.ClientSize = new System.Drawing.Size(365, 190);
+			this.Controls.Add(this.chkInvincible);
+			this.Controls.Add(this.lblCamera);
 			this.Controls.Add(this.chkLockZoom);
 			this.Controls.Add(this.chkCameraTrail);
 			this.Controls.Add(this.chkCameraLead);
@@ -260,7 +286,7 @@
 			this.MaximizeBox = false;
 			this.Name = "KalimbaManager";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-			this.Text = "Kalimba Manager 1.8.0";
+			this.Text = "Kalimba Manager 1.8.2";
 			this.TopMost = true;
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.KalimbaManager_FormClosing);
 			((System.ComponentModel.ISupportInitialize)(this.musicVolume)).EndInit();
@@ -288,5 +314,7 @@
 		private System.Windows.Forms.CheckBox chkCameraLead;
 		private System.Windows.Forms.CheckBox chkCameraTrail;
 		private System.Windows.Forms.CheckBox chkLockZoom;
+		private System.Windows.Forms.Label lblCamera;
+		private System.Windows.Forms.CheckBox chkInvincible;
 	}
 }

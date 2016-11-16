@@ -73,7 +73,7 @@ namespace LiveSplit.Kalimba {
 			} else if (this.Visible && Memory != null && Memory.IsHooked) {
 				MenuScreen menu = Memory.GetCurrentMenu();
 				MenuScreen prevMenu = Memory.GetPreviousMenu();
-				bool inGameNotRunning = menu == MenuScreen.InGame && (Component == null || Component.Model == null || Component.Model.CurrentState.CurrentPhase != Model.TimerPhase.Running);
+				bool inGameNotRunning = (menu == MenuScreen.InGame || menu == MenuScreen.InGameMenu) && (Component == null || Component.Model == null || Component.Model.CurrentState.CurrentPhase != Model.TimerPhase.Running);
 				btnNextCheckpoint.Enabled = inGameNotRunning;
 				btnPreviousCheckpoint.Enabled = inGameNotRunning;
 				lblLevel.Text = "Level: " + Memory.SelectedLevel().ToString();
@@ -86,6 +86,7 @@ namespace LiveSplit.Kalimba {
 				chkLockZoom.Enabled = inGameNotRunning;
 				chkCameraLead.Enabled = inGameNotRunning;
 				chkCameraTrail.Enabled = inGameNotRunning;
+				chkInvincible.Enabled = inGameNotRunning;
 				float zoom = Memory.Zoom();
 				if (chkLockZoom.Checked) {
 					int cameraZone = Memory.CameraZone();
@@ -134,6 +135,9 @@ namespace LiveSplit.Kalimba {
 					chkLockZoom.Checked = false;
 					chkCameraLead.Checked = false;
 					chkCameraTrail.Checked = false;
+					chkInvincible.Checked = false;
+				} else if(chkInvincible.Checked && !Memory.IsInvincible()) {
+					chkInvincible.Checked = false;
 				}
 
 				if (prevMenu == MenuScreen.SpeedRunLevelSelect && menu == MenuScreen.Loading && !Memory.SpeedrunLoaded()) {
@@ -179,6 +183,9 @@ namespace LiveSplit.Kalimba {
 				}
 				oldZoomValues.Clear();
 			}
+		}
+		private void chkInvincible_CheckedChanged(object sender, EventArgs e) {
+			Memory.SetInvincible(chkInvincible.Checked);
 		}
 	}
 }
