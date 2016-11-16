@@ -111,11 +111,11 @@ namespace LiveSplit.Kalimba.Memory {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.checkpointManager.checkPoints.Length
 			return globalGameManager.Read<int>(0x14, 0x0c, 0x14, 0x18, 0x0c);
 		}
-		public void SetCheckpoint(int num) {
+		public void SetCheckpoint(int num, bool killTotems = true) {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.checkpointManager.checkPoints.Length
 			int cpCount = GetCheckpointCount();
-			if (num >= cpCount) { num = cpCount - 1; }
-			if (num < 0) { num = 0; }
+			if (num >= cpCount) { num = 0; }
+			if (num < 0) { num = cpCount - 1; }
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].reachedCheckpoint
 			globalGameManager.Write<int>(num, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x18);
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].currentCheckpoint
@@ -125,18 +125,33 @@ namespace LiveSplit.Kalimba.Memory {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[1].currentCheckpoint
 			globalGameManager.Write<int>(num, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x1c);
 
-			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].controlledPlayers[0]._objectDetector.updateable
-			globalGameManager.Write<int>(0, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0xdc, 0x50);
-			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].controlledPlayers[0]._objectDetector.phase
-			globalGameManager.Write<int>(48, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0xdc, 0x48);
-			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].controlledPlayers[0]._objectDetector.burntime
-			globalGameManager.Write<float>(2, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0xdc, 0x54);
-			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].controlledPlayers[1]._objectDetector.updateable
-			globalGameManager.Write<int>(0, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0xdc, 0x50);
-			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].controlledPlayers[1]._objectDetector.phase
-			globalGameManager.Write<int>(48, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0xdc, 0x48);
-			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].controlledPlayers[1]._objectDetector.burntime
-			globalGameManager.Write<float>(2, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0xdc, 0x54);
+			if (killTotems) {
+				//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].controlledPlayers[0]._objectDetector.updateable
+				globalGameManager.Write<int>(0, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0xdc, 0x50);
+				//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].controlledPlayers[0]._objectDetector.phase
+				globalGameManager.Write<int>(48, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0xdc, 0x48);
+				//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].controlledPlayers[0]._objectDetector.burntime
+				globalGameManager.Write<float>(2, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0xdc, 0x54);
+				//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].controlledPlayers[1]._objectDetector.updateable
+				globalGameManager.Write<int>(0, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0xdc, 0x50);
+				//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].controlledPlayers[1]._objectDetector.phase
+				globalGameManager.Write<int>(48, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0xdc, 0x48);
+				//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].controlledPlayers[1]._objectDetector.burntime
+				globalGameManager.Write<float>(2, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0xdc, 0x54);
+
+				//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[1].controlledPlayers[0]._objectDetector.updateable
+				globalGameManager.Write<int>(0, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x10, 0xdc, 0x50);
+				//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[1].controlledPlayers[0]._objectDetector.phase
+				globalGameManager.Write<int>(48, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x10, 0xdc, 0x48);
+				//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[1].controlledPlayers[0]._objectDetector.burntime
+				globalGameManager.Write<float>(2, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x10, 0xdc, 0x54);
+				//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[1].controlledPlayers[1]._objectDetector.updateable
+				globalGameManager.Write<int>(0, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x14, 0xdc, 0x50);
+				//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[1].controlledPlayers[1]._objectDetector.phase
+				globalGameManager.Write<int>(48, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x14, 0xdc, 0x48);
+				//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[1].controlledPlayers[1]._objectDetector.burntime
+				globalGameManager.Write<float>(2, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x14, 0xdc, 0x54);
+			}
 		}
 		public void SetInvincible(bool enabled) {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].controlledPlayers[0]._objectDetector.burntime
@@ -147,6 +162,15 @@ namespace LiveSplit.Kalimba.Memory {
 			globalGameManager.Write<float>(enabled ? int.MinValue : 0, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0xdc, 0x54);
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].controlledPlayers[1]._objectDetector.updateable
 			globalGameManager.Write<int>(enabled ? int.MinValue : 0, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0xdc, 0x50);
+
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[1].controlledPlayers[0]._objectDetector.burntime
+			globalGameManager.Write<float>(enabled ? int.MinValue : 0, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x10, 0xdc, 0x54);
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[1].controlledPlayers[0]._objectDetector.updateable
+			globalGameManager.Write<int>(enabled ? int.MinValue : 0, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x10, 0xdc, 0x50);
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[1].controlledPlayers[1]._objectDetector.burntime
+			globalGameManager.Write<float>(enabled ? int.MinValue : 0, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x14, 0xdc, 0x54);
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[1].controlledPlayers[1]._objectDetector.updateable
+			globalGameManager.Write<int>(enabled ? int.MinValue : 0, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x14, 0xdc, 0x50);
 		}
 		public bool IsInvincible() {
 			return globalGameManager.Read<int>(0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0xdc, 0x50) < -10;

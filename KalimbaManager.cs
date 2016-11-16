@@ -79,7 +79,7 @@ namespace LiveSplit.Kalimba {
 				lblLevel.Text = "Level: " + Memory.SelectedLevel().ToString();
 				int currentCheckpoint = Memory.GetCurrentCheckpoint();
 				if (chkLockCheckpoint.Checked && currentCheckpoint != lockedCheckpoint) {
-					Memory.SetCheckpoint(lockedCheckpoint);
+					Memory.SetCheckpoint(lockedCheckpoint, false);
 					currentCheckpoint = lockedCheckpoint;
 				}
 
@@ -136,7 +136,7 @@ namespace LiveSplit.Kalimba {
 					chkCameraLead.Checked = false;
 					chkCameraTrail.Checked = false;
 					chkInvincible.Checked = false;
-				} else if(chkInvincible.Checked && !Memory.IsInvincible()) {
+				} else if (chkInvincible.Checked && !Memory.IsInvincible()) {
 					chkInvincible.Checked = false;
 				}
 
