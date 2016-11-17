@@ -43,6 +43,7 @@
 			this.lblCamera = new System.Windows.Forms.Label();
 			this.chkInvincible = new System.Windows.Forms.CheckBox();
 			this.btnKill = new System.Windows.Forms.Button();
+			this.btnDirectX11 = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.musicVolume)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.zoomValue)).BeginInit();
 			this.SuspendLayout();
@@ -271,12 +272,27 @@
 			this.btnKill.UseVisualStyleBackColor = false;
 			this.btnKill.Click += new System.EventHandler(this.btnKill_Click);
 			// 
+			// btnDirectX11
+			// 
+			this.btnDirectX11.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+			this.btnDirectX11.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.btnDirectX11.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.btnDirectX11.ForeColor = System.Drawing.Color.Black;
+			this.btnDirectX11.Location = new System.Drawing.Point(250, 12);
+			this.btnDirectX11.Name = "btnDirectX11";
+			this.btnDirectX11.Size = new System.Drawing.Size(103, 29);
+			this.btnDirectX11.TabIndex = 20;
+			this.btnDirectX11.Text = "DirectX 11";
+			this.btnDirectX11.UseVisualStyleBackColor = false;
+			this.btnDirectX11.Click += new System.EventHandler(this.btnDirectX11_Click);
+			// 
 			// KalimbaManager
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.Color.White;
 			this.ClientSize = new System.Drawing.Size(365, 190);
+			this.Controls.Add(this.btnDirectX11);
 			this.Controls.Add(this.btnKill);
 			this.Controls.Add(this.chkInvincible);
 			this.Controls.Add(this.lblCamera);
@@ -302,7 +318,7 @@
 			this.MaximizeBox = false;
 			this.Name = "KalimbaManager";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-			this.Text = "Kalimba Manager 1.8.4";
+			this.Text = "Kalimba Manager 1.8.5";
 			this.TopMost = true;
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.KalimbaManager_FormClosing);
 			((System.ComponentModel.ISupportInitialize)(this.musicVolume)).EndInit();
@@ -333,5 +349,6 @@
 		private System.Windows.Forms.Label lblCamera;
 		private System.Windows.Forms.CheckBox chkInvincible;
 		private System.Windows.Forms.Button btnKill;
+		private System.Windows.Forms.Button btnDirectX11;
 	}
 }

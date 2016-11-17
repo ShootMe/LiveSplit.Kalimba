@@ -1,5 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <updates>
+	<update version="1.8.5">
+		<files>
+			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
+		</files>
+		<changelog>
+			<change>
+				Cleaned code and added ability to override DirectX11
+			</change>
+		</changelog>
+	</update>
 	<update version="1.8.4">
 		<files>
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>

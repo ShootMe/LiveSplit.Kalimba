@@ -72,22 +72,35 @@ namespace LiveSplit.Kalimba {
 				this.Invoke((Action)UpdateValues);
 			} else if (this.Visible && Memory != null && Memory.IsHooked) {
 				MenuScreen menu = Memory.GetCurrentMenu();
-				MenuScreen prevMenu = Memory.GetPreviousMenu();
 				bool inGameNotRunning = (menu == MenuScreen.InGame || menu == MenuScreen.InGameMenu) && (Component == null || Component.Model == null || Component.Model.CurrentState.CurrentPhase != Model.TimerPhase.Running);
+
 				btnNextCheckpoint.Enabled = inGameNotRunning;
 				btnPreviousCheckpoint.Enabled = inGameNotRunning;
 				btnKill.Enabled = inGameNotRunning;
-				lblLevel.Text = "Level: " + Memory.SelectedLevel().ToString();
+				chkLockZoom.Enabled = inGameNotRunning;
+				chkCameraLead.Enabled = inGameNotRunning;
+				chkCameraTrail.Enabled = inGameNotRunning;
+				chkInvincible.Enabled = inGameNotRunning;
+				chkPickups.Enabled = inGameNotRunning;
+				chkLockCheckpoint.Enabled = inGameNotRunning;
+
+				if (!inGameNotRunning) {
+					chkLockCheckpoint.Checked = false;
+					chkPickups.Checked = false;
+					chkLockZoom.Checked = false;
+					chkCameraLead.Checked = false;
+					chkCameraTrail.Checked = false;
+					chkInvincible.Checked = false;
+				} else if (chkInvincible.Checked && !Memory.IsInvincible() && !Memory.IsDying()) {
+					Memory.SetInvincible(true);
+				}
+
 				int currentCheckpoint = Memory.GetCurrentCheckpoint();
 				if (chkLockCheckpoint.Checked && currentCheckpoint != lockedCheckpoint) {
 					Memory.SetCheckpoint(lockedCheckpoint, false);
 					currentCheckpoint = lockedCheckpoint;
 				}
 
-				chkLockZoom.Enabled = inGameNotRunning;
-				chkCameraLead.Enabled = inGameNotRunning;
-				chkCameraTrail.Enabled = inGameNotRunning;
-				chkInvincible.Enabled = inGameNotRunning;
 				float zoom = Memory.Zoom();
 				if (chkLockZoom.Checked) {
 					int cameraZone = Memory.CameraZone();
@@ -122,31 +135,22 @@ namespace LiveSplit.Kalimba {
 					Memory.SetCameraOffset((chkCameraLead.Checked ? maxX : minX) - currentZoneCenterX, (chkCameraLead.Checked ? maxY : minY) - currentZoneCenterY);
 				}
 
+				lblLevel.Text = "Level: " + Memory.SelectedLevel().ToString();
 				lblCurrentCheckpoint.Text = "Checkpoint: " + (currentCheckpoint + 1) + " / " + Memory.GetCheckpointCount();
 				lblP1Pos.Text = "T1: (" + Memory.GetLastXP1().ToString("0.00") + ", " + Memory.GetLastYP1().ToString("0.00") + ")";
 				lblP2Pos.Text = "T2: (" + Memory.GetLastXP2().ToString("0.00") + ", " + Memory.GetLastYP2().ToString("0.00") + ")";
-				chkPickups.Enabled = inGameNotRunning;
-				chkLockCheckpoint.Enabled = inGameNotRunning;
 
 				Memory.SetMusicVolume((float)musicVolume.Value / 20f);
 
-				if (!inGameNotRunning) {
-					chkLockCheckpoint.Checked = false;
-					chkPickups.Checked = false;
-					chkLockZoom.Checked = false;
-					chkCameraLead.Checked = false;
-					chkCameraTrail.Checked = false;
-					chkInvincible.Checked = false;
-				} else if (chkInvincible.Checked && !Memory.IsInvincible() && !Memory.IsDying()) {
-					Memory.SetInvincible(true);
-				}
-
-				if (prevMenu == MenuScreen.SpeedRunLevelSelect && menu == MenuScreen.Loading && !Memory.SpeedrunLoaded()) {
-					if (lastCheckLoading == DateTime.MinValue) {
-						lastCheckLoading = DateTime.Now;
-					} else if (lastCheckLoading.AddSeconds(5) < DateTime.Now) {
-						Memory.FixSpeedrun();
-						lastCheckLoading = DateTime.MinValue;
+				if (menu == MenuScreen.Loading) {
+					MenuScreen prevMenu = Memory.GetPreviousMenu();
+					if (prevMenu == MenuScreen.SpeedRunLevelSelect && !Memory.SpeedrunLoaded()) {
+						if (lastCheckLoading == DateTime.MinValue) {
+							lastCheckLoading = DateTime.Now;
+						} else if (lastCheckLoading.AddSeconds(5) < DateTime.Now) {
+							Memory.FixSpeedrun();
+							lastCheckLoading = DateTime.MinValue;
+						}
 					}
 				}
 			} else if (Memory == null && this.Visible) {
@@ -190,6 +194,9 @@ namespace LiveSplit.Kalimba {
 		}
 		private void btnKill_Click(object sender, EventArgs e) {
 			Memory.KillTotems();
+		}
+		private void btnDirectX11_Click(object sender, EventArgs e) {
+			Memory.SetDirectX11();
 		}
 	}
 }
