@@ -195,8 +195,5 @@ namespace LiveSplit.Kalimba {
 		private void btnKill_Click(object sender, EventArgs e) {
 			Memory.KillTotems();
 		}
-		private void btnDirectX11_Click(object sender, EventArgs e) {
-			Memory.SetDirectX11();
-		}
 	}
 }

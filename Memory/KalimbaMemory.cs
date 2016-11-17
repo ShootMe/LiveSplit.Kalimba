@@ -94,10 +94,6 @@ namespace LiveSplit.Kalimba.Memory {
 			//TotemWorldMap.instance.multiplayerDLCTotemPole.menu.selectedIndex
 			return totemPole.Read<int>(0x00, 0x24, 0x40, 0x44);
 		}
-		public void SetDirectX11() {
-			//TotemWorldMap.epicDX11Fail
-			totemPole.Write<bool>(false, 0x04);
-		}
 		public void FixSpeedrun() {
 			ghostManager.Write<bool>(true, 0x24);
 		}
