@@ -42,6 +42,7 @@
 			this.chkLockZoom = new System.Windows.Forms.CheckBox();
 			this.lblCamera = new System.Windows.Forms.Label();
 			this.chkInvincible = new System.Windows.Forms.CheckBox();
+			this.btnKill = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.musicVolume)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.zoomValue)).BeginInit();
 			this.SuspendLayout();
@@ -52,7 +53,7 @@
 			this.btnNewGame.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.btnNewGame.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.btnNewGame.ForeColor = System.Drawing.Color.Black;
-			this.btnNewGame.Location = new System.Drawing.Point(66, 12);
+			this.btnNewGame.Location = new System.Drawing.Point(12, 12);
 			this.btnNewGame.Name = "btnNewGame";
 			this.btnNewGame.Size = new System.Drawing.Size(113, 29);
 			this.btnNewGame.TabIndex = 0;
@@ -66,7 +67,7 @@
 			this.btnAllTotems.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.btnAllTotems.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.btnAllTotems.ForeColor = System.Drawing.Color.Black;
-			this.btnAllTotems.Location = new System.Drawing.Point(185, 12);
+			this.btnAllTotems.Location = new System.Drawing.Point(131, 12);
 			this.btnAllTotems.Name = "btnAllTotems";
 			this.btnAllTotems.Size = new System.Drawing.Size(113, 29);
 			this.btnAllTotems.TabIndex = 1;
@@ -80,7 +81,7 @@
 			this.btnPreviousCheckpoint.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.btnPreviousCheckpoint.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.btnPreviousCheckpoint.ForeColor = System.Drawing.Color.Black;
-			this.btnPreviousCheckpoint.Location = new System.Drawing.Point(66, 40);
+			this.btnPreviousCheckpoint.Location = new System.Drawing.Point(12, 40);
 			this.btnPreviousCheckpoint.Name = "btnPreviousCheckpoint";
 			this.btnPreviousCheckpoint.Size = new System.Drawing.Size(113, 29);
 			this.btnPreviousCheckpoint.TabIndex = 2;
@@ -94,7 +95,7 @@
 			this.btnNextCheckpoint.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.btnNextCheckpoint.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.btnNextCheckpoint.ForeColor = System.Drawing.Color.Black;
-			this.btnNextCheckpoint.Location = new System.Drawing.Point(185, 40);
+			this.btnNextCheckpoint.Location = new System.Drawing.Point(131, 40);
 			this.btnNextCheckpoint.Name = "btnNextCheckpoint";
 			this.btnNextCheckpoint.Size = new System.Drawing.Size(113, 29);
 			this.btnNextCheckpoint.TabIndex = 3;
@@ -191,9 +192,9 @@
 			this.zoomValue.Location = new System.Drawing.Point(226, 154);
 			this.zoomValue.Maximum = 150;
 			this.zoomValue.Name = "zoomValue";
-			this.zoomValue.Size = new System.Drawing.Size(116, 45);
+			this.zoomValue.Size = new System.Drawing.Size(130, 45);
 			this.zoomValue.TabIndex = 13;
-			this.zoomValue.TickFrequency = 8;
+			this.zoomValue.TickFrequency = 5;
 			this.zoomValue.TickStyle = System.Windows.Forms.TickStyle.TopLeft;
 			this.zoomValue.Value = 50;
 			// 
@@ -256,12 +257,27 @@
 			this.chkInvincible.UseVisualStyleBackColor = true;
 			this.chkInvincible.CheckedChanged += new System.EventHandler(this.chkInvincible_CheckedChanged);
 			// 
+			// btnKill
+			// 
+			this.btnKill.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+			this.btnKill.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.btnKill.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.btnKill.ForeColor = System.Drawing.Color.Black;
+			this.btnKill.Location = new System.Drawing.Point(250, 40);
+			this.btnKill.Name = "btnKill";
+			this.btnKill.Size = new System.Drawing.Size(103, 29);
+			this.btnKill.TabIndex = 19;
+			this.btnKill.Text = "Kill Totems";
+			this.btnKill.UseVisualStyleBackColor = false;
+			this.btnKill.Click += new System.EventHandler(this.btnKill_Click);
+			// 
 			// KalimbaManager
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.Color.White;
 			this.ClientSize = new System.Drawing.Size(365, 190);
+			this.Controls.Add(this.btnKill);
 			this.Controls.Add(this.chkInvincible);
 			this.Controls.Add(this.lblCamera);
 			this.Controls.Add(this.chkLockZoom);
@@ -286,7 +302,7 @@
 			this.MaximizeBox = false;
 			this.Name = "KalimbaManager";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-			this.Text = "Kalimba Manager 1.8.3";
+			this.Text = "Kalimba Manager 1.8.4";
 			this.TopMost = true;
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.KalimbaManager_FormClosing);
 			((System.ComponentModel.ISupportInitialize)(this.musicVolume)).EndInit();
@@ -316,5 +332,6 @@
 		private System.Windows.Forms.CheckBox chkLockZoom;
 		private System.Windows.Forms.Label lblCamera;
 		private System.Windows.Forms.CheckBox chkInvincible;
+		private System.Windows.Forms.Button btnKill;
 	}
 }

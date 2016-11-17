@@ -136,8 +136,8 @@ namespace LiveSplit.Kalimba {
 					chkCameraLead.Checked = false;
 					chkCameraTrail.Checked = false;
 					chkInvincible.Checked = false;
-				} else if (chkInvincible.Checked && !Memory.IsInvincible()) {
-					chkInvincible.Checked = false;
+				} else if (chkInvincible.Checked && !Memory.IsInvincible() && !Memory.IsDying()) {
+					Memory.SetInvincible(true);
 				}
 
 				if (prevMenu == MenuScreen.SpeedRunLevelSelect && menu == MenuScreen.Loading && !Memory.SpeedrunLoaded()) {
@@ -186,6 +186,9 @@ namespace LiveSplit.Kalimba {
 		}
 		private void chkInvincible_CheckedChanged(object sender, EventArgs e) {
 			Memory.SetInvincible(chkInvincible.Checked);
+		}
+		private void btnKill_Click(object sender, EventArgs e) {
+			Memory.KillTotems();
 		}
 	}
 }
