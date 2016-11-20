@@ -190,6 +190,7 @@ namespace LiveSplit.Kalimba {
 			}
 		}
 		private void chkInvincible_CheckedChanged(object sender, EventArgs e) {
+			Memory.SetCurrentDeaths(70);
 			Memory.SetInvincible(chkInvincible.Checked);
 		}
 		private void btnKill_Click(object sender, EventArgs e) {

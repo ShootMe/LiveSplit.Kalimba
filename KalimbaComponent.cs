@@ -92,14 +92,20 @@ namespace LiveSplit.Kalimba {
 				}
 			} else if (currentSplit < Model.CurrentState.Run.Count) {
 				string[] splits = Model.CurrentState.Run[currentSplit - 1].Name.Split(' ');
-				int pickups = -1;
+				float pickupsPos = -1;
+				bool isPosX = false, isPosY = false, isLessThan = false;
 				for (int i = 0; i < splits.Length; i++) {
-					if (int.TryParse(splits[i], out pickups)) {
+					isPosX = splits[i].EndsWith("x", StringComparison.OrdinalIgnoreCase);
+					isPosY = splits[i].EndsWith("y", StringComparison.OrdinalIgnoreCase);
+					isLessThan = splits[i].StartsWith("<", StringComparison.OrdinalIgnoreCase);
+					if (((isPosX || isPosY) && float.TryParse(splits[i].Substring(isLessThan ? 1 : 0, splits[i].Length - 1), out pickupsPos)) || (!isPosX && !isPosY && float.TryParse(splits[i], out pickupsPos))) {
 						break;
 					}
 				}
 
-				shouldSplit = pickups > 0 && mem.GetCurrentScore() == pickups;
+				shouldSplit = (!isPosX && !isPosY && (int)pickupsPos > 0 && mem.GetCurrentScore() == (int)pickupsPos)
+							|| (isPosX && (isLessThan ? mem.GetLastXP1() < pickupsPos || mem.GetLastXP2() < pickupsPos : mem.GetLastXP1() > pickupsPos || mem.GetLastXP2() > pickupsPos))
+							|| (isPosY && (isLessThan ? mem.GetLastYP1() < pickupsPos || mem.GetLastYP2() < pickupsPos : mem.GetLastYP1() > pickupsPos || mem.GetLastYP2() > pickupsPos));
 				if (shouldSplit) {
 					lastLevelComplete++;
 					splitFrameCount = mem.FrameCount();
