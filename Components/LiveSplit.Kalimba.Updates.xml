@@ -1,5 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <updates>
+	<update version="1.8.9">
+		<files>
+			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
+		</files>
+		<changelog>
+			<change>
+				Add more info to races
+			</change>
+		</changelog>
+	</update>
 	<update version="1.8.8">
 		<files>
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>

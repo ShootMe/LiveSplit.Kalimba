@@ -1,6 +1,12 @@
-﻿using LiveSplit.Kalimba.Memory;
+﻿using IrcDotNet;
+using LiveSplit.Kalimba.Memory;
+using LiveSplit.Model;
+using LiveSplit.TimeFormatters;
+using LiveSplit.View;
+using LiveSplit.Web.SRL;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 namespace LiveSplit.Kalimba {
@@ -10,6 +16,8 @@ namespace LiveSplit.Kalimba {
 		private int lockedCheckpoint = -1;
 		private DateTime lastCheckLoading = DateTime.MinValue;
 		private Dictionary<int, float> oldZoomValues = new Dictionary<int, float>();
+		private RaceWatcher raceWatcher = new RaceWatcher();
+
 		public KalimbaManager() {
 			InitializeComponent();
 			Visible = false;
@@ -72,7 +80,8 @@ namespace LiveSplit.Kalimba {
 				this.Invoke((Action)UpdateValues);
 			} else if (this.Visible && Memory != null && Memory.IsHooked) {
 				MenuScreen menu = Memory.GetCurrentMenu();
-				bool inGameNotRunning = (menu == MenuScreen.InGame || menu == MenuScreen.InGameMenu) && (Component == null || Component.Model == null || Component.Model.CurrentState.CurrentPhase != Model.TimerPhase.Running);
+				bool inGame = menu == MenuScreen.InGame || menu == MenuScreen.InGameMenu;
+				bool inGameNotRunning = inGame && (Component == null || Component.Model == null || Component.Model.CurrentState.CurrentPhase != Model.TimerPhase.Running);
 
 				btnNextCheckpoint.Enabled = inGameNotRunning;
 				btnPreviousCheckpoint.Enabled = inGameNotRunning;
@@ -100,6 +109,8 @@ namespace LiveSplit.Kalimba {
 					Memory.SetCheckpoint(lockedCheckpoint, false);
 					currentCheckpoint = lockedCheckpoint;
 				}
+
+				raceWatcher.UpdateRace(inGame, Memory.GetPlatformLevelId(), currentCheckpoint, Memory.LevelComplete());
 
 				float zoom = Memory.Zoom();
 				if (chkLockZoom.Checked) {
@@ -195,6 +206,73 @@ namespace LiveSplit.Kalimba {
 		}
 		private void btnKill_Click(object sender, EventArgs e) {
 			Memory.KillTotems();
+		}
+	}
+	public class RaceWatcher {
+		private SpeedRunsLiveIRC raceIRC = null;
+		private IrcChannel liveSplitChannel = null;
+		private IrcClient raceClient = null;
+		private RegularTimeFormatter timeFormatter = new RegularTimeFormatter(TimeAccuracy.Hundredths);
+		private PlatformLevelId lastLevel = PlatformLevelId.None;
+		private int lastCheckPoint = 0;
+
+		public void UpdateRace(bool inGame, PlatformLevelId currentLevel, int currentCheckpoint, bool levelEnded) {
+			if (raceIRC != null && !raceIRC.IsConnected) {
+				raceIRC = null;
+				lastCheckPoint = 0;
+				lastLevel = PlatformLevelId.None;
+			}
+
+			if (raceIRC == null || liveSplitChannel == null || raceClient == null) {
+				foreach (var form in Application.OpenForms) {
+					SpeedRunsLiveForm srl = form as SpeedRunsLiveForm;
+					if (srl != null) {
+						FieldInfo fi = typeof(SpeedRunsLiveForm).GetField("SRLClient", BindingFlags.Instance | BindingFlags.NonPublic);
+						raceIRC = (SpeedRunsLiveIRC)fi.GetValue(srl);
+
+						if (raceIRC != null) {
+							fi = typeof(SpeedRunsLiveIRC).GetField("LiveSplitChannel", BindingFlags.Instance | BindingFlags.NonPublic);
+							liveSplitChannel = (IrcChannel)fi.GetValue(raceIRC);
+
+							fi = typeof(SpeedRunsLiveIRC).GetField("Client", BindingFlags.Instance | BindingFlags.NonPublic);
+							raceClient = (IrcClient)fi.GetValue(raceIRC);
+						}
+						break;
+					}
+				}
+			}
+
+			if (raceIRC != null && liveSplitChannel != null && raceClient != null) {
+				if (inGame) {
+					if (currentLevel != lastLevel) {
+						lastLevel = currentLevel;
+						lastCheckPoint = 0;
+					}
+					if (levelEnded) { currentCheckpoint++; }
+
+					if (currentCheckpoint > lastCheckPoint) {
+						lastCheckPoint = currentCheckpoint;
+						SendCheckpointInfo();
+					}
+				}
+			}
+		}
+		private void SendCheckpointInfo() {
+			if (liveSplitChannel != null && (raceIRC.RaceState == RaceState.RaceStarted || raceIRC.RaceState == RaceState.RaceEnded)) {
+				if (raceIRC.Model.CurrentState.CurrentSplitIndex >= 0) {
+					var split = raceIRC.Model.CurrentState.Run[raceIRC.Model.CurrentState.CurrentSplitIndex];
+					Time currentTime = raceIRC.Model.CurrentState.CurrentTime;
+					var timeRTA = "-";
+					if (currentTime.RealTime != null)
+						timeRTA = timeFormatter.Format(currentTime.RealTime);
+					if (raceIRC.Model.CurrentState.CurrentPhase == TimerPhase.Running) {
+						raceClient.LocalUser.SendMessage(liveSplitChannel, $"!time RealTime \"{Escape(split.Name)}-{lastCheckPoint}\" {timeRTA}");
+					}
+				}
+			}
+		}
+		private static string Escape(string value) {
+			return value.Replace("\\", "\\\\").Replace("\"", "\\.");
 		}
 	}
 }
