@@ -268,6 +268,22 @@ namespace LiveSplit.Kalimba.Memory {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].controlledPlayers[1].animationHandler.lastPos.Y
 			return globalGameManager.Read<float>(0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0xd4, 0xd4);
 		}
+		public float GetLastXP3() {
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[1].controlledPlayers[0].animationHandler.lastPos.X
+			return globalGameManager.Read<float>(0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x10, 0xd4, 0xd0);
+		}
+		public float GetLastYP3() {
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[1].controlledPlayers[0].animationHandler.lastPos.Y
+			return globalGameManager.Read<float>(0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x10, 0xd4, 0xd4);
+		}
+		public float GetLastXP4() {
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[1].controlledPlayers[1].animationHandler.lastPos.X
+			return globalGameManager.Read<float>(0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x14, 0xd4, 0xd0);
+		}
+		public float GetLastYP4() {
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[1].controlledPlayers[1].animationHandler.lastPos.Y
+			return globalGameManager.Read<float>(0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x14, 0xd4, 0xd4);
+		}
 		public bool GetFrozen() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].controlledPlayers[0].frozen
 			return globalGameManager.Read<bool>(0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0x3c);
@@ -275,7 +291,7 @@ namespace LiveSplit.Kalimba.Memory {
 		public PersistentLevelStats GetLevelStats(PlatformLevelId id) {
 			//PlatformManager.instance.imp.players[0].gameSinglePlayerStats._levels
 			IntPtr levels = platformManager.Read<IntPtr>(0x10, 0x48, 0x10, 0x24, 0x0c);
-			PersistentLevelStats level = GetLevelStats(levels, id);
+			PersistentLevelStats level = (id >= PlatformLevelId.Coop_Jump && id <= PlatformLevelId.Coop_EpicBossFight) || (id >= PlatformLevelId.DLC_Coop_Andrew && id <= PlatformLevelId.DLC_Coop_Jack) ? null : GetLevelStats(levels, id);
 			if (level == null) {
 				//PlatformManager.instance.imp.players[0].platformStats._coop["guest"]._levels
 				levels = platformManager.Read<IntPtr>(0x10, 0x48, 0x10, 0x34, 0x1c, 0x14, 0x10, 0x0c);

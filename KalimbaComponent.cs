@@ -103,9 +103,12 @@ namespace LiveSplit.Kalimba {
 					}
 				}
 
+				bool isNotCoop = mem.GetLastXP3() == 0;
 				shouldSplit = (!isPosX && !isPosY && (int)pickupsPos > 0 && mem.GetCurrentScore() == (int)pickupsPos)
-							|| (isPosX && (isLessThan ? mem.GetLastXP1() < pickupsPos || mem.GetLastXP2() < pickupsPos : mem.GetLastXP1() > pickupsPos || mem.GetLastXP2() > pickupsPos))
-							|| (isPosY && (isLessThan ? mem.GetLastYP1() < pickupsPos || mem.GetLastYP2() < pickupsPos : mem.GetLastYP1() > pickupsPos || mem.GetLastYP2() > pickupsPos));
+							|| (isPosX && (isLessThan ? mem.GetLastXP1() < pickupsPos || mem.GetLastXP2() < pickupsPos || (!isNotCoop && (mem.GetLastXP3() < pickupsPos || mem.GetLastXP4() < pickupsPos))
+								: mem.GetLastXP1() > pickupsPos || mem.GetLastXP2() > pickupsPos || (!isNotCoop && (mem.GetLastXP3() > pickupsPos || mem.GetLastXP4() > pickupsPos))))
+							|| (isPosY && (isLessThan ? mem.GetLastYP1() < pickupsPos || mem.GetLastYP2() < pickupsPos || (!isNotCoop && (mem.GetLastYP3() < pickupsPos || mem.GetLastYP4() < pickupsPos))
+								: mem.GetLastYP1() > pickupsPos || mem.GetLastYP2() > pickupsPos || (!isNotCoop && (mem.GetLastYP3() > pickupsPos || mem.GetLastYP4() > pickupsPos))));
 				if (shouldSplit) {
 					lastLevelComplete++;
 					splitFrameCount = mem.FrameCount();
