@@ -104,7 +104,7 @@ namespace LiveSplit.Kalimba {
 					Memory.SetInvincible(true);
 				}
 
-				int currentCheckpoint = 0;
+				int currentCheckpoint = -1;
 				float zoom = 0;
 				if (inGame) {
 					currentCheckpoint = Memory.GetCurrentCheckpoint();
@@ -220,7 +220,7 @@ namespace LiveSplit.Kalimba {
 		private IrcClient raceClient = null;
 		private RegularTimeFormatter timeFormatter = new RegularTimeFormatter(TimeAccuracy.Hundredths);
 		private PlatformLevelId lastLevel = PlatformLevelId.None;
-		private int lastCheckPoint = 0;
+		private int lastCheckPoint = -1;
 
 		public void UpdateRace(bool inGame, PlatformLevelId currentLevel, int currentCheckpoint, bool levelEnded) {
 			try {
@@ -228,7 +228,7 @@ namespace LiveSplit.Kalimba {
 					raceIRC = null;
 					liveSplitChannel = null;
 					raceClient = null;
-					lastCheckPoint = 0;
+					lastCheckPoint = -1;
 					lastLevel = PlatformLevelId.None;
 				}
 
@@ -282,7 +282,7 @@ namespace LiveSplit.Kalimba {
 					if (inGame) {
 						if (currentLevel != lastLevel) {
 							lastLevel = currentLevel;
-							lastCheckPoint = 0;
+							lastCheckPoint = -1;
 						}
 						if (levelEnded) { currentCheckpoint++; }
 
