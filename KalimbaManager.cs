@@ -104,15 +104,24 @@ namespace LiveSplit.Kalimba {
 					Memory.SetInvincible(true);
 				}
 
-				int currentCheckpoint = Memory.GetCurrentCheckpoint();
-				if (chkLockCheckpoint.Checked && currentCheckpoint != lockedCheckpoint) {
-					Memory.SetCheckpoint(lockedCheckpoint, false);
-					currentCheckpoint = lockedCheckpoint;
+				int currentCheckpoint = 0;
+				float zoom = 0;
+				if (inGame) {
+					currentCheckpoint = Memory.GetCurrentCheckpoint();
+					if (chkLockCheckpoint.Checked && currentCheckpoint != lockedCheckpoint) {
+						Memory.SetCheckpoint(lockedCheckpoint, false);
+						currentCheckpoint = lockedCheckpoint;
+					}
+
+					zoom = Memory.Zoom();
+
+					lblP1Pos.Text = "T1: (" + Memory.GetLastXP1().ToString("0.00") + ", " + Memory.GetLastYP1().ToString("0.00") + ")";
+					lblP2Pos.Text = "T2: (" + Memory.GetLastXP2().ToString("0.00") + ", " + Memory.GetLastYP2().ToString("0.00") + ")";
+					lblCurrentCheckpoint.Text = "Checkpoint: " + (currentCheckpoint + 1) + " / " + Memory.GetCheckpointCount();
 				}
 
 				raceWatcher.UpdateRace(inGame, Memory.GetPlatformLevelId(), currentCheckpoint, Memory.LevelComplete());
 
-				float zoom = Memory.Zoom();
 				if (chkLockZoom.Checked) {
 					int cameraZone = Memory.CameraZone();
 					if (!oldZoomValues.ContainsKey(cameraZone)) {
@@ -122,7 +131,7 @@ namespace LiveSplit.Kalimba {
 					zoomValue.Enabled = true;
 				} else {
 					zoomValue.Enabled = false;
-					zoomValue.Value = Math.Min(Math.Max(0, (int)Memory.Zoom()), 150);
+					zoomValue.Value = Math.Min(Math.Max(0, (int)zoom), 150);
 				}
 
 				if (chkCameraLead.Checked || chkCameraTrail.Checked) {
@@ -147,9 +156,6 @@ namespace LiveSplit.Kalimba {
 				}
 
 				lblLevel.Text = "Level: " + Memory.SelectedLevel().ToString();
-				lblCurrentCheckpoint.Text = "Checkpoint: " + (currentCheckpoint + 1) + " / " + Memory.GetCheckpointCount();
-				lblP1Pos.Text = "T1: (" + Memory.GetLastXP1().ToString("0.00") + ", " + Memory.GetLastYP1().ToString("0.00") + ")";
-				lblP2Pos.Text = "T2: (" + Memory.GetLastXP2().ToString("0.00") + ", " + Memory.GetLastYP2().ToString("0.00") + ")";
 
 				Memory.SetMusicVolume((float)musicVolume.Value / 20f);
 
@@ -217,46 +223,77 @@ namespace LiveSplit.Kalimba {
 		private int lastCheckPoint = 0;
 
 		public void UpdateRace(bool inGame, PlatformLevelId currentLevel, int currentCheckpoint, bool levelEnded) {
-			if (raceIRC != null && !raceIRC.IsConnected) {
-				raceIRC = null;
-				liveSplitChannel = null;
-				raceClient = null;
-				lastCheckPoint = 0;
-				lastLevel = PlatformLevelId.None;
-			}
+			try {
+				if (raceIRC != null && !raceIRC.IsConnected) {
+					raceIRC = null;
+					liveSplitChannel = null;
+					raceClient = null;
+					lastCheckPoint = 0;
+					lastLevel = PlatformLevelId.None;
+				}
 
-			if (raceIRC == null || liveSplitChannel == null || raceClient == null) {
-				foreach (var form in Application.OpenForms) {
-					SpeedRunsLiveForm srl = form as SpeedRunsLiveForm;
-					if (srl != null) {
-						FieldInfo fi = typeof(SpeedRunsLiveForm).GetField("SRLClient", BindingFlags.Instance | BindingFlags.NonPublic);
-						raceIRC = (SpeedRunsLiveIRC)fi.GetValue(srl);
+				if (raceIRC == null || liveSplitChannel == null || raceClient == null) {
+					foreach (var form in Application.OpenForms) {
+						SpeedRunsLiveForm srl = form as SpeedRunsLiveForm;
+						if (srl != null) {
+							PropertyInfo[] fields = typeof(SpeedRunsLiveForm).GetProperties(BindingFlags.Instance | BindingFlags.NonPublic);
+							PropertyInfo field = null;
+							for (int i = 0; i < fields.Length; i++) {
+								if (fields[i].Name.IndexOf("SRLClient", StringComparison.OrdinalIgnoreCase) >= 0 && fields[i].PropertyType == typeof(SpeedRunsLiveIRC)) {
+									field = fields[i];
+									break;
+								}
+							}
 
-						if (raceIRC != null) {
-							fi = typeof(SpeedRunsLiveIRC).GetField("LiveSplitChannel", BindingFlags.Instance | BindingFlags.NonPublic);
-							liveSplitChannel = (IrcChannel)fi.GetValue(raceIRC);
+							if (field != null) {
+								raceIRC = (SpeedRunsLiveIRC)field.GetValue(srl);
+							}
 
-							fi = typeof(SpeedRunsLiveIRC).GetField("Client", BindingFlags.Instance | BindingFlags.NonPublic);
-							raceClient = (IrcClient)fi.GetValue(raceIRC);
+							if (raceIRC != null) {
+								fields = typeof(SpeedRunsLiveIRC).GetProperties(BindingFlags.Instance | BindingFlags.NonPublic);
+								field = null;
+								for (int i = 0; i < fields.Length; i++) {
+									if (fields[i].Name.IndexOf("LiveSplitChannel", StringComparison.OrdinalIgnoreCase) >= 0 && fields[i].PropertyType == typeof(IrcChannel)) {
+										field = fields[i];
+										break;
+									}
+								}
+								if (field != null) {
+									liveSplitChannel = (IrcChannel)field.GetValue(raceIRC);
+								}
+
+								field = null;
+								for (int i = 0; i < fields.Length; i++) {
+									if (fields[i].Name.IndexOf("Client", StringComparison.OrdinalIgnoreCase) >= 0 && fields[i].PropertyType == typeof(IrcClient)) {
+										field = fields[i];
+										break;
+									}
+								}
+								if (field != null) {
+									raceClient = (IrcClient)field.GetValue(raceIRC);
+								}
+							}
+							break;
 						}
-						break;
 					}
 				}
-			}
 
-			if (raceIRC != null && liveSplitChannel != null && raceClient != null) {
-				if (inGame) {
-					if (currentLevel != lastLevel) {
-						lastLevel = currentLevel;
-						lastCheckPoint = 0;
-					}
-					if (levelEnded) { currentCheckpoint++; }
+				if (raceIRC != null && liveSplitChannel != null && raceClient != null) {
+					if (inGame) {
+						if (currentLevel != lastLevel) {
+							lastLevel = currentLevel;
+							lastCheckPoint = 0;
+						}
+						if (levelEnded) { currentCheckpoint++; }
 
-					if (currentCheckpoint > lastCheckPoint) {
-						lastCheckPoint = currentCheckpoint;
-						SendCheckpointInfo();
+						if (currentCheckpoint > lastCheckPoint) {
+							lastCheckPoint = currentCheckpoint;
+							SendCheckpointInfo();
+						}
 					}
 				}
+			} catch (Exception ex) {
+				Console.WriteLine(ex.ToString());
 			}
 		}
 		private void SendCheckpointInfo() {
