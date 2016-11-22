@@ -13,19 +13,17 @@ namespace LiveSplit.Kalimba {
 		public string ComponentName { get { return "Kalimba Autosplitter"; } }
 		public TimerModel Model { get; set; }
 		public IDictionary<string, Action> ContextMenuControls { get { return null; } }
+		internal static string[] keys = { "CurrentSplit", "World", "Campaign", "CurrentMenu", "PreviousMenu", "Cinematic", "LoadingLevel", "LevelTime", "Disabled", "Score", "Deaths", "LevelName", "P1Y", "P2Y", "State", "EndLevel", "PlayerState", "Frozen", "PlatformLevel", "Checkpoint", "CheckpointCount", "Stats" };
 		private KalimbaMemory mem;
-		private int currentSplit = 0;
-		private int state = 0;
+		private int currentSplit = 0, state = 0, lastLogCheck = 0, lastLevelComplete = 0, startFrameCount, splitFrameCount;
 		private bool hasLog = false;
-		private int lastLogCheck = 0;
 		private float lastYP2;
 		private MenuScreen lastMenu = MenuScreen.MainMenu;
 		private MenuScreen mainMenu = MenuScreen.MainMenu;
-		double levelTimes;
-		private int lastLevelComplete = 0, startFrameCount, splitFrameCount;
-		internal static string[] keys = { "CurrentSplit", "World", "Campaign", "CurrentMenu", "PreviousMenu", "Cinematic", "LoadingLevel", "LevelTime", "Disabled", "Score", "Deaths", "LevelName", "P1Y", "P2Y", "State", "EndLevel", "PlayerState", "Frozen", "PlatformLevel", "Checkpoint", "CheckpointCount", "Stats" };
 		private Dictionary<string, string> currentValues = new Dictionary<string, string>();
 		private KalimbaManager manager;
+		private DateTime lastSplit = DateTime.MinValue;
+		private double[] levelTimes = new double[100];
 
 		public KalimbaComponent() {
 			mem = new KalimbaMemory();
@@ -199,7 +197,8 @@ namespace LiveSplit.Kalimba {
 		private void HandleSplit(bool shouldSplit, MenuScreen screen, bool shouldReset = false) {
 			if (currentSplit > 0 && (screen == MenuScreen.MainMenu || shouldReset)) {
 				Model.Reset();
-			} else if (shouldSplit) {
+			} else if (shouldSplit && DateTime.Now > lastSplit.AddSeconds(1)) {
+				lastSplit = DateTime.Now;
 				if (currentSplit == 0) {
 					Model.Start();
 				} else {
@@ -216,16 +215,20 @@ namespace LiveSplit.Kalimba {
 				PersistentLevelStats level = mem.GetLevelStats(mem.GetPlatformLevelId());
 				if (level.minMillisecondsForMaxScore != int.MaxValue) {
 					double levelTime = (double)level.minMillisecondsForMaxScore / (double)1000;
-					levelTimes += levelTime;
+					levelTimes[lastLevelComplete] = levelTime;
+					double totalLevelTime = 0;
+					for (int i = 0; i < Model.CurrentState.Run.Count; i++) {
+						totalLevelTime += levelTimes[i];
+					}
 					Model.CurrentState.IsGameTimePaused = true;
 					if (currentSplit == Model.CurrentState.Run.Count + 1) {
 						Time t = Model.CurrentState.Run[lastLevelComplete].SplitTime;
-						Model.CurrentState.Run[lastLevelComplete].SplitTime = new Time(Model.CurrentState.Run.Count < 10 ? TimeSpan.FromSeconds(levelTimes) : t.RealTime, TimeSpan.FromSeconds(levelTimes));
+						Model.CurrentState.Run[lastLevelComplete].SplitTime = new Time(Model.CurrentState.Run.Count < 10 ? TimeSpan.FromSeconds(totalLevelTime) : t.RealTime, TimeSpan.FromSeconds(totalLevelTime));
 					} else {
-						Model.CurrentState.SetGameTime(TimeSpan.FromSeconds(levelTimes));
+						Model.CurrentState.SetGameTime(TimeSpan.FromSeconds(totalLevelTime));
 					}
 					lastLevelComplete++;
-					WriteLog(DateTime.Now.ToString(@"HH\:mm\:ss.fff") + (Model != null ? " | " + Model.CurrentState.CurrentTime.RealTime.Value.ToString("G").Substring(3, 11) : "") + ": Set game time " + levelTime + " " + levelTimes);
+					WriteLog(DateTime.Now.ToString(@"HH\:mm\:ss.fff") + (Model != null ? " | " + Model.CurrentState.CurrentTime.RealTime.Value.ToString("G").Substring(3, 11) : "") + ": Set game time " + levelTime + " " + totalLevelTime);
 				}
 			}
 		}
@@ -297,8 +300,11 @@ namespace LiveSplit.Kalimba {
 			currentSplit = 0;
 			lastLevelComplete = 0;
 			state = 0;
-			levelTimes = 0;
+			for (int i = 0; i < levelTimes.Length; i++) {
+				levelTimes[i] = 0;
+			}
 			lastYP2 = 0;
+			lastSplit = DateTime.MinValue;
 			startFrameCount = 0;
 			lastMenu = MenuScreen.MainMenu;
 			Model.CurrentState.IsGameTimePaused = true;
