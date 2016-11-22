@@ -219,6 +219,8 @@ namespace LiveSplit.Kalimba {
 		public void UpdateRace(bool inGame, PlatformLevelId currentLevel, int currentCheckpoint, bool levelEnded) {
 			if (raceIRC != null && !raceIRC.IsConnected) {
 				raceIRC = null;
+				liveSplitChannel = null;
+				raceClient = null;
 				lastCheckPoint = 0;
 				lastLevel = PlatformLevelId.None;
 			}
@@ -258,7 +260,7 @@ namespace LiveSplit.Kalimba {
 			}
 		}
 		private void SendCheckpointInfo() {
-			if (liveSplitChannel != null && (raceIRC.RaceState == RaceState.RaceStarted || raceIRC.RaceState == RaceState.RaceEnded)) {
+			if (liveSplitChannel != null && raceIRC.RaceState == RaceState.RaceStarted) {
 				if (raceIRC.Model.CurrentState.CurrentSplitIndex >= 0) {
 					var split = raceIRC.Model.CurrentState.Run[raceIRC.Model.CurrentState.CurrentSplitIndex];
 					Time currentTime = raceIRC.Model.CurrentState.CurrentTime;
@@ -266,7 +268,7 @@ namespace LiveSplit.Kalimba {
 					if (currentTime.RealTime != null)
 						timeRTA = timeFormatter.Format(currentTime.RealTime);
 					if (raceIRC.Model.CurrentState.CurrentPhase == TimerPhase.Running) {
-						raceClient.LocalUser.SendMessage(liveSplitChannel, $"!time RealTime \"{Escape(split.Name)}-{lastCheckPoint}\" {timeRTA}");
+						raceClient.LocalUser.SendMessage(liveSplitChannel, $"!time RealTime \"{Escape(split.Name)}|{lastCheckPoint}\" {timeRTA}");
 					}
 				}
 			}
