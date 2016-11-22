@@ -305,7 +305,7 @@ namespace LiveSplit.Kalimba {
 					if (currentTime.RealTime != null)
 						timeRTA = timeFormatter.Format(currentTime.RealTime);
 					if (raceIRC.Model.CurrentState.CurrentPhase == TimerPhase.Running) {
-						raceClient.LocalUser.SendMessage(liveSplitChannel, $"!time RealTime \"{Escape(split.Name)}|{lastCheckPoint}\" {timeRTA}");
+						raceClient.LocalUser.SendMessage(liveSplitChannel, $"!time RealTime \"{Escape(split.Name)}|{lastCheckPoint + 1}\" {timeRTA}");
 					}
 				}
 			}
