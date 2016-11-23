@@ -224,7 +224,7 @@ namespace LiveSplit.Kalimba {
 
 		public void UpdateRace(bool inGame, PlatformLevelId currentLevel, int currentCheckpoint, bool levelEnded) {
 			try {
-				if (raceIRC != null && !raceIRC.IsConnected) {
+				if (raceIRC != null && raceIRC.RaceState == RaceState.RaceEnded) {
 					raceIRC = null;
 					liveSplitChannel = null;
 					raceClient = null;
