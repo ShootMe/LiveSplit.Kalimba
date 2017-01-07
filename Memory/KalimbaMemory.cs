@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 namespace LiveSplit.Kalimba.Memory {
 	public partial class KalimbaMemory {
 		private ProgramPointer globalGameManager, menuManager, totemPole, platformManager, ghostManager, levelComplete, musicMachine;
@@ -344,6 +343,7 @@ namespace LiveSplit.Kalimba.Memory {
 					Program.Write<int>(itemHead, score, 0x0c);
 					Program.Write<int>(itemHead, int.MaxValue, 0x10);
 					Program.Write<int>(itemHead, (int)PersistentLevelStats.State.Completed, 0x08);
+					Program.Write<int>(itemHead, (int)PersistentLevelStats.State.Completed, 0x24);
 				}
 			}
 		}

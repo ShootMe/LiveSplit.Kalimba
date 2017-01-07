@@ -1,21 +1,9 @@
-﻿using System.Threading;
-namespace LiveSplit.Kalimba {
+﻿namespace LiveSplit.Kalimba {
 	public class KalimbaTest {
-		private static KalimbaComponent comp = new KalimbaComponent();
+		private static KalimbaComponent comp = null;
 		public static void Main(string[] args) {
-			Thread t = new Thread(GetVals);
-			t.IsBackground = true;
-			t.Start();
-			System.Windows.Forms.Application.Run();
-		}
-		private static void GetVals() {
-			while (true) {
-				try {
-					comp.GetValues();
-
-					Thread.Sleep(12);
-				} catch { }
-			}
+			comp = new KalimbaComponent(true);
+			System.Windows.Forms.Application.Run(comp.Manager);
 		}
 	}
 }

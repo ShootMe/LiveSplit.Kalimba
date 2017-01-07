@@ -1,9 +1,11 @@
-﻿using IrcDotNet;
-using LiveSplit.Kalimba.Memory;
+﻿using LiveSplit.Kalimba.Memory;
+#if LiveSplit
+using IrcDotNet;
 using LiveSplit.Model;
 using LiveSplit.TimeFormatters;
 using LiveSplit.View;
 using LiveSplit.Web.SRL;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -17,17 +19,20 @@ namespace LiveSplit.Kalimba {
 		private DateTime lastCheckLoading = DateTime.MinValue;
 		private Dictionary<int, float> oldZoomValues = new Dictionary<int, float>();
 		private RaceWatcher raceWatcher = new RaceWatcher();
+		public bool AlwaysShown { get; set; }
 
-		public KalimbaManager() {
+		public KalimbaManager(bool shown) {
 			InitializeComponent();
-			Visible = false;
+			Text = "Kalimba Manager " + Assembly.GetExecutingAssembly().GetName().Version.ToString();
+			AlwaysShown = shown;
+			Visible = shown;
 			Thread t = new Thread(UpdateLoop);
 			t.IsBackground = true;
 			t.Start();
 		}
 
 		private void KalimbaManager_FormClosing(object sender, FormClosingEventArgs e) {
-			e.Cancel = Memory != null;
+			e.Cancel = Memory != null && !AlwaysShown;
 		}
 
 		private void btnNewGame_Click(object sender, System.EventArgs e) {
@@ -70,6 +75,9 @@ namespace LiveSplit.Kalimba {
 		private void UpdateLoop() {
 			try {
 				while (true) {
+					if (Component != null) {
+						Component.GetValues();
+					}
 					UpdateValues();
 					Thread.Sleep(15);
 				}
@@ -79,9 +87,10 @@ namespace LiveSplit.Kalimba {
 			if (this.InvokeRequired) {
 				this.Invoke((Action)UpdateValues);
 			} else if (this.Visible && Memory != null && Memory.IsHooked) {
+				lblNotAvailable.Visible = false;
 				MenuScreen menu = Memory.GetCurrentMenu();
 				bool inGame = menu == MenuScreen.InGame || menu == MenuScreen.InGameMenu;
-				bool inGameNotRunning = inGame && (Component == null || Component.Model == null || Component.Model.CurrentState.CurrentPhase != Model.TimerPhase.Running);
+				bool inGameNotRunning = inGame && (Component == null || Component.IsNotRunning());
 
 				btnNextCheckpoint.Enabled = inGameNotRunning;
 				btnPreviousCheckpoint.Enabled = inGameNotRunning;
@@ -170,8 +179,12 @@ namespace LiveSplit.Kalimba {
 						}
 					}
 				}
-			} else if (Memory == null && this.Visible) {
-				this.Hide();
+			} else if (this.Visible) {
+				if (!AlwaysShown) {
+					this.Hide();
+				} else {
+					lblNotAvailable.Visible = true;
+				}
 			}
 		}
 		private void chkLockCheckpoint_CheckedChanged(object sender, EventArgs e) {
@@ -215,14 +228,17 @@ namespace LiveSplit.Kalimba {
 		}
 	}
 	public class RaceWatcher {
+#if LiveSplit
 		private SpeedRunsLiveIRC raceIRC = null;
 		private IrcChannel liveSplitChannel = null;
 		private IrcClient raceClient = null;
 		private RegularTimeFormatter timeFormatter = new RegularTimeFormatter(TimeAccuracy.Hundredths);
 		private PlatformLevelId lastLevel = PlatformLevelId.None;
 		private int lastCheckPoint = -1;
+#endif
 
 		public void UpdateRace(bool inGame, PlatformLevelId currentLevel, int currentCheckpoint, bool levelEnded) {
+#if LiveSplit
 			try {
 				if (raceIRC != null && raceIRC.RaceState == RaceState.RaceEnded) {
 					raceIRC = null;
@@ -295,7 +311,9 @@ namespace LiveSplit.Kalimba {
 			} catch (Exception ex) {
 				Console.WriteLine(ex.ToString());
 			}
+#endif
 		}
+#if LiveSplit
 		private void SendCheckpointInfo() {
 			if (liveSplitChannel != null && raceIRC.RaceState == RaceState.RaceStarted) {
 				if (raceIRC.Model.CurrentState.CurrentSplitIndex >= 0) {
@@ -313,5 +331,6 @@ namespace LiveSplit.Kalimba {
 		private static string Escape(string value) {
 			return value.Replace("\\", "\\\\").Replace("\"", "\\.");
 		}
+#endif
 	}
 }

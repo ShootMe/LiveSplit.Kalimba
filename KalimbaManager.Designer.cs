@@ -43,6 +43,7 @@
 			this.lblCamera = new System.Windows.Forms.Label();
 			this.chkInvincible = new System.Windows.Forms.CheckBox();
 			this.btnKill = new System.Windows.Forms.Button();
+			this.lblNotAvailable = new System.Windows.Forms.Label();
 			((System.ComponentModel.ISupportInitialize)(this.musicVolume)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.zoomValue)).BeginInit();
 			this.SuspendLayout();
@@ -271,12 +272,25 @@
 			this.btnKill.UseVisualStyleBackColor = false;
 			this.btnKill.Click += new System.EventHandler(this.btnKill_Click);
 			// 
+			// lblNotAvailable
+			// 
+			this.lblNotAvailable.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.lblNotAvailable.Font = new System.Drawing.Font("Microsoft Sans Serif", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.lblNotAvailable.Location = new System.Drawing.Point(0, 0);
+			this.lblNotAvailable.Name = "lblNotAvailable";
+			this.lblNotAvailable.Size = new System.Drawing.Size(365, 190);
+			this.lblNotAvailable.TabIndex = 20;
+			this.lblNotAvailable.Text = "Not Available";
+			this.lblNotAvailable.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			this.lblNotAvailable.Visible = false;
+			// 
 			// KalimbaManager
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.Color.White;
 			this.ClientSize = new System.Drawing.Size(365, 190);
+			this.Controls.Add(this.lblNotAvailable);
 			this.Controls.Add(this.btnKill);
 			this.Controls.Add(this.chkInvincible);
 			this.Controls.Add(this.lblCamera);
@@ -302,7 +316,7 @@
 			this.MaximizeBox = false;
 			this.Name = "KalimbaManager";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-			this.Text = "Kalimba Manager 1.9.4";
+			this.Text = "Kalimba Manager";
 			this.TopMost = true;
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.KalimbaManager_FormClosing);
 			((System.ComponentModel.ISupportInitialize)(this.musicVolume)).EndInit();
@@ -333,5 +347,6 @@
 		private System.Windows.Forms.Label lblCamera;
 		private System.Windows.Forms.CheckBox chkInvincible;
 		private System.Windows.Forms.Button btnKill;
+		private System.Windows.Forms.Label lblNotAvailable;
 	}
 }

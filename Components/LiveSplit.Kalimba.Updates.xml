@@ -1,5 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <updates>
+	<update version="1.9.5">
+		<files>
+			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
+		</files>
+		<changelog>
+			<change>
+				Change to allow Kalimba Manager to be it's own exe
+			</change>
+		</changelog>
+	</update>
 	<update version="1.9.4">
 		<files>
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
