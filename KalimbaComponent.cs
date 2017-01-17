@@ -97,7 +97,7 @@ namespace LiveSplit.Kalimba {
 					shouldSplit = true;
 					startFrameCount = mem.FrameCount();
 				}
-			} else if (currentSplit < Model.CurrentState.Run.Count) {
+			} else if (currentSplit < Model.CurrentState.Run.Count && screen == MenuScreen.InGame) {
 				string[] splits = Model.CurrentState.Run[currentSplit - 1].Name.Split(' ');
 				float pickupsPos = -1;
 				bool isPosX = false, isPosY = false, isLessThan = false;
@@ -208,9 +208,12 @@ namespace LiveSplit.Kalimba {
 				Model.Reset();
 			} else if (shouldSplit && DateTime.Now > lastSplit.AddSeconds(1)) {
 				lastSplit = DateTime.Now;
+				state = 0;
 				if (currentSplit == 0) {
+					currentSplit++;
 					Model.Start();
 				} else {
+					currentSplit++;
 					Model.Split();
 				}
 			}
@@ -350,8 +353,6 @@ namespace LiveSplit.Kalimba {
 			WriteLog("---------Paused---------------------------------");
 		}
 		public void OnStart(object sender, EventArgs e) {
-			currentSplit++;
-			state = 0;
 			Model.CurrentState.IsGameTimePaused = true;
 			WriteLog("---------New Game-------------------------------");
 		}
@@ -368,12 +369,16 @@ namespace LiveSplit.Kalimba {
 			WriteLog(DateTime.Now.ToString(@"HH\:mm\:ss.fff") + " | " + Model.CurrentState.CurrentTime.RealTime.Value.ToString("G").Substring(3, 11) + ": CurrentSplit: " + currentSplit.ToString().PadLeft(24, ' '));
 		}
 		public void OnSplit(object sender, EventArgs e) {
-			if (startFrameCount > 0 && currentSplit > 0 && currentSplit < Model.CurrentState.Run.Count) {
+			if (lastMenu == MenuScreen.InGame && startFrameCount > 0 && currentSplit > 1 && currentSplit - 1 < Model.CurrentState.Run.Count) {
 				TimeSpan total = TimeSpan.FromSeconds((splitFrameCount - startFrameCount) / 60f);
-				Model.CurrentState.Run[lastLevelComplete - 1].SplitTime = new Time(total, total);
+				TimeSpan lastLevel = TimeSpan.FromSeconds(0);
+				if (lastLevelComplete > 1) {
+					lastLevel = Model.CurrentState.Run[lastLevelComplete - 2].SplitTime.RealTime.Value;
+				}
+				if ((total - lastLevel).TotalSeconds > 1) {
+					Model.CurrentState.Run[lastLevelComplete - 1].SplitTime = new Time(total, total);
+				}
 			}
-			currentSplit++;
-			state = 0;
 			Model.CurrentState.IsGameTimePaused = true;
 			WriteLog(DateTime.Now.ToString(@"HH\:mm\:ss.fff") + " | " + Model.CurrentState.CurrentTime.RealTime.Value.ToString("G").Substring(3, 11) + ": CurrentSplit: " + currentSplit.ToString().PadLeft(24, ' '));
 		}

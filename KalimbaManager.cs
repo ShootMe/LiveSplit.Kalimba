@@ -226,6 +226,12 @@ namespace LiveSplit.Kalimba {
 		private void btnKill_Click(object sender, EventArgs e) {
 			Memory.KillTotems();
 		}
+		private void btnClearLevel_Click(object sender, EventArgs e) {
+			MenuScreen screen = Memory.GetCurrentMenu();
+			if (screen == MenuScreen.CoopDLCMap || screen == MenuScreen.CoopMap || screen == MenuScreen.SinglePlayerDLCMap || screen == MenuScreen.SinglePlayerMap) {
+				Memory.SetLevelScore(Memory.SelectedLevel(), 0);
+			}
+		}
 	}
 	public class RaceWatcher {
 #if LiveSplit

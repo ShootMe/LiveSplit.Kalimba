@@ -44,6 +44,7 @@
 			this.chkInvincible = new System.Windows.Forms.CheckBox();
 			this.btnKill = new System.Windows.Forms.Button();
 			this.lblNotAvailable = new System.Windows.Forms.Label();
+			this.btnClearLevel = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.musicVolume)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.zoomValue)).BeginInit();
 			this.SuspendLayout();
@@ -85,7 +86,7 @@
 			this.btnPreviousCheckpoint.Location = new System.Drawing.Point(12, 40);
 			this.btnPreviousCheckpoint.Name = "btnPreviousCheckpoint";
 			this.btnPreviousCheckpoint.Size = new System.Drawing.Size(113, 29);
-			this.btnPreviousCheckpoint.TabIndex = 2;
+			this.btnPreviousCheckpoint.TabIndex = 3;
 			this.btnPreviousCheckpoint.Text = "< Checkpoint";
 			this.btnPreviousCheckpoint.UseVisualStyleBackColor = false;
 			this.btnPreviousCheckpoint.Click += new System.EventHandler(this.btnPreviousCheckpoint_Click);
@@ -99,7 +100,7 @@
 			this.btnNextCheckpoint.Location = new System.Drawing.Point(131, 40);
 			this.btnNextCheckpoint.Name = "btnNextCheckpoint";
 			this.btnNextCheckpoint.Size = new System.Drawing.Size(113, 29);
-			this.btnNextCheckpoint.TabIndex = 3;
+			this.btnNextCheckpoint.TabIndex = 4;
 			this.btnNextCheckpoint.Text = "Checkpoint >";
 			this.btnNextCheckpoint.UseVisualStyleBackColor = false;
 			this.btnNextCheckpoint.Click += new System.EventHandler(this.btnNextCheckpoint_Click);
@@ -111,7 +112,7 @@
 			this.lblCurrentCheckpoint.Location = new System.Drawing.Point(7, 92);
 			this.lblCurrentCheckpoint.Name = "lblCurrentCheckpoint";
 			this.lblCurrentCheckpoint.Size = new System.Drawing.Size(128, 20);
-			this.lblCurrentCheckpoint.TabIndex = 5;
+			this.lblCurrentCheckpoint.TabIndex = 7;
 			this.lblCurrentCheckpoint.Text = "Checkpoint: 1/12";
 			// 
 			// lblP1Pos
@@ -121,7 +122,7 @@
 			this.lblP1Pos.Location = new System.Drawing.Point(7, 112);
 			this.lblP1Pos.Name = "lblP1Pos";
 			this.lblP1Pos.Size = new System.Drawing.Size(151, 20);
-			this.lblP1Pos.TabIndex = 7;
+			this.lblP1Pos.TabIndex = 8;
 			this.lblP1Pos.Text = "T1: (100.00, 100.00)";
 			// 
 			// lblLevel
@@ -131,7 +132,7 @@
 			this.lblLevel.Location = new System.Drawing.Point(7, 72);
 			this.lblLevel.Name = "lblLevel";
 			this.lblLevel.Size = new System.Drawing.Size(54, 20);
-			this.lblLevel.TabIndex = 4;
+			this.lblLevel.TabIndex = 6;
 			this.lblLevel.Text = "Level: ";
 			// 
 			// lblP2Pos
@@ -141,7 +142,7 @@
 			this.lblP2Pos.Location = new System.Drawing.Point(7, 132);
 			this.lblP2Pos.Name = "lblP2Pos";
 			this.lblP2Pos.Size = new System.Drawing.Size(151, 20);
-			this.lblP2Pos.TabIndex = 8;
+			this.lblP2Pos.TabIndex = 9;
 			this.lblP2Pos.Text = "T2: (100.00, 100.00)";
 			// 
 			// chkLockCheckpoint
@@ -151,7 +152,7 @@
 			this.chkLockCheckpoint.Location = new System.Drawing.Point(162, 91);
 			this.chkLockCheckpoint.Name = "chkLockCheckpoint";
 			this.chkLockCheckpoint.Size = new System.Drawing.Size(62, 24);
-			this.chkLockCheckpoint.TabIndex = 6;
+			this.chkLockCheckpoint.TabIndex = 10;
 			this.chkLockCheckpoint.Text = "Lock";
 			this.chkLockCheckpoint.UseVisualStyleBackColor = true;
 			this.chkLockCheckpoint.CheckedChanged += new System.EventHandler(this.chkLockCheckpoint_CheckedChanged);
@@ -163,7 +164,7 @@
 			this.chkPickups.Location = new System.Drawing.Point(228, 92);
 			this.chkPickups.Name = "chkPickups";
 			this.chkPickups.Size = new System.Drawing.Size(107, 24);
-			this.chkPickups.TabIndex = 9;
+			this.chkPickups.TabIndex = 11;
 			this.chkPickups.Text = "No Pickups";
 			this.chkPickups.UseVisualStyleBackColor = true;
 			this.chkPickups.CheckedChanged += new System.EventHandler(this.chkPickups_CheckedChanged);
@@ -174,7 +175,7 @@
 			this.musicVolume.Maximum = 20;
 			this.musicVolume.Name = "musicVolume";
 			this.musicVolume.Size = new System.Drawing.Size(94, 45);
-			this.musicVolume.TabIndex = 11;
+			this.musicVolume.TabIndex = 17;
 			this.musicVolume.TickStyle = System.Windows.Forms.TickStyle.TopLeft;
 			this.musicVolume.Value = 20;
 			// 
@@ -185,7 +186,7 @@
 			this.lblMusic.Location = new System.Drawing.Point(7, 159);
 			this.lblMusic.Name = "lblMusic";
 			this.lblMusic.Size = new System.Drawing.Size(54, 20);
-			this.lblMusic.TabIndex = 10;
+			this.lblMusic.TabIndex = 16;
 			this.lblMusic.Text = "Music:";
 			// 
 			// zoomValue
@@ -194,7 +195,7 @@
 			this.zoomValue.Maximum = 150;
 			this.zoomValue.Name = "zoomValue";
 			this.zoomValue.Size = new System.Drawing.Size(130, 45);
-			this.zoomValue.TabIndex = 13;
+			this.zoomValue.TabIndex = 19;
 			this.zoomValue.TickFrequency = 5;
 			this.zoomValue.TickStyle = System.Windows.Forms.TickStyle.TopLeft;
 			this.zoomValue.Value = 50;
@@ -206,7 +207,7 @@
 			this.chkCameraLead.Location = new System.Drawing.Point(228, 112);
 			this.chkCameraLead.Name = "chkCameraLead";
 			this.chkCameraLead.Size = new System.Drawing.Size(64, 24);
-			this.chkCameraLead.TabIndex = 14;
+			this.chkCameraLead.TabIndex = 13;
 			this.chkCameraLead.Text = "Lead";
 			this.chkCameraLead.UseVisualStyleBackColor = true;
 			this.chkCameraLead.CheckedChanged += new System.EventHandler(this.chkCameraLead_CheckedChanged);
@@ -218,7 +219,7 @@
 			this.chkCameraTrail.Location = new System.Drawing.Point(290, 112);
 			this.chkCameraTrail.Name = "chkCameraTrail";
 			this.chkCameraTrail.Size = new System.Drawing.Size(57, 24);
-			this.chkCameraTrail.TabIndex = 15;
+			this.chkCameraTrail.TabIndex = 14;
 			this.chkCameraTrail.Text = "Trail";
 			this.chkCameraTrail.UseVisualStyleBackColor = true;
 			this.chkCameraTrail.CheckedChanged += new System.EventHandler(this.chkCameraTrail_CheckedChanged);
@@ -230,7 +231,7 @@
 			this.chkLockZoom.Location = new System.Drawing.Point(162, 158);
 			this.chkLockZoom.Name = "chkLockZoom";
 			this.chkLockZoom.Size = new System.Drawing.Size(69, 24);
-			this.chkLockZoom.TabIndex = 16;
+			this.chkLockZoom.TabIndex = 18;
 			this.chkLockZoom.Text = "Zoom";
 			this.chkLockZoom.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			this.chkLockZoom.UseVisualStyleBackColor = true;
@@ -243,7 +244,7 @@
 			this.lblCamera.Location = new System.Drawing.Point(158, 112);
 			this.lblCamera.Name = "lblCamera";
 			this.lblCamera.Size = new System.Drawing.Size(65, 20);
-			this.lblCamera.TabIndex = 17;
+			this.lblCamera.TabIndex = 12;
 			this.lblCamera.Text = "Camera";
 			// 
 			// chkInvincible
@@ -253,7 +254,7 @@
 			this.chkInvincible.Location = new System.Drawing.Point(162, 132);
 			this.chkInvincible.Name = "chkInvincible";
 			this.chkInvincible.Size = new System.Drawing.Size(153, 24);
-			this.chkInvincible.TabIndex = 18;
+			this.chkInvincible.TabIndex = 15;
 			this.chkInvincible.Text = "Invincible to Ooze";
 			this.chkInvincible.UseVisualStyleBackColor = true;
 			this.chkInvincible.CheckedChanged += new System.EventHandler(this.chkInvincible_CheckedChanged);
@@ -267,7 +268,7 @@
 			this.btnKill.Location = new System.Drawing.Point(250, 40);
 			this.btnKill.Name = "btnKill";
 			this.btnKill.Size = new System.Drawing.Size(103, 29);
-			this.btnKill.TabIndex = 19;
+			this.btnKill.TabIndex = 5;
 			this.btnKill.Text = "Kill Totems";
 			this.btnKill.UseVisualStyleBackColor = false;
 			this.btnKill.Click += new System.EventHandler(this.btnKill_Click);
@@ -284,6 +285,20 @@
 			this.lblNotAvailable.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			this.lblNotAvailable.Visible = false;
 			// 
+			// btnClearLevel
+			// 
+			this.btnClearLevel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+			this.btnClearLevel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.btnClearLevel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.btnClearLevel.ForeColor = System.Drawing.Color.Black;
+			this.btnClearLevel.Location = new System.Drawing.Point(250, 12);
+			this.btnClearLevel.Name = "btnClearLevel";
+			this.btnClearLevel.Size = new System.Drawing.Size(103, 29);
+			this.btnClearLevel.TabIndex = 2;
+			this.btnClearLevel.Text = "Clear Level";
+			this.btnClearLevel.UseVisualStyleBackColor = false;
+			this.btnClearLevel.Click += new System.EventHandler(this.btnClearLevel_Click);
+			// 
 			// KalimbaManager
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -291,6 +306,7 @@
 			this.BackColor = System.Drawing.Color.White;
 			this.ClientSize = new System.Drawing.Size(365, 190);
 			this.Controls.Add(this.lblNotAvailable);
+			this.Controls.Add(this.btnClearLevel);
 			this.Controls.Add(this.btnKill);
 			this.Controls.Add(this.chkInvincible);
 			this.Controls.Add(this.lblCamera);
@@ -348,5 +364,6 @@
 		private System.Windows.Forms.CheckBox chkInvincible;
 		private System.Windows.Forms.Button btnKill;
 		private System.Windows.Forms.Label lblNotAvailable;
+		private System.Windows.Forms.Button btnClearLevel;
 	}
 }
