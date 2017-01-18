@@ -45,12 +45,7 @@ namespace LiveSplit.Kalimba {
 		}
 
 		public void GetValues() {
-			if (!mem.HookProcess()) {
-				if (Manager.Visible && !Manager.AlwaysShown) { Manager.Invoke((Action)delegate () { Manager.Hide(); }); }
-				return;
-			} else if (!Manager.Visible) {
-				Manager.Invoke((Action)delegate () { Manager.Show(); });
-			}
+			if (!mem.HookProcess()) { return; }
 
 			MenuScreen screen = mem.GetCurrentMenu();
 #if LiveSplit

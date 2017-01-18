@@ -73,20 +73,22 @@ namespace LiveSplit.Kalimba {
 		}
 
 		private void UpdateLoop() {
-			try {
-				while (true) {
+			while (true) {
+				try {
 					if (Component != null) {
 						Component.GetValues();
 					}
 					UpdateValues();
 					Thread.Sleep(15);
-				}
-			} catch { }
+				} catch { }
+			}
 		}
 		public void UpdateValues() {
 			if (this.InvokeRequired) {
 				this.Invoke((Action)UpdateValues);
-			} else if (this.Visible && Memory != null && Memory.IsHooked) {
+			} else if (Memory != null && Memory.IsHooked) {
+				if (!Visible) { this.Show(); }
+
 				lblNotAvailable.Visible = false;
 				MenuScreen menu = Memory.GetCurrentMenu();
 				bool inGame = menu == MenuScreen.InGame || menu == MenuScreen.InGameMenu;
@@ -127,6 +129,10 @@ namespace LiveSplit.Kalimba {
 					lblP1Pos.Text = "T1: (" + Memory.GetLastXP1().ToString("0.00") + ", " + Memory.GetLastYP1().ToString("0.00") + ")";
 					lblP2Pos.Text = "T2: (" + Memory.GetLastXP2().ToString("0.00") + ", " + Memory.GetLastYP2().ToString("0.00") + ")";
 					lblCurrentCheckpoint.Text = "Checkpoint: " + (currentCheckpoint + 1) + " / " + Memory.GetCheckpointCount();
+				} else {
+					lblP1Pos.Text = "T1: (0.00, 0.00)";
+					lblP2Pos.Text = "T1: (0.00, 0.00)";
+					lblCurrentCheckpoint.Text = "Checkpoint: N/A";
 				}
 
 				raceWatcher.UpdateRace(inGame, Memory.GetPlatformLevelId(), currentCheckpoint, Memory.LevelComplete());
@@ -179,7 +185,7 @@ namespace LiveSplit.Kalimba {
 						}
 					}
 				}
-			} else if (this.Visible) {
+			} else {
 				if (!AlwaysShown) {
 					this.Hide();
 				} else {
