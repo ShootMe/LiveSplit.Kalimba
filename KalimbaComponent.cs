@@ -202,6 +202,7 @@ namespace LiveSplit.Kalimba {
 		}
 		private void HandleSplit(bool shouldSplit, MenuScreen screen, bool shouldReset = false) {
 			if (currentSplit > 0 && (screen == MenuScreen.MainMenu || shouldReset)) {
+				currentSplit = 0;
 				Model.Reset();
 			} else if (shouldSplit && DateTime.Now > lastSplit.AddSeconds(1)) {
 				lastSplit = DateTime.Now;
