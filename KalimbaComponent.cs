@@ -22,7 +22,7 @@ namespace LiveSplit.Kalimba {
 	public class KalimbaComponent {
 #endif
 		public IDictionary<string, Action> ContextMenuControls { get { return null; } }
-		internal static string[] keys = { "CurrentSplit", "World", "Campaign", "CurrentMenu", "PreviousMenu", "Cinematic", "LoadingLevel", "LevelTime", "Disabled", "Score", "Deaths", "LevelName", "P1Y", "P2Y", "State", "EndLevel", "PlayerState", "Frozen", "PlatformLevel", "Checkpoint", "CheckpointCount", "Stats" };
+		internal static string[] keys = { "CurrentSplit", "World", "Campaign", "CurrentMenu", "PreviousMenu", "Cinematic", "LoadingLevel", "Disabled", "Score", "Deaths", "State", "EndLevel", "PlatformLevel", "Stats" };
 		private KalimbaMemory mem;
 		private int currentSplit = 0, state = 0, lastLogCheck = 0;
 		private bool hasLog = false;
@@ -97,32 +97,34 @@ namespace LiveSplit.Kalimba {
 					shouldSplit = true;
 					startFrameCount = mem.FrameCount();
 				}
-			} else if (currentSplit < Model.CurrentState.Run.Count && screen == MenuScreen.InGame) {
-				string[] splits = Model.CurrentState.Run[currentSplit - 1].Name.Split(' ');
-				float pickupsPos = -1;
-				bool isPosX = false, isPosY = false, isLessThan = false;
-				for (int i = 0; i < splits.Length; i++) {
-					isPosX = splits[i].EndsWith("x", StringComparison.OrdinalIgnoreCase);
-					isPosY = splits[i].EndsWith("y", StringComparison.OrdinalIgnoreCase);
-					isLessThan = splits[i].StartsWith("<", StringComparison.OrdinalIgnoreCase);
-					if (((isPosX || isPosY) && float.TryParse(splits[i].Substring(isLessThan ? 1 : 0, splits[i].Length - 1), out pickupsPos)) || (!isPosX && !isPosY && float.TryParse(splits[i], out pickupsPos))) {
-						break;
+			} else if (Model.CurrentState.CurrentPhase == TimerPhase.Running) {
+				if (currentSplit < Model.CurrentState.Run.Count && screen == MenuScreen.InGame) {
+					string[] splits = Model.CurrentState.Run[currentSplit - 1].Name.Split(' ');
+					float pickupsPos = -1;
+					bool isPosX = false, isPosY = false, isLessThan = false;
+					for (int i = 0; i < splits.Length; i++) {
+						isPosX = splits[i].EndsWith("x", StringComparison.OrdinalIgnoreCase);
+						isPosY = splits[i].EndsWith("y", StringComparison.OrdinalIgnoreCase);
+						isLessThan = splits[i].StartsWith("<", StringComparison.OrdinalIgnoreCase);
+						if (((isPosX || isPosY) && float.TryParse(splits[i].Substring(isLessThan ? 1 : 0, splits[i].Length - (isLessThan ? 2 : 1)), out pickupsPos)) || (!isPosX && !isPosY && float.TryParse(splits[i], out pickupsPos))) {
+							break;
+						}
 					}
-				}
 
-				bool isNotCoop = mem.GetLastXP3() == 0;
-				shouldSplit = (!isPosX && !isPosY && (int)pickupsPos > 0 && mem.GetCurrentScore() == (int)pickupsPos)
-							|| (isPosX && (isLessThan ? mem.GetLastXP1() < pickupsPos || mem.GetLastXP2() < pickupsPos || (!isNotCoop && (mem.GetLastXP3() < pickupsPos || mem.GetLastXP4() < pickupsPos))
-								: mem.GetLastXP1() > pickupsPos || mem.GetLastXP2() > pickupsPos || (!isNotCoop && (mem.GetLastXP3() > pickupsPos || mem.GetLastXP4() > pickupsPos))))
-							|| (isPosY && (isLessThan ? mem.GetLastYP1() < pickupsPos || mem.GetLastYP2() < pickupsPos || (!isNotCoop && (mem.GetLastYP3() < pickupsPos || mem.GetLastYP4() < pickupsPos))
-								: mem.GetLastYP1() > pickupsPos || mem.GetLastYP2() > pickupsPos || (!isNotCoop && (mem.GetLastYP3() > pickupsPos || mem.GetLastYP4() > pickupsPos))));
-				if (shouldSplit) {
-					lastLevelComplete++;
-					splitFrameCount = mem.FrameCount();
+					bool isNotCoop = Math.Abs(mem.GetLastXP3()) < 0.01f;
+					shouldSplit = (!isPosX && !isPosY && (int)pickupsPos > 0 && mem.GetCurrentScore() == (int)pickupsPos)
+								|| (isPosX && (isLessThan ? mem.GetLastXP1() < pickupsPos || mem.GetLastXP2() < pickupsPos || (!isNotCoop && (mem.GetLastXP3() < pickupsPos || mem.GetLastXP4() < pickupsPos))
+									: mem.GetLastXP1() > pickupsPos || mem.GetLastXP2() > pickupsPos || (!isNotCoop && (mem.GetLastXP3() > pickupsPos || mem.GetLastXP4() > pickupsPos))))
+								|| (isPosY && (isLessThan ? mem.GetLastYP1() < pickupsPos || mem.GetLastYP2() < pickupsPos || (!isNotCoop && (mem.GetLastYP3() < pickupsPos || mem.GetLastYP4() < pickupsPos))
+									: mem.GetLastYP1() > pickupsPos || mem.GetLastYP2() > pickupsPos || (!isNotCoop && (mem.GetLastYP3() > pickupsPos || mem.GetLastYP4() > pickupsPos))));
+					if (shouldSplit) {
+						lastLevelComplete++;
+						splitFrameCount = mem.FrameCount();
+					}
+				} else if (currentSplit == Model.CurrentState.Run.Count) {
+					PersistentLevelStats level = mem.GetLevelStats(mem.GetPlatformLevelId());
+					shouldSplit = level != null && level.minMillisecondsForMaxScore != int.MaxValue;
 				}
-			} else {
-				PersistentLevelStats level = mem.GetLevelStats(mem.GetPlatformLevelId());
-				shouldSplit = level != null && level.minMillisecondsForMaxScore != int.MaxValue;
 			}
 
 			HandleSplit(shouldSplit, screen, screen == MenuScreen.SinglePlayerMap || screen == MenuScreen.SinglePlayerDLCMap || screen == MenuScreen.CoopMap || screen == MenuScreen.CoopDLCMap);
@@ -272,13 +274,12 @@ namespace LiveSplit.Kalimba {
 						case "Cinematic": curr = mem.GetPlayingCinematic().ToString(); break;
 						case "LoadingLevel": curr = mem.GetIsLoadingLevel().ToString(); break;
 						case "Disabled": curr = mem.GetIsDisabled().ToString(); break;
-						case "LevelTime": curr = mem.GetLevelTime().ToString(); break;
 						case "Score": curr = mem.GetCurrentScore().ToString(); break;
 						case "Deaths": curr = mem.GetCurrentDeaths().ToString(); break;
 						case "CurrentSplit": curr = currentSplit.ToString(); break;
 						case "State": curr = state.ToString(); break;
 						case "EndLevel": curr = mem.LevelComplete().ToString(); break;
-						case "Frozen": curr = mem.GetFrozen().ToString(); break;
+						case "PlatformLevel": curr = mem.GetPlatformLevelId().ToString(); break;
 						case "Stats":
 							if (screen == MenuScreen.SinglePlayerEndLevelFeedBack) {
 								PersistentLevelStats level = mem.GetLevelStats(mem.GetPlatformLevelId());
@@ -360,27 +361,31 @@ namespace LiveSplit.Kalimba {
 			currentSplit--;
 			lastLevelComplete--;
 			state = 0;
-			WriteLog(DateTime.Now.ToString(@"HH\:mm\:ss.fff") + " | " + Model.CurrentState.CurrentTime.RealTime.Value.ToString("G").Substring(3, 11) + ": CurrentSplit: " + currentSplit.ToString().PadLeft(24, ' '));
 		}
 		public void OnSkipSplit(object sender, EventArgs e) {
 			currentSplit++;
 			lastLevelComplete++;
 			state = 0;
-			WriteLog(DateTime.Now.ToString(@"HH\:mm\:ss.fff") + " | " + Model.CurrentState.CurrentTime.RealTime.Value.ToString("G").Substring(3, 11) + ": CurrentSplit: " + currentSplit.ToString().PadLeft(24, ' '));
 		}
 		public void OnSplit(object sender, EventArgs e) {
+			Model.CurrentState.IsGameTimePaused = true;
+
 			if (lastMenu == MenuScreen.InGame && startFrameCount > 0 && currentSplit > 1 && currentSplit - 1 < Model.CurrentState.Run.Count) {
-				TimeSpan total = TimeSpan.FromSeconds((splitFrameCount - startFrameCount) / 60f);
-				TimeSpan lastLevel = TimeSpan.FromSeconds(0);
-				if (lastLevelComplete > 1) {
-					lastLevel = Model.CurrentState.Run[lastLevelComplete - 2].SplitTime.RealTime.Value;
-				}
-				if ((total - lastLevel).TotalSeconds > 1) {
-					Model.CurrentState.Run[lastLevelComplete - 1].SplitTime = new Time(total, total);
+				Time currentTime = Model.CurrentState.Run[lastLevelComplete - 1].SplitTime;
+				try {
+					TimeSpan total = TimeSpan.FromSeconds((splitFrameCount - startFrameCount) / 60f);
+					TimeSpan lastLevel = TimeSpan.FromSeconds(0);
+					if (lastLevelComplete > 1) {
+						lastLevel = Model.CurrentState.Run[lastLevelComplete - 2].SplitTime.RealTime.Value;
+					}
+					if ((total - lastLevel).TotalSeconds > 1) {
+						Model.CurrentState.Run[lastLevelComplete - 1].SplitTime = new Time(total, total);
+						WriteLog(total.TotalSeconds.ToString());
+					}
+				} catch {
+					Model.CurrentState.Run[lastLevelComplete - 1].SplitTime = currentTime;
 				}
 			}
-			Model.CurrentState.IsGameTimePaused = true;
-			WriteLog(DateTime.Now.ToString(@"HH\:mm\:ss.fff") + " | " + Model.CurrentState.CurrentTime.RealTime.Value.ToString("G").Substring(3, 11) + ": CurrentSplit: " + currentSplit.ToString().PadLeft(24, ' '));
 		}
 		public Control GetSettingsControl(LayoutMode mode) { return null; }
 		public void SetSettings(XmlNode settings) { }
