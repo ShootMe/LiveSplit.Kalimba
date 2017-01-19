@@ -96,18 +96,24 @@ namespace LiveSplit.Kalimba {
 				if (currentSplit < Model.CurrentState.Run.Count && screen == MenuScreen.InGame) {
 					string[] splits = Model.CurrentState.Run[currentSplit - 1].Name.Split(' ');
 					float pickupsPos = -1;
-					bool isPosX = false, isPosY = false, isLessThan = false;
+					bool isPosX = false, isPosY = false, isLessThan = false, isCP = false;
 					for (int i = 0; i < splits.Length; i++) {
 						isPosX = splits[i].EndsWith("x", StringComparison.OrdinalIgnoreCase);
 						isPosY = splits[i].EndsWith("y", StringComparison.OrdinalIgnoreCase);
+						isCP = splits[i].EndsWith("c", StringComparison.OrdinalIgnoreCase);
 						isLessThan = splits[i].StartsWith("<", StringComparison.OrdinalIgnoreCase);
 						if (((isPosX || isPosY) && float.TryParse(splits[i].Substring(isLessThan ? 1 : 0, splits[i].Length - (isLessThan ? 2 : 1)), out pickupsPos)) || (!isPosX && !isPosY && float.TryParse(splits[i], out pickupsPos))) {
 							break;
 						}
+						isPosX = false;
+						isPosY = false;
+						isCP = false;
+						isLessThan = false;
 					}
 
 					bool isNotCoop = Math.Abs(mem.GetLastXP3()) < 0.01f;
-					shouldSplit = (!isPosX && !isPosY && (int)pickupsPos > 0 && mem.GetCurrentScore() == (int)pickupsPos)
+					shouldSplit = (!isPosX && !isPosY && !isCP && (int)pickupsPos > 0 && mem.GetCurrentScore() == (int)pickupsPos)
+								|| (isCP && (int)pickupsPos > 0 && mem.GetCheckpointCount() + 1 == (int)pickupsPos)
 								|| (isPosX && (isLessThan ? mem.GetLastXP1() < pickupsPos || mem.GetLastXP2() < pickupsPos || (!isNotCoop && (mem.GetLastXP3() < pickupsPos || mem.GetLastXP4() < pickupsPos))
 									: mem.GetLastXP1() > pickupsPos || mem.GetLastXP2() > pickupsPos || (!isNotCoop && (mem.GetLastXP3() > pickupsPos || mem.GetLastXP4() > pickupsPos))))
 								|| (isPosY && (isLessThan ? mem.GetLastYP1() < pickupsPos || mem.GetLastYP2() < pickupsPos || (!isNotCoop && (mem.GetLastYP3() < pickupsPos || mem.GetLastYP4() < pickupsPos))
