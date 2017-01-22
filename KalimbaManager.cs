@@ -19,6 +19,8 @@ namespace LiveSplit.Kalimba {
 		private DateTime lastCheckLoading = DateTime.MinValue;
 		private Dictionary<int, float> oldZoomValues = new Dictionary<int, float>();
 		private RaceWatcher raceWatcher = new RaceWatcher();
+		private Thread getValuesThread = null;
+		//private int pickupSpeedIncrease = 0, lastPickupCount = 0, pickupTimer = 0;
 		public bool AlwaysShown { get; set; }
 
 		public KalimbaManager(bool shown) {
@@ -26,13 +28,16 @@ namespace LiveSplit.Kalimba {
 			Text = "Kalimba Manager " + Assembly.GetExecutingAssembly().GetName().Version.ToString();
 			AlwaysShown = shown;
 			Visible = shown;
-			Thread t = new Thread(UpdateLoop);
-			t.IsBackground = true;
-			t.Start();
+			getValuesThread = new Thread(UpdateLoop);
+			getValuesThread.IsBackground = true;
+			getValuesThread.Start();
 		}
 
 		private void KalimbaManager_FormClosing(object sender, FormClosingEventArgs e) {
 			e.Cancel = Memory != null && !AlwaysShown;
+			if (!e.Cancel && getValuesThread != null) {
+				getValuesThread = null;
+			}
 		}
 
 		private void btnNewGame_Click(object sender, System.EventArgs e) {
@@ -73,7 +78,7 @@ namespace LiveSplit.Kalimba {
 		}
 
 		private void UpdateLoop() {
-			while (true) {
+			while (getValuesThread != null) {
 				try {
 					if (Component != null) {
 						Component.GetValues();
@@ -88,6 +93,23 @@ namespace LiveSplit.Kalimba {
 				this.Invoke((Action)UpdateValues);
 			} else if (Memory != null && Memory.IsHooked) {
 				if (!Visible) { this.Show(); }
+
+				//int score = Memory.GetCurrentScore();
+				//if (score == 0) { lastPickupCount = 0; pickupSpeedIncrease = 0; pickupTimer = 120; }
+				//bool hasChangedPickups = score > lastPickupCount;
+				//pickupSpeedIncrease += score - lastPickupCount;
+				//lastPickupCount = score;
+
+				//if (pickupSpeedIncrease > 0) {
+				//	pickupTimer--;
+				//	if (pickupTimer <= 0) {
+				//		pickupTimer = 120;
+				//		pickupSpeedIncrease--;
+				//	}
+				//}
+
+				//float speedIncrease = pickupSpeedIncrease > 8 ? 8 : pickupSpeedIncrease;
+				//Memory.SetMaxSpeed(5f + speedIncrease / 4f, 8f + speedIncrease / 4f, 4);
 
 				lblNotAvailable.Visible = false;
 				MenuScreen menu = Memory.GetCurrentMenu();

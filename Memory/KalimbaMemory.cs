@@ -26,6 +26,34 @@ namespace LiveSplit.Kalimba.Memory {
 		public bool LevelComplete() {
 			return levelComplete.Read<bool>() && (MenuScreen)menuManager.Read<int>(0x34) == MenuScreen.InGame;
 		}
+		public void SetMaxSpeed(float runSpeed, float slideSpeed, float jumpHeight) {
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0]
+			IntPtr p1 = globalGameManager.Read<IntPtr>(0x14, 0xc, 0x18, 0x28, 0x10, 0x8);
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[1]
+			IntPtr p2 = globalGameManager.Read<IntPtr>(0x14, 0xc, 0x18, 0x28, 0x14, 0x8);
+			if (p1 == IntPtr.Zero) { return; }
+
+			//PlayerMovement
+			for (int i = 0xb0; i <= 0xb8; i += 4) {
+				//RunSpeed
+				Program.Write<float>(p1, runSpeed, 0x10, i, 0x8);
+				Program.Write<float>(p1, runSpeed, 0x14, i, 0x8);
+				Program.Write<float>(p2, runSpeed, 0x10, i, 0x8);
+				Program.Write<float>(p2, runSpeed, 0x14, i, 0x8);
+				//SlideSpeed
+				Program.Write<float>(p1, slideSpeed, 0x10, i, 0x24);
+				Program.Write<float>(p1, slideSpeed, 0x14, i, 0x24);
+				Program.Write<float>(p2, slideSpeed, 0x10, i, 0x24);
+				Program.Write<float>(p2, slideSpeed, 0x14, i, 0x24);
+			}
+			for (int i = 0xa4; i <= 0xac; i += 4) {
+				//JumpHeight
+				Program.Write<float>(p1, jumpHeight, 0x10, i, 0x8);
+				Program.Write<float>(p1, jumpHeight, 0x14, i, 0x8);
+				Program.Write<float>(p2, jumpHeight, 0x10, i, 0x8);
+				Program.Write<float>(p2, jumpHeight, 0x14, i, 0x8);
+			}
+		}
 		public void SetZoom(float zoom) {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.cameraController._currentZone.cameraSettings.size
 			globalGameManager.Write<float>(zoom, 0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x24);
