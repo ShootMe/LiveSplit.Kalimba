@@ -22,7 +22,7 @@ namespace LiveSplit.Kalimba {
 	public class KalimbaComponent {
 #endif
 		public IDictionary<string, Action> ContextMenuControls { get { return null; } }
-		internal static string[] keys = { "CurrentSplit", "World", "Campaign", "CurrentMenu", "PreviousMenu", "Cinematic", "LoadingLevel", "Disabled", "Score", "Deaths", "State", "EndLevel", "PlatformLevel", "Stats" };
+		internal static string[] keys = { "CurrentSplit", "World", "Campaign", "CurrentMenu", "PreviousMenu", "Cinematic", "LoadingLevel", "Disabled", "Checkpoint", "Deaths", "State", "EndLevel", "PlatformLevel", "Stats" };
 		private KalimbaMemory mem;
 		private int currentSplit = 0, state = 0, lastLogCheck = 0;
 		private bool hasLog = false;
@@ -102,7 +102,7 @@ namespace LiveSplit.Kalimba {
 						isPosY = splits[i].EndsWith("y", StringComparison.OrdinalIgnoreCase);
 						isCP = splits[i].EndsWith("c", StringComparison.OrdinalIgnoreCase);
 						isLessThan = splits[i].StartsWith("<", StringComparison.OrdinalIgnoreCase);
-						if (((isPosX || isPosY) && float.TryParse(splits[i].Substring(isLessThan ? 1 : 0, splits[i].Length - (isLessThan ? 2 : 1)), out pickupsPos)) || (!isPosX && !isPosY && float.TryParse(splits[i], out pickupsPos))) {
+						if (((isPosX || isPosY) && float.TryParse(splits[i].Substring(isLessThan ? 1 : 0, splits[i].Length - (isLessThan ? 2 : 1)), out pickupsPos)) || (!isPosX && !isPosY && float.TryParse(isCP ? splits[i].Substring(0, splits[i].Length - 1) : splits[i], out pickupsPos))) {
 							break;
 						}
 						isPosX = false;
@@ -110,10 +110,10 @@ namespace LiveSplit.Kalimba {
 						isCP = false;
 						isLessThan = false;
 					}
-
+					
 					bool isNotCoop = Math.Abs(mem.GetLastXP3()) < 0.01f;
 					shouldSplit = (!isPosX && !isPosY && !isCP && (int)pickupsPos > 0 && mem.GetCurrentScore() == (int)pickupsPos)
-								|| (isCP && (int)pickupsPos > 0 && mem.GetCheckpointCount() + 1 == (int)pickupsPos)
+								|| (isCP && (int)pickupsPos > 0 && mem.GetCurrentCheckpoint() + 1 == (int)pickupsPos)
 								|| (isPosX && (isLessThan ? mem.GetLastXP1() < pickupsPos || mem.GetLastXP2() < pickupsPos || (!isNotCoop && (mem.GetLastXP3() < pickupsPos || mem.GetLastXP4() < pickupsPos))
 									: mem.GetLastXP1() > pickupsPos || mem.GetLastXP2() > pickupsPos || (!isNotCoop && (mem.GetLastXP3() > pickupsPos || mem.GetLastXP4() > pickupsPos))))
 								|| (isPosY && (isLessThan ? mem.GetLastYP1() < pickupsPos || mem.GetLastYP2() < pickupsPos || (!isNotCoop && (mem.GetLastYP3() < pickupsPos || mem.GetLastYP4() < pickupsPos))
@@ -276,7 +276,7 @@ namespace LiveSplit.Kalimba {
 						case "Cinematic": curr = mem.GetPlayingCinematic().ToString(); break;
 						case "LoadingLevel": curr = mem.GetIsLoadingLevel().ToString(); break;
 						case "Disabled": curr = mem.GetIsDisabled().ToString(); break;
-						case "Score": curr = mem.GetCurrentScore().ToString(); break;
+						case "Checkpoint": curr = mem.GetCurrentCheckpoint().ToString(); break;
 						case "Deaths": curr = mem.GetCurrentDeaths().ToString(); break;
 						case "CurrentSplit": curr = currentSplit.ToString(); break;
 						case "State": curr = state.ToString(); break;
