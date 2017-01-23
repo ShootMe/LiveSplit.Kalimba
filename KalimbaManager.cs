@@ -80,7 +80,7 @@ namespace LiveSplit.Kalimba {
 		private void UpdateLoop() {
 			while (getValuesThread != null) {
 				try {
-					if (Component != null) {
+					if (Component != null && AlwaysShown) {
 						Component.GetValues();
 					}
 					UpdateValues();
