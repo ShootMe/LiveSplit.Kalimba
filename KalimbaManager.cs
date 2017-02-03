@@ -242,7 +242,7 @@ namespace LiveSplit.Kalimba {
 		private void chkLockZoom_CheckedChanged(object sender, EventArgs e) {
 			if (!chkLockZoom.Checked) {
 				foreach (KeyValuePair<int, float> pair in oldZoomValues) {
-					Memory.Program.Write<float>((IntPtr)pair.Key, pair.Value, 0x24);
+					Memory.Program.Write((IntPtr)pair.Key, pair.Value, 0x24);
 				}
 				oldZoomValues.Clear();
 			}
