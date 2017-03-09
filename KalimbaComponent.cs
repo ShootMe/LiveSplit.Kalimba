@@ -70,7 +70,9 @@ namespace LiveSplit.Kalimba {
 					HandleJourney(screen);
 				}
 
-				HandleGameTimes(screen);
+				if (Model.CurrentState.IsGameTimePaused && screen == MenuScreen.InGame && !mem.GetFrozen()) {
+					Model.CurrentState.IsGameTimePaused = false;
+				}
 			}
 #endif
 			lastMenu = screen;
@@ -225,32 +227,6 @@ namespace LiveSplit.Kalimba {
 				}
 			}
 		}
-		private void HandleGameTimes(MenuScreen screen) {
-			if (Model.CurrentState.IsGameTimePaused && screen == MenuScreen.InGame && !mem.GetFrozen()) {
-				Model.CurrentState.IsGameTimePaused = false;
-			}
-
-			if (screen == MenuScreen.SinglePlayerEndLevelFeedBack && currentSplit > 0 && currentSplit != lastLevelComplete && lastLevelComplete < Model.CurrentState.Run.Count) {
-				PersistentLevelStats level = mem.GetLevelStats(mem.GetPlatformLevelId());
-				if (level.minMillisecondsForMaxScore != int.MaxValue) {
-					double levelTime = (double)level.minMillisecondsForMaxScore / (double)1000;
-					levelTimes[lastLevelComplete] = levelTime;
-					double totalLevelTime = 0;
-					for (int i = 0; i < Model.CurrentState.Run.Count; i++) {
-						totalLevelTime += levelTimes[i];
-					}
-					Model.CurrentState.IsGameTimePaused = true;
-					if (currentSplit == Model.CurrentState.Run.Count + 1) {
-						Time t = Model.CurrentState.Run[lastLevelComplete].SplitTime;
-						Model.CurrentState.Run[lastLevelComplete].SplitTime = new Time(Model.CurrentState.Run.Count < 10 ? TimeSpan.FromSeconds(totalLevelTime) : t.RealTime, TimeSpan.FromSeconds(totalLevelTime));
-					} else {
-						Model.CurrentState.SetGameTime(TimeSpan.FromSeconds(totalLevelTime));
-					}
-					lastLevelComplete++;
-					WriteLog(DateTime.Now.ToString(@"HH\:mm\:ss.fff") + (Model != null ? " | " + Model.CurrentState.CurrentTime.RealTime.Value.ToString("G").Substring(3, 11) : "") + ": Set game time " + levelTime + " " + totalLevelTime);
-				}
-			}
-		}
 		public bool IsNotRunning() {
 			return Model == null || Model.CurrentState.CurrentPhase != TimerPhase.Running;
 		}
@@ -394,6 +370,25 @@ namespace LiveSplit.Kalimba {
 					Model.CurrentState.Run[lastLevelComplete - 1].SplitTime = currentTime;
 				}
 			} else {
+				PersistentLevelStats level = mem.GetLevelStats(mem.GetPlatformLevelId());
+				if (level.minMillisecondsForMaxScore != int.MaxValue) {
+					double levelTime = (double)level.minMillisecondsForMaxScore / (double)1000;
+					levelTimes[lastLevelComplete] = levelTime;
+					double totalLevelTime = 0;
+					for (int i = 0; i < Model.CurrentState.Run.Count; i++) {
+						totalLevelTime += levelTimes[i];
+					}
+					
+					if (currentSplit == Model.CurrentState.Run.Count + 1) {
+						Time t = Model.CurrentState.Run[lastLevelComplete].SplitTime;
+						Model.CurrentState.Run[lastLevelComplete].SplitTime = new Time(Model.CurrentState.Run.Count < 10 ? TimeSpan.FromSeconds(totalLevelTime) : t.RealTime, TimeSpan.FromSeconds(totalLevelTime));
+					} else {
+						Model.CurrentState.SetGameTime(TimeSpan.FromSeconds(totalLevelTime));
+					}
+					lastLevelComplete++;
+					WriteLog(DateTime.Now.ToString(@"HH\:mm\:ss.fff") + (Model != null ? " | " + Model.CurrentState.CurrentTime.RealTime.Value.ToString("G").Substring(3, 11) : "") + ": Set game time " + levelTime + " " + totalLevelTime);
+				}
+
 				Model.CurrentState.IsGameTimePaused = true;
 			}
 		}
