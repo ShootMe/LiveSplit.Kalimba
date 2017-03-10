@@ -28,9 +28,9 @@ namespace LiveSplit.Kalimba.Memory {
 		}
 		public void SetMaxSpeed(float runSpeed, float slideSpeed, float jumpHeight) {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0]
-			IntPtr p1 = (IntPtr)globalGameManager.Read<int>(0x14, 0xc, 0x18, 0x28, 0x10, 0x8);
+			IntPtr p1 = (IntPtr)globalGameManager.Read<uint>(0x14, 0xc, 0x18, 0x28, 0x10, 0x8);
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[1]
-			IntPtr p2 = (IntPtr)globalGameManager.Read<int>(0x14, 0xc, 0x18, 0x28, 0x14, 0x8);
+			IntPtr p2 = (IntPtr)globalGameManager.Read<uint>(0x14, 0xc, 0x18, 0x28, 0x14, 0x8);
 			if (p1 == IntPtr.Zero) { return; }
 
 			//PlayerMovement
@@ -317,22 +317,22 @@ namespace LiveSplit.Kalimba.Memory {
 		}
 		public PersistentLevelStats GetLevelStats(PlatformLevelId id) {
 			//PlatformManager.instance.imp.players[0].gameSinglePlayerStats._levels
-			IntPtr levels = (IntPtr)platformManager.Read<int>(0x10, 0x48, 0x10, 0x24, 0x0c);
+			IntPtr levels = (IntPtr)platformManager.Read<uint>(0x10, 0x48, 0x10, 0x24, 0x0c);
 			PersistentLevelStats level = (id >= PlatformLevelId.Coop_Jump && id <= PlatformLevelId.Coop_EpicBossFight) || (id >= PlatformLevelId.DLC_Coop_Andrew && id <= PlatformLevelId.DLC_Coop_Jack) ? null : GetLevelStats(levels, id);
 			if (level == null) {
 				//PlatformManager.instance.imp.players[0].platformStats._coop["guest"]._levels
-				levels = (IntPtr)platformManager.Read<int>(0x10, 0x48, 0x10, 0x34, 0x1c, 0x14, 0x10, 0x0c);
+				levels = (IntPtr)platformManager.Read<uint>(0x10, 0x48, 0x10, 0x34, 0x1c, 0x14, 0x10, 0x0c);
 				return GetLevelStats(levels, id);
 			}
 			return level;
 		}
 		private PersistentLevelStats GetLevelStats(IntPtr levels, PlatformLevelId id) {
 			int listSize = Program.Read<int>(levels, 0x20);
-			IntPtr keys = (IntPtr)Program.Read<int>(levels, 0x10);
-			levels = (IntPtr)Program.Read<int>(levels, 0x14);
+			IntPtr keys = (IntPtr)Program.Read<uint>(levels, 0x10);
+			levels = (IntPtr)Program.Read<uint>(levels, 0x14);
 
 			for (int i = 0; i < listSize; i++) {
-				IntPtr itemHead = (IntPtr)Program.Read<int>(levels, 0x10 + (i * 4));
+				IntPtr itemHead = (IntPtr)Program.Read<uint>(levels, 0x10 + (i * 4));
 				PlatformLevelId levelID = (PlatformLevelId)Program.Read<int>(keys, 0x10 + (i * 4));
 
 				if (levelID == id) {
@@ -352,19 +352,19 @@ namespace LiveSplit.Kalimba.Memory {
 		}
 		public void SetLevelScore(PlatformLevelId id, int score) {
 			//PlatformManager.instance.imp.players[0].gameSinglePlayerStats._levels
-			IntPtr levels = (IntPtr)platformManager.Read<int>(0x10, 0x48, 0x10, 0x24, 0x0c);
+			IntPtr levels = (IntPtr)platformManager.Read<uint>(0x10, 0x48, 0x10, 0x24, 0x0c);
 			SetScore(levels, id, score);
 			//PlatformManager.instance.imp.players[0].platformStats._coop["guest"]._levels
-			levels = (IntPtr)platformManager.Read<int>(0x10, 0x48, 0x10, 0x34, 0x1c, 0x14, 0x10, 0x0c);
+			levels = (IntPtr)platformManager.Read<uint>(0x10, 0x48, 0x10, 0x34, 0x1c, 0x14, 0x10, 0x0c);
 			SetScore(levels, id, score);
 		}
 		private void SetScore(IntPtr levels, PlatformLevelId id, int score) {
 			int listSize = Program.Read<int>(levels, 0x20);
-			IntPtr keys = (IntPtr)Program.Read<int>(levels, 0x10);
-			levels = (IntPtr)Program.Read<int>(levels, 0x14);
+			IntPtr keys = (IntPtr)Program.Read<uint>(levels, 0x10);
+			levels = (IntPtr)Program.Read<uint>(levels, 0x14);
 
 			for (int i = 0; i < listSize; i++) {
-				IntPtr itemHead = (IntPtr)Program.Read<int>(levels, 0x10 + (i * 4));
+				IntPtr itemHead = (IntPtr)Program.Read<uint>(levels, 0x10 + (i * 4));
 				PlatformLevelId levelID = (PlatformLevelId)Program.Read<int>(keys, 0x10 + (i * 4));
 
 				if (levelID == id || id == PlatformLevelId.None) {
@@ -379,19 +379,19 @@ namespace LiveSplit.Kalimba.Memory {
 			//PlatformManager.instance.imp.players[0].gameSinglePlayerStats._rememberedMoments.Count
 			platformManager.Write(0, 0x10, 0x48, 0x10, 0x24, 0x08, 0x0c);
 			//PlatformManager.instance.imp.players[0].gameSinglePlayerStats._levels
-			ClearStats((IntPtr)platformManager.Read<int>(0x10, 0x48, 0x10, 0x24, 0x0c));
+			ClearStats((IntPtr)platformManager.Read<uint>(0x10, 0x48, 0x10, 0x24, 0x0c));
 			//PlatformManager.instance.imp.players[0].platformStats._coop["guest"]._levels
-			IntPtr coopDic = (IntPtr)platformManager.Read<int>(0x10, 0x48, 0x10, 0x34, 0x1c, 0x14, 0x10);
+			IntPtr coopDic = (IntPtr)platformManager.Read<uint>(0x10, 0x48, 0x10, 0x34, 0x1c, 0x14, 0x10);
 			//PlatformManager.instance.imp.players[0].platformStats._coop["guest"]._rememberedMoments.Count
 			Program.Write(coopDic, (int)0, 0x08, 0x0c);
-			ClearStats((IntPtr)Program.Read<int>(coopDic, 0x0c));
+			ClearStats((IntPtr)Program.Read<uint>(coopDic, 0x0c));
 		}
 		private void ClearStats(IntPtr levels) {
 			int listSize = Program.Read<int>(levels, 0x20);
-			levels = (IntPtr)Program.Read<int>(levels, 0x14);
+			levels = (IntPtr)Program.Read<uint>(levels, 0x14);
 
 			for (int i = 0; i < listSize; i++) {
-				IntPtr itemHead = (IntPtr)Program.Read<int>(levels, 0x10 + (i * 4));
+				IntPtr itemHead = (IntPtr)Program.Read<uint>(levels, 0x10 + (i * 4));
 
 				Program.Write(itemHead, 0L, 0x08);
 				Program.Write(itemHead, int.MaxValue, 0x10);
@@ -478,9 +478,9 @@ namespace LiveSplit.Kalimba.Memory {
 			bool is64bit = Memory.Program.Is64Bit();
 			IntPtr p = IntPtr.Zero;
 			if (is64bit) {
-				p = (IntPtr)Memory.Program.Read<long>(Value, offsets);
+				p = (IntPtr)Memory.Program.Read<ulong>(Value, offsets);
 			} else {
-				p = (IntPtr)Memory.Program.Read<int>(Value, offsets);
+				p = (IntPtr)Memory.Program.Read<uint>(Value, offsets);
 			}
 			return Memory.Program.Read(p);
 		}
@@ -522,16 +522,13 @@ namespace LiveSplit.Kalimba.Memory {
 				pointer = GetVersionedFunctionPointer();
 				if (pointer != IntPtr.Zero) {
 					bool is64bit = Memory.Program.Is64Bit();
+					pointer = (IntPtr)Memory.Program.Read<uint>(pointer);
 					if (AutoDeref) {
 						if (is64bit) {
-							pointer = (IntPtr)Memory.Program.Read<long>(pointer, 0, 0);
+							pointer = (IntPtr)Memory.Program.Read<ulong>(pointer);
 						} else {
-							pointer = (IntPtr)Memory.Program.Read<int>(pointer, 0, 0);
+							pointer = (IntPtr)Memory.Program.Read<uint>(pointer);
 						}
-					} else if (is64bit) {
-						pointer = (IntPtr)Memory.Program.Read<long>(pointer, 0);
-					} else {
-						pointer = (IntPtr)Memory.Program.Read<int>(pointer, 0);
 					}
 				}
 			}

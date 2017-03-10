@@ -18,6 +18,7 @@ namespace LiveSplit.Kalimba {
 		private float lastYP2;
 		private MenuScreen mainMenu = MenuScreen.MainMenu;
 		private int lastLevelComplete = 0, startFrameCount, splitFrameCount;
+		private bool lastDisabled = false;
 #else
 	public class KalimbaComponent {
 #endif
@@ -25,7 +26,7 @@ namespace LiveSplit.Kalimba {
 		internal static string[] keys = { "CurrentSplit", "World", "Campaign", "CurrentMenu", "PreviousMenu", "Cinematic", "LoadingLevel", "Disabled", "Checkpoint", "Deaths", "State", "EndLevel", "PlatformLevel", "Stats" };
 		private KalimbaMemory mem;
 		private int currentSplit = 0, state = 0, lastLogCheck = 0;
-		private bool hasLog = false, lastDisabled = false;
+		private bool hasLog = false;
 		private MenuScreen lastMenu = MenuScreen.MainMenu;
 		private Dictionary<string, string> currentValues = new Dictionary<string, string>();
 		public KalimbaManager Manager { get; set; }
