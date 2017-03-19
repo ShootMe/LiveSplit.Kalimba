@@ -98,29 +98,29 @@ namespace LiveSplit.Kalimba {
 				if (currentSplit < Model.CurrentState.Run.Count) {
 					string[] splits = Model.CurrentState.CurrentSplit.Name.Split(' ');
 					float pickupsPos = -1;
-					bool isPosX = false, isPosY = false, isLessThan = false, isCP = false, isDis = false, isBoss = false;
+					bool isPosX = false, isPosY = false, isLessThan = false, isCP = false, isDis = false;
+					bool isBoss = Model.CurrentState.CurrentSplit.Name.StartsWith("b ", StringComparison.OrdinalIgnoreCase);
 					bool dis = mem.GetIsDisabled();
 					string bossText = null;
-					for (int i = 0; i < splits.Length; i++) {
-						string sp = splits[i];
-						isBoss = sp.StartsWith("b ", StringComparison.OrdinalIgnoreCase);
-						isPosX = sp.EndsWith("x", StringComparison.OrdinalIgnoreCase);
-						isPosY = sp.EndsWith("y", StringComparison.OrdinalIgnoreCase);
-						isCP = sp.EndsWith("c", StringComparison.OrdinalIgnoreCase);
-						isDis = sp.Equals("d", StringComparison.OrdinalIgnoreCase) || sp.Equals("dis", StringComparison.OrdinalIgnoreCase) || sp.Equals("disabled", StringComparison.OrdinalIgnoreCase);
-						isLessThan = sp.StartsWith("<", StringComparison.OrdinalIgnoreCase);
-						if (isBoss) {
-							bossText = sp.Substring(2).Trim();
-							break;
-						} else if (isDis || ((isPosX || isPosY) && float.TryParse(sp.Substring(isLessThan ? 1 : 0, sp.Length - (isLessThan ? 2 : 1)), out pickupsPos))
-							|| (!isPosX && !isPosY && float.TryParse(isCP ? sp.Substring(0, sp.Length - 1) : sp, out pickupsPos))) {
-							break;
+					if (!isBoss) {
+						for (int i = 0; i < splits.Length; i++) {
+							string sp = splits[i];
+							isPosX = sp.EndsWith("x", StringComparison.OrdinalIgnoreCase);
+							isPosY = sp.EndsWith("y", StringComparison.OrdinalIgnoreCase);
+							isCP = sp.EndsWith("c", StringComparison.OrdinalIgnoreCase);
+							isDis = sp.Equals("d", StringComparison.OrdinalIgnoreCase) || sp.Equals("dis", StringComparison.OrdinalIgnoreCase) || sp.Equals("disabled", StringComparison.OrdinalIgnoreCase);
+							isLessThan = sp.StartsWith("<", StringComparison.OrdinalIgnoreCase);
+							if (isDis || ((isPosX || isPosY) && float.TryParse(sp.Substring(isLessThan ? 1 : 0, sp.Length - (isLessThan ? 2 : 1)), out pickupsPos))
+								|| (!isPosX && !isPosY && float.TryParse(isCP ? sp.Substring(0, sp.Length - 1) : sp, out pickupsPos))) {
+								break;
+							}
+							isPosX = false;
+							isPosY = false;
+							isCP = false;
+							isLessThan = false;
 						}
-						isBoss = false;
-						isPosX = false;
-						isPosY = false;
-						isCP = false;
-						isLessThan = false;
+					} else {
+						bossText = Model.CurrentState.CurrentSplit.Name.Substring(2);
 					}
 
 					bool isNotCoop = Math.Abs(mem.GetLastXP3()) < 0.01f;
