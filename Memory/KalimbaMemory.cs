@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
 namespace LiveSplit.Kalimba.Memory {
 	public partial class KalimbaMemory {
 		private ProgramPointer globalGameManager, menuManager, totemPole, platformManager, ghostManager, levelComplete, musicMachine;
@@ -12,7 +13,7 @@ namespace LiveSplit.Kalimba.Memory {
 			globalGameManager = new ProgramPointer(this, MemPointer.GlobalGameManager);
 			menuManager = new ProgramPointer(this, MemPointer.MenuManager);
 			totemPole = new ProgramPointer(this, MemPointer.TotemPole) { AutoDeref = false };
-			platformManager = new ProgramPointer(this, MemPointer.PlatformManager);
+			platformManager = new ProgramPointer(this, MemPointer.PlatformManager) { AutoDeref = false };
 			ghostManager = new ProgramPointer(this, MemPointer.GhostManager);
 			levelComplete = new ProgramPointer(this, MemPointer.LevelComplete) { AutoDeref = false };
 			musicMachine = new ProgramPointer(this, MemPointer.MusicMachine);
@@ -235,6 +236,16 @@ namespace LiveSplit.Kalimba.Memory {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.sceneFile.campaign
 			return (Campaign)globalGameManager.Read<int>(0x14, 0x0c, 0x10, 0x60);
 		}
+		public string GetBossState() {
+			//GlobalGameManager.instance.currentSession.activeSessionHolder.camerController.bossControllers
+			IntPtr bossControllers = (IntPtr)globalGameManager.Read<uint>(0x14, 0x0c, 0x1c, 0x5c);
+			int size = Program.Read<int>(bossControllers, 0xc);
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < size; i++) {
+				sb.Append(Program.Read((IntPtr)Program.Read<uint>(bossControllers, 0x10 + (i * 4), 0x2c, 0x10))).Append('.');
+			}
+			return sb.ToString();
+		}
 		public MenuScreen GetCurrentMenu() {
 			//MenuManager.instance._currentMenu
 			return (MenuScreen)menuManager.Read<int>(0x34);
@@ -317,11 +328,11 @@ namespace LiveSplit.Kalimba.Memory {
 		}
 		public PersistentLevelStats GetLevelStats(PlatformLevelId id) {
 			//PlatformManager.instance.imp.players[0].gameSinglePlayerStats._levels
-			IntPtr levels = (IntPtr)platformManager.Read<uint>(0x10, 0x48, 0x10, 0x24, 0x0c);
+			IntPtr levels = (IntPtr)platformManager.Read<uint>(0x0, 0x10, 0x48, 0x10, 0x24, 0x0c);
 			PersistentLevelStats level = (id >= PlatformLevelId.Coop_Jump && id <= PlatformLevelId.Coop_EpicBossFight) || (id >= PlatformLevelId.DLC_Coop_Andrew && id <= PlatformLevelId.DLC_Coop_Jack) ? null : GetLevelStats(levels, id);
 			if (level == null) {
 				//PlatformManager.instance.imp.players[0].platformStats._coop["guest"]._levels
-				levels = (IntPtr)platformManager.Read<uint>(0x10, 0x48, 0x10, 0x34, 0x1c, 0x14, 0x10, 0x0c);
+				levels = (IntPtr)platformManager.Read<uint>(0x0, 0x10, 0x48, 0x10, 0x34, 0x1c, 0x14, 0x10, 0x0c);
 				return GetLevelStats(levels, id);
 			}
 			return level;
@@ -352,10 +363,10 @@ namespace LiveSplit.Kalimba.Memory {
 		}
 		public void SetLevelScore(PlatformLevelId id, int score) {
 			//PlatformManager.instance.imp.players[0].gameSinglePlayerStats._levels
-			IntPtr levels = (IntPtr)platformManager.Read<uint>(0x10, 0x48, 0x10, 0x24, 0x0c);
+			IntPtr levels = (IntPtr)platformManager.Read<uint>(0x0, 0x10, 0x48, 0x10, 0x24, 0x0c);
 			SetScore(levels, id, score);
 			//PlatformManager.instance.imp.players[0].platformStats._coop["guest"]._levels
-			levels = (IntPtr)platformManager.Read<uint>(0x10, 0x48, 0x10, 0x34, 0x1c, 0x14, 0x10, 0x0c);
+			levels = (IntPtr)platformManager.Read<uint>(0x0, 0x10, 0x48, 0x10, 0x34, 0x1c, 0x14, 0x10, 0x0c);
 			SetScore(levels, id, score);
 		}
 		private void SetScore(IntPtr levels, PlatformLevelId id, int score) {
@@ -377,11 +388,11 @@ namespace LiveSplit.Kalimba.Memory {
 		}
 		public void EraseData() {
 			//PlatformManager.instance.imp.players[0].gameSinglePlayerStats._rememberedMoments.Count
-			platformManager.Write(0, 0x10, 0x48, 0x10, 0x24, 0x08, 0x0c);
+			platformManager.Write(0, 0x0, 0x10, 0x48, 0x10, 0x24, 0x08, 0x0c);
 			//PlatformManager.instance.imp.players[0].gameSinglePlayerStats._levels
-			ClearStats((IntPtr)platformManager.Read<uint>(0x10, 0x48, 0x10, 0x24, 0x0c));
+			ClearStats((IntPtr)platformManager.Read<uint>(0x0, 0x10, 0x48, 0x10, 0x24, 0x0c));
 			//PlatformManager.instance.imp.players[0].platformStats._coop["guest"]._levels
-			IntPtr coopDic = (IntPtr)platformManager.Read<uint>(0x10, 0x48, 0x10, 0x34, 0x1c, 0x14, 0x10);
+			IntPtr coopDic = (IntPtr)platformManager.Read<uint>(0x0, 0x10, 0x48, 0x10, 0x34, 0x1c, 0x14, 0x10);
 			//PlatformManager.instance.imp.players[0].platformStats._coop["guest"]._rememberedMoments.Count
 			Program.Write(coopDic, (int)0, 0x08, 0x0c);
 			ClearStats((IntPtr)Program.Read<uint>(coopDic, 0x0c));

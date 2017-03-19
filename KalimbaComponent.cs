@@ -23,7 +23,7 @@ namespace LiveSplit.Kalimba {
 	public class KalimbaComponent {
 #endif
 		public IDictionary<string, Action> ContextMenuControls { get { return null; } }
-		internal static string[] keys = { "CurrentSplit", "World", "Campaign", "CurrentMenu", "PreviousMenu", "Cinematic", "LoadingLevel", "Disabled", "Checkpoint", "Deaths", "State", "EndLevel", "PlatformLevel", "Stats" };
+		internal static string[] keys = { "CurrentSplit", "World", "Campaign", "CurrentMenu", "PreviousMenu", "Cinematic", "LoadingLevel", "Disabled", "Checkpoint", "Deaths", "State", "EndLevel", "PlatformLevel", "Stats", "BossState" };
 		private KalimbaMemory mem;
 		private int currentSplit = 0, state = 0, lastLogCheck = 0;
 		private bool hasLog = false;
@@ -98,18 +98,25 @@ namespace LiveSplit.Kalimba {
 				if (currentSplit < Model.CurrentState.Run.Count) {
 					string[] splits = Model.CurrentState.CurrentSplit.Name.Split(' ');
 					float pickupsPos = -1;
-					bool isPosX = false, isPosY = false, isLessThan = false, isCP = false, isDis = false;
+					bool isPosX = false, isPosY = false, isLessThan = false, isCP = false, isDis = false, isBoss = false;
 					bool dis = mem.GetIsDisabled();
+					string bossText = null;
 					for (int i = 0; i < splits.Length; i++) {
 						string sp = splits[i];
+						isBoss = sp.StartsWith("b ", StringComparison.OrdinalIgnoreCase);
 						isPosX = sp.EndsWith("x", StringComparison.OrdinalIgnoreCase);
 						isPosY = sp.EndsWith("y", StringComparison.OrdinalIgnoreCase);
 						isCP = sp.EndsWith("c", StringComparison.OrdinalIgnoreCase);
 						isDis = sp.Equals("d", StringComparison.OrdinalIgnoreCase) || sp.Equals("dis", StringComparison.OrdinalIgnoreCase) || sp.Equals("disabled", StringComparison.OrdinalIgnoreCase);
 						isLessThan = sp.StartsWith("<", StringComparison.OrdinalIgnoreCase);
-						if (isDis || ((isPosX || isPosY) && float.TryParse(sp.Substring(isLessThan ? 1 : 0, sp.Length - (isLessThan ? 2 : 1)), out pickupsPos)) || (!isPosX && !isPosY && float.TryParse(isCP ? sp.Substring(0, sp.Length - 1) : sp, out pickupsPos))) {
+						if (isBoss) {
+							bossText = sp.Substring(2).Trim();
+							break;
+						} else if (isDis || ((isPosX || isPosY) && float.TryParse(sp.Substring(isLessThan ? 1 : 0, sp.Length - (isLessThan ? 2 : 1)), out pickupsPos))
+							|| (!isPosX && !isPosY && float.TryParse(isCP ? sp.Substring(0, sp.Length - 1) : sp, out pickupsPos))) {
 							break;
 						}
+						isBoss = false;
 						isPosX = false;
 						isPosY = false;
 						isCP = false;
@@ -118,7 +125,8 @@ namespace LiveSplit.Kalimba {
 
 					bool isNotCoop = Math.Abs(mem.GetLastXP3()) < 0.01f;
 					shouldSplit = screen == MenuScreen.InGame;
-					shouldSplit &= (!isPosX && !isPosY && !isCP && !isDis && (int)pickupsPos > 0 && mem.GetCurrentScore() == (int)pickupsPos)
+					shouldSplit &= (isBoss && mem.GetBossState().IndexOf(bossText, StringComparison.OrdinalIgnoreCase) >=0)
+								|| (!isPosX && !isPosY && !isCP && !isDis && (int)pickupsPos > 0 && mem.GetCurrentScore() == (int)pickupsPos)
 								|| (isCP && (int)pickupsPos > 0 && mem.GetCurrentCheckpoint() + 1 == (int)pickupsPos)
 								|| (!isPosX && !isPosY && isDis && dis && !lastDisabled)
 								|| (isPosX && (isLessThan ? mem.GetLastXP1() < pickupsPos || mem.GetLastXP2() < pickupsPos || (!isNotCoop && (mem.GetLastXP3() < pickupsPos || mem.GetLastXP4() < pickupsPos))
@@ -262,6 +270,7 @@ namespace LiveSplit.Kalimba {
 						case "State": curr = state.ToString(); break;
 						case "EndLevel": curr = mem.LevelComplete().ToString(); break;
 						case "PlatformLevel": curr = mem.GetPlatformLevelId().ToString(); break;
+						case "BossState": curr = mem.GetBossState(); break;
 						case "Stats":
 							if (screen == MenuScreen.SinglePlayerEndLevelFeedBack) {
 								PersistentLevelStats level = mem.GetLevelStats(mem.GetPlatformLevelId());
@@ -379,7 +388,7 @@ namespace LiveSplit.Kalimba {
 					for (int i = 0; i < Model.CurrentState.Run.Count; i++) {
 						totalLevelTime += levelTimes[i];
 					}
-					
+
 					if (currentSplit == Model.CurrentState.Run.Count + 1) {
 						Time t = Model.CurrentState.Run[lastLevelComplete].SplitTime;
 						Model.CurrentState.Run[lastLevelComplete].SplitTime = new Time(Model.CurrentState.Run.Count < 10 ? TimeSpan.FromSeconds(totalLevelTime) : t.RealTime, TimeSpan.FromSeconds(totalLevelTime));
