@@ -148,12 +148,10 @@ namespace LiveSplit.Kalimba {
 
 					zoom = Memory.Zoom();
 
-					lblP1Pos.Text = "T1: (" + Memory.GetLastXP1().ToString("0.00") + ", " + Memory.GetLastYP1().ToString("0.00") + ")";
-					lblP2Pos.Text = "T2: (" + Memory.GetLastXP2().ToString("0.00") + ", " + Memory.GetLastYP2().ToString("0.00") + ")";
+					lblP1Pos.Text = "T1: (" + Memory.GetLastXP1().ToString("0.00") + ", " + Memory.GetLastYP1().ToString("0.00") + ")  T2: (" + Memory.GetLastXP2().ToString("0.00") + ", " + Memory.GetLastYP2().ToString("0.00") + ")";
 					lblCurrentCheckpoint.Text = "Checkpoint: " + (currentCheckpoint + 1) + " / " + Memory.GetCheckpointCount();
 				} else {
-					lblP1Pos.Text = "T1: (0.00, 0.00)";
-					lblP2Pos.Text = "T1: (0.00, 0.00)";
+					lblP1Pos.Text = "T1: (0.00, 0.00) T2: (0.00, 0.00)";
 					lblCurrentCheckpoint.Text = "Checkpoint: N/A";
 				}
 
@@ -194,7 +192,12 @@ namespace LiveSplit.Kalimba {
 
 				lblLevel.Text = "Level: " + Memory.SelectedLevel().ToString();
 
-				Memory.SetMusicVolume((float)musicVolume.Value / 20f);
+				lblTASOutput.Text = Memory.ReadTASOutput();
+				bool TASUI = Memory.TASUI();
+				if (TASUI != chkTAS.Checked) {
+					chkTAS.Checked = TASUI;
+				}
+				Memory.SetMusicVolume((float)musicVolume.Value / 50f);
 
 				if (menu == MenuScreen.Loading) {
 					MenuScreen prevMenu = Memory.GetPreviousMenu();
@@ -259,6 +262,9 @@ namespace LiveSplit.Kalimba {
 			if (screen == MenuScreen.CoopDLCMap || screen == MenuScreen.CoopMap || screen == MenuScreen.SinglePlayerDLCMap || screen == MenuScreen.SinglePlayerMap) {
 				Memory.SetLevelScore(Memory.SelectedLevel(), 0);
 			}
+		}
+		private void chkTAS_CheckedChanged(object sender, EventArgs e) {
+			Memory.SetTASUI(chkTAS.Checked);
 		}
 	}
 	public class RaceWatcher {

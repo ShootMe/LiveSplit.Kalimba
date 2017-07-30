@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Text;
 namespace LiveSplit.Kalimba.Memory {
 	public partial class KalimbaMemory {
-		private ProgramPointer globalGameManager, menuManager, totemPole, platformManager, ghostManager, levelComplete, musicMachine;
+		private ProgramPointer globalGameManager, menuManager, totemPole, platformManager, ghostManager, levelComplete, musicMachine, tas;
 		public Process Program { get; set; }
 		public bool IsHooked { get; set; } = false;
 		private DateTime lastHooked;
@@ -17,6 +17,7 @@ namespace LiveSplit.Kalimba.Memory {
 			ghostManager = new ProgramPointer(this, MemPointer.GhostManager);
 			levelComplete = new ProgramPointer(this, MemPointer.LevelComplete) { AutoDeref = false };
 			musicMachine = new ProgramPointer(this, MemPointer.MusicMachine);
+			tas = new ProgramPointer(this, MemPointer.TAS) { AutoDeref = false, RetrySeconds = 10 };
 			lastHooked = DateTime.MinValue;
 		}
 
@@ -26,6 +27,15 @@ namespace LiveSplit.Kalimba.Memory {
 		}
 		public bool LevelComplete() {
 			return levelComplete.Read<bool>() && (MenuScreen)menuManager.Read<int>(0x34) == MenuScreen.InGame;
+		}
+		public string ReadTASOutput() {
+			return tas.Read();
+		}
+		public bool TASUI() {
+			return tas.Read<bool>(4);
+		}
+		public void SetTASUI(bool val) {
+			tas.Write(val, 4);
 		}
 		public void SetMaxSpeed(float runSpeed, float slideSpeed, float jumpHeight) {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0]
@@ -445,18 +455,20 @@ namespace LiveSplit.Kalimba.Memory {
 		TotemPole,
 		GhostManager,
 		LevelComplete,
-		MusicMachine
+		MusicMachine,
+		TAS
 	}
 	public class ProgramPointer {
 		private static Dictionary<MemVersion, Dictionary<MemPointer, string>> funcPatterns = new Dictionary<MemVersion, Dictionary<MemPointer, string>>() {
 			{MemVersion.V1, new Dictionary<MemPointer, string>() {
-					{MemPointer.GlobalGameManager, "558BEC5783EC34C745E4000000008B4508C74034000000008B05????????83EC086A0050E8????????83C41085C0743A8B05????????8B4D0883EC085150|-12"},
-					{MemPointer.MenuManager,       "558BEC53575683EC0C8B05????????83EC086A0050E8????????83C41085C074338B05????????83EC08FF750850E8????????83C41085C0741A83EC0CFF7508E8|-30"},
-					{MemPointer.PlatformManager,   "558BEC535683EC108B05????????83EC0C50E8????????83C41085C0740B8B05"},
-					{MemPointer.TotemPole,         "D95810D94510D958148B4D1489480CC9C3000000558BEC83EC08B8????????8B4D088908C9C3000000000000558BEC5683EC0483EC0C|-27"},
-					{MemPointer.GhostManager,      "EC5783EC148B7D088B05????????83EC0C503900E8????????83C41083EC086A01503900E8????????83C410C647240083EC0C68????????E8????????83C41083EC0C8945F450E8????????83C4108B45F489471883EC0C|-78" },
-					{MemPointer.LevelComplete,     "558BEC5783EC648B7D0883EC0C57E8????????83C410B8????????C60000D9EED99F????????8B474083EC086A0050E8????????83C41085C0743083EC0C57|-40" },
-					{MemPointer.MusicMachine,      "558BEC575683EC108B75088B7D0C83FF060F85????????8B05????????83EC0C503900E8????????83C4108945F48B45F43D????????74268B05" }
+				{MemPointer.GlobalGameManager, "558BEC5783EC34C745E4000000008B4508C74034000000008B05????????83EC086A0050E8????????83C41085C0743A8B05????????8B4D0883EC085150|-12"},
+				{MemPointer.MenuManager,       "558BEC53575683EC0C8B05????????83EC086A0050E8????????83C41085C074338B05????????83EC08FF750850E8????????83C41085C0741A83EC0CFF7508E8|-30"},
+				{MemPointer.PlatformManager,   "558BEC535683EC108B05????????83EC0C50E8????????83C41085C0740B8B05"},
+				{MemPointer.TotemPole,         "D95810D94510D958148B4D1489480CC9C3000000558BEC83EC08B8????????8B4D088908C9C3000000000000558BEC5683EC0483EC0C|-27"},
+				{MemPointer.GhostManager,      "EC5783EC148B7D088B05????????83EC0C503900E8????????83C41083EC086A01503900E8????????83C410C647240083EC0C68????????E8????????83C41083EC0C8945F450E8????????83C4108B45F489471883EC0C|-78" },
+				{MemPointer.LevelComplete,     "558BEC5783EC648B7D0883EC0C57E8????????83C410B8????????C60000D9EED99F????????8B474083EC086A0050E8????????83C41085C0743083EC0C57|-40" },
+				{MemPointer.MusicMachine,      "558BEC575683EC108B75088B7D0C83FF060F85????????8B05????????83EC0C503900E8????????83C4108945F48B45F43D????????74268B05" },
+				{MemPointer.TAS,               "C745F88B2F7DE1C745FC933CAF568D45F883EC0868????????50E8????????83C4108BC8B8" }
 			}},
 		};
 		private IntPtr pointer;
@@ -466,10 +478,12 @@ namespace LiveSplit.Kalimba.Memory {
 		public bool AutoDeref { get; set; }
 		private int lastID;
 		private DateTime lastTry;
+		public int RetrySeconds { get; set; }
 		public ProgramPointer(KalimbaMemory memory, MemPointer pointer) {
 			this.Memory = memory;
 			this.Name = pointer;
 			this.AutoDeref = true;
+			RetrySeconds = 1;
 			lastID = memory.Program == null ? -1 : memory.Program.Id;
 			lastTry = DateTime.MinValue;
 		}
@@ -495,26 +509,8 @@ namespace LiveSplit.Kalimba.Memory {
 			}
 			return Memory.Program.Read(p);
 		}
-		public void Write(int value, params int[] offsets) {
-			Memory.Program.Write(Value, value, offsets);
-		}
-		public void Write(long value, params int[] offsets) {
-			Memory.Program.Write(Value, value, offsets);
-		}
-		public void Write(double value, params int[] offsets) {
-			Memory.Program.Write(Value, value, offsets);
-		}
-		public void Write(float value, params int[] offsets) {
-			Memory.Program.Write(Value, value, offsets);
-		}
-		public void Write(short value, params int[] offsets) {
-			Memory.Program.Write(Value, value, offsets);
-		}
-		public void Write(byte value, params int[] offsets) {
-			Memory.Program.Write(Value, value, offsets);
-		}
-		public void Write(bool value, params int[] offsets) {
-			Memory.Program.Write(Value, value, offsets);
+		public void Write<T>(T value, params int[] offsets) where T : struct {
+			Memory.Program.Write<T>(Value, value, offsets);
 		}
 		private void GetPointer() {
 			if (!Memory.IsHooked) {
@@ -528,7 +524,7 @@ namespace LiveSplit.Kalimba.Memory {
 				Version = MemVersion.None;
 				lastID = Memory.Program.Id;
 			}
-			if (pointer == IntPtr.Zero && DateTime.Now > lastTry.AddSeconds(1)) {
+			if (pointer == IntPtr.Zero && DateTime.Now > lastTry.AddSeconds(RetrySeconds)) {
 				lastTry = DateTime.Now;
 				pointer = GetVersionedFunctionPointer();
 				if (pointer != IntPtr.Zero) {
