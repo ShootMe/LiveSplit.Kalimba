@@ -320,6 +320,7 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.Color.White;
 			this.ClientSize = new System.Drawing.Size(538, 191);
+			this.Controls.Add(this.lblNotAvailable);
 			this.Controls.Add(this.lblTASOutput);
 			this.Controls.Add(this.btnClearLevel);
 			this.Controls.Add(this.btnKill);
@@ -341,7 +342,6 @@
 			this.Controls.Add(this.lblMusic);
 			this.Controls.Add(this.chkTAS);
 			this.Controls.Add(this.musicVolume);
-			this.Controls.Add(this.lblNotAvailable);
 			this.ForeColor = System.Drawing.Color.Black;
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
