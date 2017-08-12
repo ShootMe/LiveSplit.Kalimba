@@ -35,9 +35,6 @@
 			this.menuWorld = new System.Windows.Forms.ToolStripMenuItem();
 			this.itemSingleNew = new System.Windows.Forms.ToolStripMenuItem();
 			this.itemSingleAll = new System.Windows.Forms.ToolStripMenuItem();
-			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
-			this.itemCoopNew = new System.Windows.Forms.ToolStripMenuItem();
-			this.itemCoopAll = new System.Windows.Forms.ToolStripMenuItem();
 			this.menuCheckpoint = new System.Windows.Forms.ToolStripMenuItem();
 			this.itemCheckpointNext = new System.Windows.Forms.ToolStripMenuItem();
 			this.itemCheckpointPrevious = new System.Windows.Forms.ToolStripMenuItem();
@@ -168,10 +165,7 @@
 			// 
 			this.menuWorld.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.itemSingleNew,
-            this.itemSingleAll,
-            this.toolStripSeparator3,
-            this.itemCoopNew,
-            this.itemCoopAll});
+            this.itemSingleAll});
 			this.menuWorld.Name = "menuWorld";
 			this.menuWorld.Size = new System.Drawing.Size(60, 20);
 			this.menuWorld.Text = "World";
@@ -180,44 +174,20 @@
 			// 
 			this.itemSingleNew.Image = global::LiveSplit.Kalimba.Properties.Resources.world2New;
 			this.itemSingleNew.Name = "itemSingleNew";
-			this.itemSingleNew.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
-			this.itemSingleNew.Size = new System.Drawing.Size(316, 22);
-			this.itemSingleNew.Text = "Single Player New";
-			this.itemSingleNew.Click += new System.EventHandler(this.itemSingleNew_Click);
+			this.itemSingleNew.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.W)));
+			this.itemSingleNew.Size = new System.Drawing.Size(260, 22);
+			this.itemSingleNew.Text = "New Game";
+			this.itemSingleNew.Click += new System.EventHandler(this.itemNewGame_Click);
 			// 
 			// itemSingleAll
 			// 
 			this.itemSingleAll.Image = global::LiveSplit.Kalimba.Properties.Resources.world2All;
 			this.itemSingleAll.Name = "itemSingleAll";
 			this.itemSingleAll.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
-            | System.Windows.Forms.Keys.S)));
-			this.itemSingleAll.Size = new System.Drawing.Size(316, 22);
-			this.itemSingleAll.Text = "Single Player All";
-			this.itemSingleAll.Click += new System.EventHandler(this.itemSingleAll_Click);
-			// 
-			// toolStripSeparator3
-			// 
-			this.toolStripSeparator3.Name = "toolStripSeparator3";
-			this.toolStripSeparator3.Size = new System.Drawing.Size(313, 6);
-			// 
-			// itemCoopNew
-			// 
-			this.itemCoopNew.Image = global::LiveSplit.Kalimba.Properties.Resources.world4New;
-			this.itemCoopNew.Name = "itemCoopNew";
-			this.itemCoopNew.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.W)));
-			this.itemCoopNew.Size = new System.Drawing.Size(316, 22);
-			this.itemCoopNew.Text = "Coop New";
-			this.itemCoopNew.Click += new System.EventHandler(this.itemCoopNew_Click);
-			// 
-			// itemCoopAll
-			// 
-			this.itemCoopAll.Image = global::LiveSplit.Kalimba.Properties.Resources.world4All;
-			this.itemCoopAll.Name = "itemCoopAll";
-			this.itemCoopAll.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
             | System.Windows.Forms.Keys.W)));
-			this.itemCoopAll.Size = new System.Drawing.Size(316, 22);
-			this.itemCoopAll.Text = "Coop All";
-			this.itemCoopAll.Click += new System.EventHandler(this.itemCoopAll_Click);
+			this.itemSingleAll.Size = new System.Drawing.Size(260, 22);
+			this.itemSingleAll.Text = "All Totems";
+			this.itemSingleAll.Click += new System.EventHandler(this.itemAllTotems_Click);
 			// 
 			// menuCheckpoint
 			// 
@@ -446,8 +416,6 @@
 		private System.Windows.Forms.ToolStripMenuItem menuWorld;
 		private System.Windows.Forms.ToolStripMenuItem itemSingleNew;
 		private System.Windows.Forms.ToolStripMenuItem itemSingleAll;
-		private System.Windows.Forms.ToolStripMenuItem itemCoopNew;
-		private System.Windows.Forms.ToolStripMenuItem itemCoopAll;
 		private System.Windows.Forms.ToolStripMenuItem menuCheckpoint;
 		private System.Windows.Forms.ToolStripMenuItem itemCheckpointNext;
 		private System.Windows.Forms.ToolStripMenuItem itemCheckpointPrevious;
@@ -464,7 +432,6 @@
 		private System.Windows.Forms.ToolStripMenuItem itemKillTotems;
 		private System.Windows.Forms.ToolStripMenuItem menuMusic;
 		private System.Windows.Forms.ToolStripTextBox txtMusicVolume;
-		private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
 		private System.Windows.Forms.ToolStripMenuItem menuTAS;

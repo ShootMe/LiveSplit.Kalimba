@@ -254,39 +254,21 @@ namespace LiveSplit.Kalimba {
 				Memory.SetLevelScore(Memory.SelectedLevel(), 0);
 			}
 		}
-		private void itemSingleNew_Click(object sender, EventArgs e) {
+		private void itemNewGame_Click(object sender, EventArgs e) {
 			try {
 				if (Memory.GetCurrentMenu() != MenuScreen.MainMenu) {
-					MessageBox.Show("Please go to the Main Menu before setting Single Player Totems back to a New Game.", "Kalimba");
+					MessageBox.Show("Please go to the Main Menu before setting Kalimba back to a New Game.", "Kalimba");
 				} else {
-					Memory.EraseSingleData();
+					Memory.EraseData();
 				}
 			} catch { }
 		}
-		private void itemSingleAll_Click(object sender, EventArgs e) {
+		private void itemAllTotems_Click(object sender, EventArgs e) {
 			try {
 				if (Memory.GetCurrentMenu() != MenuScreen.MainMenu) {
-					MessageBox.Show("Please go to the Main Menu before resetting Single Player Totems.", "Kalimba");
+					MessageBox.Show("Please go to the Main Menu before activating All Totems.", "Kalimba");
 				} else {
-					Memory.SetSingleLevelScore(PlatformLevelId.None, 40);
-				}
-			} catch { }
-		}
-		private void itemCoopNew_Click(object sender, EventArgs e) {
-			try {
-				if (Memory.GetCurrentMenu() != MenuScreen.MainMenu) {
-					MessageBox.Show("Please go to the Main Menu before setting Coop Totems back to a New Game.", "Kalimba");
-				} else {
-					Memory.EraseCoopData();
-				}
-			} catch { }
-		}
-		private void itemCoopAll_Click(object sender, EventArgs e) {
-			try {
-				if (Memory.GetCurrentMenu() != MenuScreen.MainMenu) {
-					MessageBox.Show("Please go to the Main Menu before resetting Coop Totems.", "Kalimba");
-				} else {
-					Memory.SetCoopLevelScore(PlatformLevelId.None, 40);
+					Memory.SetLevelScore(PlatformLevelId.None, 40);
 				}
 			} catch { }
 		}

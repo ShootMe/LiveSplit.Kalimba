@@ -403,13 +403,11 @@ namespace LiveSplit.Kalimba.Memory {
 				}
 			}
 		}
-		public void EraseSingleData() {
+		public void EraseData() {
 			//PlatformManager.instance.imp.players[0].gameSinglePlayerStats._rememberedMoments.Count
 			platformManager.Write(0, 0x0, 0x10, 0x48, 0x10, 0x24, 0x08, 0x0c);
 			//PlatformManager.instance.imp.players[0].gameSinglePlayerStats._levels
 			ClearStats((IntPtr)platformManager.Read<uint>(0x0, 0x10, 0x48, 0x10, 0x24, 0x0c));
-		}
-		public void EraseCoopData() {
 			//PlatformManager.instance.imp.players[0].platformStats._coop["guest"]._levels
 			IntPtr coopDic = (IntPtr)platformManager.Read<uint>(0x0, 0x10, 0x48, 0x10, 0x34, 0x1c, 0x14, 0x10);
 			//PlatformManager.instance.imp.players[0].platformStats._coop["guest"]._rememberedMoments.Count
