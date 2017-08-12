@@ -371,15 +371,21 @@ namespace LiveSplit.Kalimba.Memory {
 			}
 			return null;
 		}
-		public void SetLevelScore(PlatformLevelId id, int score) {
+		public void SetLevelScore(PlatformLevelId id, int score, bool erase = false) {
+			SetSingleLevelScore(id, score, erase);
+			SetCoopLevelScore(id, score, erase);
+		}
+		public void SetSingleLevelScore(PlatformLevelId id, int score, bool erase = false) {
 			//PlatformManager.instance.imp.players[0].gameSinglePlayerStats._levels
 			IntPtr levels = (IntPtr)platformManager.Read<uint>(0x0, 0x10, 0x48, 0x10, 0x24, 0x0c);
-			SetScore(levels, id, score);
-			//PlatformManager.instance.imp.players[0].platformStats._coop["guest"]._levels
-			levels = (IntPtr)platformManager.Read<uint>(0x0, 0x10, 0x48, 0x10, 0x34, 0x1c, 0x14, 0x10, 0x0c);
-			SetScore(levels, id, score);
+			SetScore(levels, id, score, erase);
 		}
-		private void SetScore(IntPtr levels, PlatformLevelId id, int score) {
+		public void SetCoopLevelScore(PlatformLevelId id, int score, bool erase = false) {
+			//PlatformManager.instance.imp.players[0].platformStats._coop["guest"]._levels
+			IntPtr levels = (IntPtr)platformManager.Read<uint>(0x0, 0x10, 0x48, 0x10, 0x34, 0x1c, 0x14, 0x10, 0x0c);
+			SetScore(levels, id, score, erase);
+		}
+		private void SetScore(IntPtr levels, PlatformLevelId id, int score, bool erase = false) {
 			int listSize = Program.Read<int>(levels, 0x20);
 			IntPtr keys = (IntPtr)Program.Read<uint>(levels, 0x10);
 			levels = (IntPtr)Program.Read<uint>(levels, 0x14);
@@ -390,17 +396,20 @@ namespace LiveSplit.Kalimba.Memory {
 
 				if (levelID == id || id == PlatformLevelId.None) {
 					Program.Write(itemHead, score, 0x0c);
+					Program.Write(itemHead, score == 70, 0x20);
 					Program.Write(itemHead, int.MaxValue, 0x10);
-					Program.Write(itemHead, (int)PersistentLevelStats.State.Completed, 0x08);
-					Program.Write(itemHead, (int)PersistentLevelStats.State.Completed, 0x24);
+					Program.Write(itemHead, erase ? (int)PersistentLevelStats.State.Unseen : (int)PersistentLevelStats.State.Completed, 0x08);
+					Program.Write(itemHead, erase ? (int)PersistentLevelStats.State.Unseen : (int)PersistentLevelStats.State.Completed, 0x24);
 				}
 			}
 		}
-		public void EraseData() {
+		public void EraseSingleData() {
 			//PlatformManager.instance.imp.players[0].gameSinglePlayerStats._rememberedMoments.Count
 			platformManager.Write(0, 0x0, 0x10, 0x48, 0x10, 0x24, 0x08, 0x0c);
 			//PlatformManager.instance.imp.players[0].gameSinglePlayerStats._levels
 			ClearStats((IntPtr)platformManager.Read<uint>(0x0, 0x10, 0x48, 0x10, 0x24, 0x0c));
+		}
+		public void EraseCoopData() {
 			//PlatformManager.instance.imp.players[0].platformStats._coop["guest"]._levels
 			IntPtr coopDic = (IntPtr)platformManager.Read<uint>(0x0, 0x10, 0x48, 0x10, 0x34, 0x1c, 0x14, 0x10);
 			//PlatformManager.instance.imp.players[0].platformStats._coop["guest"]._rememberedMoments.Count
@@ -692,6 +701,65 @@ namespace LiveSplit.Kalimba.Memory {
 		DLC_SP_Ilene,
 		DLC_SP_Jocelyn,
 		Test_Scene_1 = 200
+	}
+	public enum LevelID {
+		NappyOwl = 1,
+		LazyHound = 2,
+		StranDog = 3,
+		StaringCow = 4,
+		GreenishVireo = 5,
+		Buckteeth = 6,
+		Reptilicus = 7,
+		GrindingChief = 8,
+		GrizzlyRodent = 9,
+		SnakyFace = 10,
+		SnaglePuff = 11,
+		Skully = 14,
+		GrimeyGator = 13,
+		MustyCyclops = 12,
+		OwlBear = 15,
+		ZemiChief = 16,
+		DecafDogChild = 17,
+		GravGaard = 18,
+		KoalaKid = 19,
+		TerraCotta = 20,
+		SpiritualOoze = 21,
+		Raymond = 22,
+		SpikeyBrow = 23,
+		JurakanChief = 24,
+
+		Demongo = 154,
+		KoolDoktor = 153,
+		Slim = 150,
+		Sosumi = 152,
+		Smokingref = 151,
+		Cyclops = 156,
+		JusticeBeaver = 155,
+		Kuthulu = 157,
+		Jamarly = 158,
+		Illuminator = 159,
+
+		SneakyRascal = 41,
+		OculusMug = 43,
+		RosyCheeks = 44,
+		MoonlightBandit = 42,
+		DopeyPeg = 45,
+		SauceyBaboon = 46,
+		SpunkyFangs = 47,
+		MummyGreen = 51,
+		Nurtle = 48,
+		NarlyTwoFace = 52,
+
+		Frogger = 123,
+		Thumba = 120,
+		PurpleSlander = 124,
+		PierceParrot = 126,
+		KaleidoFace = 122,
+		Dario = 128,
+		DJSteelFace = 121,
+		JeffMoldblum = 125,
+		CrustyMouth = 127,
+		Lemmy = 129
 	}
 	public class PersistentLevelStats {
 		public enum State {

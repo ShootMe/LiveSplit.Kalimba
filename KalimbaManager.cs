@@ -7,6 +7,7 @@ using LiveSplit.View;
 using LiveSplit.Web.SRL;
 #endif
 using System;
+using System.Drawing;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
@@ -20,7 +21,6 @@ namespace LiveSplit.Kalimba {
 		private Dictionary<int, float> oldZoomValues = new Dictionary<int, float>();
 		private RaceWatcher raceWatcher = new RaceWatcher();
 		private Thread getValuesThread = null;
-		//private int pickupSpeedIncrease = 0, lastPickupCount = 0, pickupTimer = 0;
 		public bool AlwaysShown { get; set; }
 
 		public KalimbaManager(bool shown) {
@@ -32,51 +32,12 @@ namespace LiveSplit.Kalimba {
 			getValuesThread.IsBackground = true;
 			getValuesThread.Start();
 		}
-
 		private void KalimbaManager_FormClosing(object sender, FormClosingEventArgs e) {
 			e.Cancel = Memory != null && !AlwaysShown;
 			if (!e.Cancel && getValuesThread != null) {
 				getValuesThread = null;
 			}
 		}
-
-		private void btnNewGame_Click(object sender, System.EventArgs e) {
-			try {
-				if (Memory.GetCurrentMenu() != MenuScreen.MainMenu) {
-					MessageBox.Show("Please go to the Main Menu before setting Kalimba back to a New Game.", "Kalimba");
-				} else {
-					Memory.EraseData();
-				}
-			} catch { }
-		}
-		private void btnAllTotems_Click(object sender, System.EventArgs e) {
-			try {
-				if (Memory.GetCurrentMenu() != MenuScreen.MainMenu) {
-					MessageBox.Show("Please go to the Main Menu before resetting all Totems.", "Kalimba");
-				} else {
-					Memory.SetLevelScore(PlatformLevelId.None, 40);
-				}
-			} catch { }
-		}
-		private void btnPreviousCheckpoint_Click(object sender, System.EventArgs e) {
-			try {
-				int cp = Memory.GetCurrentCheckpoint();
-				Memory.SetCheckpoint(cp - 1);
-				if (lockedCheckpoint >= 0) {
-					lockedCheckpoint = Memory.GetCurrentCheckpoint();
-				}
-			} catch { }
-		}
-		private void btnNextCheckpoint_Click(object sender, System.EventArgs e) {
-			try {
-				int cp = Memory.GetCurrentCheckpoint();
-				Memory.SetCheckpoint(cp + 1);
-				if (lockedCheckpoint >= 0) {
-					lockedCheckpoint = Memory.GetCurrentCheckpoint();
-				}
-			} catch { }
-		}
-
 		private void UpdateLoop() {
 			while (getValuesThread != null) {
 				try {
@@ -94,46 +55,29 @@ namespace LiveSplit.Kalimba {
 			} else if (Memory != null && Memory.IsHooked) {
 				if (!Visible) { this.Show(); }
 
-				//int score = Memory.GetCurrentScore();
-				//if (score == 0) { lastPickupCount = 0; pickupSpeedIncrease = 0; pickupTimer = 120; }
-				//bool hasChangedPickups = score > lastPickupCount;
-				//pickupSpeedIncrease += score - lastPickupCount;
-				//lastPickupCount = score;
-
-				//if (pickupSpeedIncrease > 0) {
-				//	pickupTimer--;
-				//	if (pickupTimer <= 0) {
-				//		pickupTimer = 120;
-				//		pickupSpeedIncrease--;
-				//	}
-				//}
-
-				//float speedIncrease = pickupSpeedIncrease > 8 ? 8 : pickupSpeedIncrease;
-				//Memory.SetMaxSpeed(5f + speedIncrease / 4f, 8f + speedIncrease / 4f, 4);
-
 				lblNotAvailable.Visible = false;
 				MenuScreen menu = Memory.GetCurrentMenu();
 				bool inGame = menu == MenuScreen.InGame || menu == MenuScreen.InGameMenu;
 				bool inGameNotRunning = inGame && (Component == null || Component.IsNotRunning());
 
-				btnNextCheckpoint.Enabled = inGameNotRunning;
-				btnPreviousCheckpoint.Enabled = inGameNotRunning;
-				btnKill.Enabled = inGameNotRunning;
+				itemCheckpointNext.Enabled = inGameNotRunning;
+				itemCheckpointPrevious.Enabled = inGameNotRunning;
+				itemCheckpointLock.Enabled = inGameNotRunning;
 				chkLockZoom.Enabled = inGameNotRunning;
-				chkCameraLead.Enabled = inGameNotRunning;
-				chkCameraTrail.Enabled = inGameNotRunning;
-				chkInvincible.Enabled = inGameNotRunning;
-				chkPickups.Enabled = inGameNotRunning;
-				chkLockCheckpoint.Enabled = inGameNotRunning;
+				itemCameraLead.Enabled = inGameNotRunning;
+				itemCameraTrail.Enabled = inGameNotRunning;
+				itemInvincibleToOoze.Enabled = inGameNotRunning;
+				itemNoPickups.Enabled = inGameNotRunning;
+				itemKillTotems.Enabled = inGameNotRunning;
 
 				if (!inGameNotRunning) {
-					chkLockCheckpoint.Checked = false;
-					chkPickups.Checked = false;
+					itemCheckpointLock.Checked = false;
+					itemNoPickups.Checked = false;
 					chkLockZoom.Checked = false;
-					chkCameraLead.Checked = false;
-					chkCameraTrail.Checked = false;
-					chkInvincible.Checked = false;
-				} else if (chkInvincible.Checked && !Memory.IsInvincible() && !Memory.IsDying()) {
+					itemCameraLead.Checked = false;
+					itemCameraTrail.Checked = false;
+					itemInvincibleToOoze.Checked = false;
+				} else if (itemInvincibleToOoze.Checked && !Memory.IsInvincible() && !Memory.IsDying()) {
 					Memory.SetInvincible(true);
 				}
 
@@ -141,17 +85,19 @@ namespace LiveSplit.Kalimba {
 				float zoom = 0;
 				if (inGame) {
 					currentCheckpoint = Memory.GetCurrentCheckpoint();
-					if (chkLockCheckpoint.Checked && currentCheckpoint != lockedCheckpoint) {
+					if (itemCheckpointLock.Checked && currentCheckpoint != lockedCheckpoint) {
 						Memory.SetCheckpoint(lockedCheckpoint, false);
 						currentCheckpoint = lockedCheckpoint;
 					}
 
 					zoom = Memory.Zoom();
 
-					lblP1Pos.Text = "T1: (" + Memory.GetLastXP1().ToString("0.00") + ", " + Memory.GetLastYP1().ToString("0.00") + ")  T2: (" + Memory.GetLastXP2().ToString("0.00") + ", " + Memory.GetLastYP2().ToString("0.00") + ")";
+					lblP1P2Pos.Text = "T1: (" + Memory.GetLastXP1().ToString("0.00") + ", " + Memory.GetLastYP1().ToString("0.00") + ")  T2: (" + Memory.GetLastXP2().ToString("0.00") + ", " + Memory.GetLastYP2().ToString("0.00") + ")";
+					lblP3P4Pos.Text = "T3: (" + Memory.GetLastXP3().ToString("0.00") + ", " + Memory.GetLastYP3().ToString("0.00") + ")  T4: (" + Memory.GetLastXP4().ToString("0.00") + ", " + Memory.GetLastYP4().ToString("0.00") + ")";
 					lblCurrentCheckpoint.Text = "Checkpoint: " + (currentCheckpoint + 1) + " / " + Memory.GetCheckpointCount();
 				} else {
-					lblP1Pos.Text = "T1: (0.00, 0.00) T2: (0.00, 0.00)";
+					lblP1P2Pos.Text = "T1: (0.00, 0.00) T2: (0.00, 0.00)";
+					lblP3P4Pos.Text = "T3: (0.00, 0.00) T4: (0.00, 0.00)";
 					lblCurrentCheckpoint.Text = "Checkpoint: N/A";
 				}
 
@@ -169,7 +115,7 @@ namespace LiveSplit.Kalimba {
 					zoomValue.Value = Math.Min(Math.Max(0, (int)zoom), 150);
 				}
 
-				if (chkCameraLead.Checked || chkCameraTrail.Checked) {
+				if (itemCameraLead.Checked || itemCameraTrail.Checked) {
 					float currentZoneCenterX = Memory.CameraCenterX();
 					float currentZoneCenterY = Memory.CameraCenterY();
 					float p1x = Memory.GetLastXP1();
@@ -187,17 +133,29 @@ namespace LiveSplit.Kalimba {
 						maxY = p1y;
 					}
 
-					Memory.SetCameraOffset((chkCameraLead.Checked ? maxX : minX) - currentZoneCenterX, (chkCameraLead.Checked ? maxY : minY) - currentZoneCenterY);
+					Memory.SetCameraOffset((itemCameraLead.Checked ? maxX : minX) - currentZoneCenterX, (itemCameraLead.Checked ? maxY : minY) - currentZoneCenterY);
 				}
 
-				lblLevel.Text = "Level: " + Memory.SelectedLevel().ToString();
+				PlatformLevelId level = Memory.SelectedLevel();
+				lblLevel.Text = "Level: " + level.ToString() + " (" + ((LevelID)level).ToString() + ")";
 
-				lblTASOutput.Text = Memory.ReadTASOutput();
-				bool TASUI = Memory.TASUI();
-				if (TASUI != chkTAS.Checked) {
-					chkTAS.Checked = TASUI;
+				if (itemTASDisplay.Checked) {
+					lblTASOutput.Text = Memory.ReadTASOutput();
+					bool TASUI = Memory.TASUI();
+					if (TASUI == itemTASDisplay.Checked) {
+						itemTASDisplay.Checked = !TASUI;
+					}
 				}
-				Memory.SetMusicVolume((float)musicVolume.Value / 50f);
+
+				float temp;
+				if (float.TryParse(txtMusicVolume.Text, out temp)) {
+					if (temp < 0) {
+						temp = 0;
+					} else if (temp > 100) {
+						temp = 100;
+					}
+					Memory.SetMusicVolume(temp / 100f);
+				}
 
 				if (menu == MenuScreen.Loading) {
 					MenuScreen prevMenu = Memory.GetPreviousMenu();
@@ -218,30 +176,6 @@ namespace LiveSplit.Kalimba {
 				}
 			}
 		}
-		private void chkLockCheckpoint_CheckedChanged(object sender, EventArgs e) {
-			if (chkLockCheckpoint.Checked) {
-				lockedCheckpoint = Memory.GetCurrentCheckpoint();
-			} else {
-				lockedCheckpoint = -1;
-			}
-		}
-		private void chkPickups_CheckedChanged(object sender, EventArgs e) {
-			Memory.PassthroughPickups(chkPickups.Checked);
-		}
-		private void chkCameraLead_CheckedChanged(object sender, EventArgs e) {
-			if (chkCameraLead.Checked && chkCameraTrail.Checked) {
-				chkCameraTrail.Checked = false;
-			} else if (!chkCameraLead.Checked && !chkCameraTrail.Checked) {
-				Memory.ResetCamera();
-			}
-		}
-		private void chkCameraTrail_CheckedChanged(object sender, EventArgs e) {
-			if (chkCameraLead.Checked && chkCameraTrail.Checked) {
-				chkCameraLead.Checked = false;
-			} else if (!chkCameraLead.Checked && !chkCameraTrail.Checked) {
-				Memory.ResetCamera();
-			}
-		}
 		private void chkLockZoom_CheckedChanged(object sender, EventArgs e) {
 			if (!chkLockZoom.Checked) {
 				foreach (KeyValuePair<int, float> pair in oldZoomValues) {
@@ -250,21 +184,111 @@ namespace LiveSplit.Kalimba {
 				oldZoomValues.Clear();
 			}
 		}
-		private void chkInvincible_CheckedChanged(object sender, EventArgs e) {
-			Memory.SetCurrentDeaths(70);
-			Memory.SetInvincible(chkInvincible.Checked);
+		private void itemTASDisplay_Click(object sender, EventArgs e) {
+			Memory.SetTASUI(!itemTASDisplay.Checked);
+			lblTASOutput.Visible = itemTASDisplay.Checked;
+			if (itemTASDisplay.Checked) {
+				Size = new Size(Size.Width, 209);
+			} else {
+				Size = new Size(Size.Width, 170);
+			}
 		}
-		private void btnKill_Click(object sender, EventArgs e) {
+		private void itemCameraLead_Click(object sender, EventArgs e) {
+			if (itemCameraTrail.Checked && itemCameraLead.Checked) {
+				itemCameraTrail.Checked = false;
+			} else if (!itemCameraTrail.Checked && !itemCameraLead.Checked) {
+				Memory.ResetCamera();
+			}
+		}
+		private void itemCameraTrail_Click(object sender, EventArgs e) {
+			if (itemCameraTrail.Checked && itemCameraLead.Checked) {
+				itemCameraLead.Checked = false;
+			} else if (!itemCameraTrail.Checked && !itemCameraLead.Checked) {
+				Memory.ResetCamera();
+			}
+		}
+		private void itemKillTotems_Click(object sender, EventArgs e) {
 			Memory.KillTotems();
 		}
-		private void btnClearLevel_Click(object sender, EventArgs e) {
+		private void itemInvincibleToOoze_Click(object sender, EventArgs e) {
+			Memory.SetCurrentDeaths(70);
+			Memory.SetInvincible(itemInvincibleToOoze.Checked);
+		}
+		private void itemNoPickups_Click(object sender, EventArgs e) {
+			Memory.PassthroughPickups(itemNoPickups.Checked);
+		}
+		private void itemCheckpointLock_Click(object sender, EventArgs e) {
+			if (itemCheckpointLock.Checked) {
+				lockedCheckpoint = Memory.GetCurrentCheckpoint();
+			} else {
+				lockedCheckpoint = -1;
+			}
+		}
+		private void itemCheckpointNext_Click(object sender, EventArgs e) {
+			try {
+				int cp = Memory.GetCurrentCheckpoint();
+				Memory.SetCheckpoint(cp + 1);
+				if (lockedCheckpoint >= 0) {
+					lockedCheckpoint = Memory.GetCurrentCheckpoint();
+				}
+			} catch { }
+		}
+		private void itemCheckpointPrevious_Click(object sender, EventArgs e) {
+			try {
+				int cp = Memory.GetCurrentCheckpoint();
+				Memory.SetCheckpoint(cp - 1);
+				if (lockedCheckpoint >= 0) {
+					lockedCheckpoint = Memory.GetCurrentCheckpoint();
+				}
+			} catch { }
+		}
+		private void itemLevelErase_Click(object sender, EventArgs e) {
+			MenuScreen screen = Memory.GetCurrentMenu();
+			if (screen == MenuScreen.CoopDLCMap || screen == MenuScreen.CoopMap || screen == MenuScreen.SinglePlayerDLCMap || screen == MenuScreen.SinglePlayerMap) {
+				Memory.SetLevelScore(Memory.SelectedLevel(), 0, true);
+			}
+		}
+		private void itemLevelClear_Click(object sender, EventArgs e) {
 			MenuScreen screen = Memory.GetCurrentMenu();
 			if (screen == MenuScreen.CoopDLCMap || screen == MenuScreen.CoopMap || screen == MenuScreen.SinglePlayerDLCMap || screen == MenuScreen.SinglePlayerMap) {
 				Memory.SetLevelScore(Memory.SelectedLevel(), 0);
 			}
 		}
-		private void chkTAS_CheckedChanged(object sender, EventArgs e) {
-			Memory.SetTASUI(chkTAS.Checked);
+		private void itemSingleNew_Click(object sender, EventArgs e) {
+			try {
+				if (Memory.GetCurrentMenu() != MenuScreen.MainMenu) {
+					MessageBox.Show("Please go to the Main Menu before setting Single Player Totems back to a New Game.", "Kalimba");
+				} else {
+					Memory.EraseSingleData();
+				}
+			} catch { }
+		}
+		private void itemSingleAll_Click(object sender, EventArgs e) {
+			try {
+				if (Memory.GetCurrentMenu() != MenuScreen.MainMenu) {
+					MessageBox.Show("Please go to the Main Menu before resetting Single Player Totems.", "Kalimba");
+				} else {
+					Memory.SetSingleLevelScore(PlatformLevelId.None, 40);
+				}
+			} catch { }
+		}
+		private void itemCoopNew_Click(object sender, EventArgs e) {
+			try {
+				if (Memory.GetCurrentMenu() != MenuScreen.MainMenu) {
+					MessageBox.Show("Please go to the Main Menu before setting Coop Totems back to a New Game.", "Kalimba");
+				} else {
+					Memory.EraseCoopData();
+				}
+			} catch { }
+		}
+		private void itemCoopAll_Click(object sender, EventArgs e) {
+			try {
+				if (Memory.GetCurrentMenu() != MenuScreen.MainMenu) {
+					MessageBox.Show("Please go to the Main Menu before resetting Coop Totems.", "Kalimba");
+				} else {
+					Memory.SetCoopLevelScore(PlatformLevelId.None, 40);
+				}
+			} catch { }
 		}
 	}
 	public class RaceWatcher {

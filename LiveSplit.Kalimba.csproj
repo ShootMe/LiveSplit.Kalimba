@@ -78,10 +78,24 @@
     <Compile Include="KalimbaTest.cs" />
     <Compile Include="Memory\Memory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Components\LiveSplit.Kalimba.dll" />
     <Content Include="Components\LiveSplit.Kalimba.Updates.xml" />
+    <None Include="Images\next.png" />
+    <None Include="Images\previous.png" />
+    <None Include="Images\erase.png" />
+    <None Include="Images\reset.png" />
+    <None Include="Images\kill.png" />
+    <Content Include="Images\world2All.png" />
+    <Content Include="Images\world2New.png" />
+    <Content Include="Images\world4All.png" />
+    <Content Include="Images\world4New.png" />
     <Content Include="kalimba.ico" />
   </ItemGroup>
   <ItemGroup>
@@ -91,6 +105,10 @@
   <ItemGroup>
     <EmbeddedResource Include="KalimbaManager.resx">
       <DependentUpon>KalimbaManager.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup />
