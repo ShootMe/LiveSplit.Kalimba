@@ -3,7 +3,7 @@
 		private static KalimbaComponent comp = null;
 		public static void Main(string[] args) {
 			try {
-				comp = new KalimbaComponent(true);
+				comp = new KalimbaComponent(null, true);
 				System.Windows.Forms.Application.Run(comp.Manager);
 			} catch { }
 		}

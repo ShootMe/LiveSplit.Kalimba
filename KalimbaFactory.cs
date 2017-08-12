@@ -8,7 +8,7 @@ namespace LiveSplit.Kalimba {
         public string ComponentName { get { return "Kalimba Autosplitter v" + this.Version.ToString(); } }
         public string Description { get { return "Autosplitter for Kalimba"; } }
         public ComponentCategory Category { get { return ComponentCategory.Control; } }
-        public IComponent Create(LiveSplitState state) { return new KalimbaComponent(); }
+        public IComponent Create(LiveSplitState state) { return new KalimbaComponent(state); }
         public string UpdateName { get { return this.ComponentName; } }
 		public string UpdateURL { get { return "https://raw.githubusercontent.com/ShootMe/LiveSplit.Kalimba/master/"; } }
 		public string XMLURL { get { return this.UpdateURL + "Components/LiveSplit.Kalimba.Updates.xml"; } }

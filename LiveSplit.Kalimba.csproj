@@ -39,7 +39,7 @@
     </StartupObject>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Images\kalimba.ico</ApplicationIcon>
+    <ApplicationIcon>kalimba.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="IrcDotNet, Version=0.1.0.408, Culture=neutral, processorArchitecture=MSIL">
@@ -82,7 +82,7 @@
   <ItemGroup>
     <Content Include="Components\LiveSplit.Kalimba.dll" />
     <Content Include="Components\LiveSplit.Kalimba.Updates.xml" />
-    <Content Include="Images\kalimba.ico" />
+    <Content Include="kalimba.ico" />
   </ItemGroup>
   <ItemGroup>
     <None Include="LICENSE" />
@@ -93,6 +93,7 @@
       <DependentUpon>KalimbaManager.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy $(TargetPath) $(ProjectDir)Components\$(TargetFileName)</PostBuildEvent>
