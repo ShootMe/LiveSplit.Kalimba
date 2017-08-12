@@ -33,6 +33,7 @@ namespace LiveSplit.Kalimba {
 		private DateTime lastSplit = DateTime.MinValue;
 		private double[] levelTimes = new double[100];
 
+#if LiveSplit
 		public KalimbaComponent(LiveSplitState state, bool shown = false) {
 			mem = new KalimbaMemory();
 			foreach (string key in keys) {
@@ -58,6 +59,20 @@ namespace LiveSplit.Kalimba {
 			Manager.Show();
 			Manager.Visible = shown;
 		}
+#else
+		public KalimbaComponent(bool shown = false) {
+			mem = new KalimbaMemory();
+			foreach (string key in keys) {
+				currentValues[key] = "";
+			}
+
+			Manager = new KalimbaManager(shown);
+			Manager.Memory = mem;
+			Manager.Component = this;
+			Manager.Show();
+			Manager.Visible = shown;
+		}
+#endif
 
 		public void GetValues() {
 			if (!mem.HookProcess()) { return; }
