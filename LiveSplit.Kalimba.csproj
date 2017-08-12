@@ -74,6 +74,7 @@
     <Compile Include="KalimbaManager.Designer.cs">
       <DependentUpon>KalimbaManager.cs</DependentUpon>
     </Compile>
+    <Compile Include="Keyboard.cs" />
     <Compile Include="Memory\KalimbaMemory.cs" />
     <Compile Include="KalimbaTest.cs" />
     <Compile Include="Memory\Memory.cs" />

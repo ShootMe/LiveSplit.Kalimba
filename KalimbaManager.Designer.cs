@@ -174,7 +174,7 @@
 			// 
 			this.itemSingleNew.Image = global::LiveSplit.Kalimba.Properties.Resources.world2New;
 			this.itemSingleNew.Name = "itemSingleNew";
-			this.itemSingleNew.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.W)));
+			this.itemSingleNew.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Z)));
 			this.itemSingleNew.Size = new System.Drawing.Size(260, 22);
 			this.itemSingleNew.Text = "New Game";
 			this.itemSingleNew.Click += new System.EventHandler(this.itemNewGame_Click);
@@ -184,7 +184,7 @@
 			this.itemSingleAll.Image = global::LiveSplit.Kalimba.Properties.Resources.world2All;
 			this.itemSingleAll.Name = "itemSingleAll";
 			this.itemSingleAll.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
-            | System.Windows.Forms.Keys.W)));
+            | System.Windows.Forms.Keys.Z)));
 			this.itemSingleAll.Size = new System.Drawing.Size(260, 22);
 			this.itemSingleAll.Text = "All Totems";
 			this.itemSingleAll.Click += new System.EventHandler(this.itemAllTotems_Click);
@@ -311,7 +311,7 @@
 			// 
 			this.itemCameraLead.CheckOnClick = true;
 			this.itemCameraLead.Name = "itemCameraLead";
-			this.itemCameraLead.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.D)));
+			this.itemCameraLead.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.F)));
 			this.itemCameraLead.Size = new System.Drawing.Size(172, 22);
 			this.itemCameraLead.Text = "Lead";
 			this.itemCameraLead.Click += new System.EventHandler(this.itemCameraLead_Click);
@@ -320,7 +320,7 @@
 			// 
 			this.itemCameraTrail.CheckOnClick = true;
 			this.itemCameraTrail.Name = "itemCameraTrail";
-			this.itemCameraTrail.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.A)));
+			this.itemCameraTrail.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.R)));
 			this.itemCameraTrail.Size = new System.Drawing.Size(172, 22);
 			this.itemCameraTrail.Text = "Trail";
 			this.itemCameraTrail.Click += new System.EventHandler(this.itemCameraTrail_Click);

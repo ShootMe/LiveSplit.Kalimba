@@ -12,8 +12,14 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
+using System.Runtime.InteropServices;
+using System.Text;
 namespace LiveSplit.Kalimba {
 	public partial class KalimbaManager : Form {
+		[DllImport("user32.dll")]
+		static extern IntPtr GetForegroundWindow();
+		[DllImport("user32.dll")]
+		static extern int GetWindowText(IntPtr hWnd, StringBuilder text, int count);
 		public KalimbaMemory Memory { get; set; }
 		public KalimbaComponent Component { get; set; }
 		private int lockedCheckpoint = -1;
@@ -21,6 +27,7 @@ namespace LiveSplit.Kalimba {
 		private Dictionary<int, float> oldZoomValues = new Dictionary<int, float>();
 		private RaceWatcher raceWatcher = new RaceWatcher();
 		private Thread getValuesThread = null;
+		private KeyboardHook keyboard = new KeyboardHook();
 		public bool AlwaysShown { get; set; }
 
 		public KalimbaManager(bool shown) {
@@ -28,14 +35,81 @@ namespace LiveSplit.Kalimba {
 			Text = "Kalimba Manager " + Assembly.GetExecutingAssembly().GetName().Version.ToString();
 			AlwaysShown = shown;
 			Visible = shown;
+
+			keyboard.KeyPressed += Keyboard_KeyPressed;
+			keyboard.RegisterHotKey(Keys.Control | Keys.Z);
+			keyboard.RegisterHotKey(Keys.Control | Keys.Shift | Keys.Z);
+			keyboard.RegisterHotKey(Keys.Control | Keys.N);
+			keyboard.RegisterHotKey(Keys.Control | Keys.P);
+			keyboard.RegisterHotKey(Keys.Control | Keys.L);
+			keyboard.RegisterHotKey(Keys.Control | Keys.E);
+			keyboard.RegisterHotKey(Keys.Control | Keys.C);
+			keyboard.RegisterHotKey(Keys.Control | Keys.I);
+			keyboard.RegisterHotKey(Keys.Control | Keys.Shift | Keys.P);
+			keyboard.RegisterHotKey(Keys.Control | Keys.F);
+			keyboard.RegisterHotKey(Keys.Control | Keys.R);
+			keyboard.RegisterHotKey(Keys.Control | Keys.T);
+
 			getValuesThread = new Thread(UpdateLoop);
 			getValuesThread.IsBackground = true;
 			getValuesThread.Start();
 		}
+
+		private void Keyboard_KeyPressed(object sender, KeyEventArgs e) {
+			if (this.InvokeRequired) {
+				this.Invoke((Action<object, KeyEventArgs>)Keyboard_KeyPressed, sender, e);
+				return;
+			}
+
+			if (Focused || Memory == null || !Memory.IsHooked) { return; }
+
+			IntPtr ptr = GetForegroundWindow();
+			StringBuilder sb = new StringBuilder(256);
+			string title = null;
+			if (GetWindowText(ptr, sb, 256) > 0) {
+				title = sb.ToString();
+			}
+			if (!"Kalimba".Equals(title, StringComparison.OrdinalIgnoreCase)) { return; }
+
+			if (e.Modifiers == Keys.Control && e.KeyCode == Keys.Z) {
+				itemNewGame_Click(this, null);
+			} else if (e.Modifiers == (Keys.Control | Keys.Shift) && e.KeyCode == Keys.Z) {
+				itemAllTotems_Click(this, null);
+			} else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.N) {
+				itemCheckpointNext_Click(this, null);
+			} else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.P) {
+				itemCheckpointPrevious_Click(this, null);
+			} else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.L) {
+				itemCheckpointLock.Checked = !itemCheckpointLock.Checked;
+				itemCheckpointLock_Click(this, null);
+			} else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.E) {
+				itemLevelErase_Click(this, null);
+			} else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.C) {
+				itemLevelClear_Click(this, null);
+			} else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.I) {
+				itemInvincibleToOoze.Checked = !itemInvincibleToOoze.Checked;
+				itemInvincibleToOoze_Click(this, null);
+			} else if (e.Modifiers == (Keys.Control | Keys.Shift) && e.KeyCode == Keys.P) {
+				itemNoPickups.Checked = !itemNoPickups.Checked;
+				itemNoPickups_Click(this, null);
+			} else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.F) {
+				itemCameraLead.Checked = !itemCameraLead.Checked;
+				itemCameraLead_Click(this, null);
+			} else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.R) {
+				itemCameraTrail.Checked = !itemCameraTrail.Checked;
+				itemCameraTrail_Click(this, null);
+			} else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.T) {
+				itemTASDisplay.Checked = !itemTASDisplay.Checked;
+				itemTASDisplay_Click(this, null);
+			}
+		}
 		private void KalimbaManager_FormClosing(object sender, FormClosingEventArgs e) {
 			e.Cancel = Memory != null && !AlwaysShown;
-			if (!e.Cancel && getValuesThread != null) {
-				getValuesThread = null;
+			if (!e.Cancel) {
+				if (getValuesThread != null) {
+					getValuesThread = null;
+				}
+				keyboard.KeyPressed -= Keyboard_KeyPressed;
 			}
 		}
 		private void UpdateLoop() {
@@ -44,6 +118,7 @@ namespace LiveSplit.Kalimba {
 					if (Component != null && AlwaysShown) {
 						Component.GetValues();
 					}
+					keyboard.Poll();
 					UpdateValues();
 					Thread.Sleep(15);
 				} catch { }
