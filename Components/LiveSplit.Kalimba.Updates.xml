@@ -1,5 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <updates>
+	<update version="2.4.6">
+		<files>
+			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
+		</files>
+		<changelog>
+			<change>
+				IL final split was not calculating game time correctly
+			</change>
+		</changelog>
+	</update>
 	<update version="2.4.5">
 		<files>
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
