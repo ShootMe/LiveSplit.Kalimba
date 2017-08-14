@@ -373,6 +373,7 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.Color.White;
 			this.ClientSize = new System.Drawing.Size(437, 131);
+			this.Controls.Add(this.lblNotAvailable);
 			this.Controls.Add(this.lblP3P4Pos);
 			this.Controls.Add(this.lblTASOutput);
 			this.Controls.Add(this.chkLockZoom);
@@ -381,7 +382,6 @@
 			this.Controls.Add(this.lblP1P2Pos);
 			this.Controls.Add(this.lblCurrentCheckpoint);
 			this.Controls.Add(this.menu);
-			this.Controls.Add(this.lblNotAvailable);
 			this.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.ForeColor = System.Drawing.Color.Black;
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));

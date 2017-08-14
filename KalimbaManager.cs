@@ -163,7 +163,13 @@ namespace LiveSplit.Kalimba {
 				MenuScreen menu = Memory.GetCurrentMenu();
 				bool inGame = menu == MenuScreen.InGame || menu == MenuScreen.InGameMenu;
 				bool inGameNotRunning = inGame && (Component == null || Component.IsNotRunning());
+				bool notInGameNotRunning = !inGame && (Component == null || Component.IsNotRunning());
+				bool canClearErase = menu == MenuScreen.SinglePlayerDLCMap || menu == MenuScreen.SinglePlayerMap || menu == MenuScreen.CoopDLCMap || menu == MenuScreen.CoopMap;
 
+				itemLevelClear.Enabled = canClearErase;
+				itemLevelErase.Enabled = canClearErase;
+				itemNewGame.Enabled = notInGameNotRunning;
+				itemAllTotems.Enabled = notInGameNotRunning;
 				itemCheckpointNext.Enabled = inGameNotRunning;
 				itemCheckpointPrevious.Enabled = inGameNotRunning;
 				itemCheckpointLock.Enabled = inGameNotRunning;
