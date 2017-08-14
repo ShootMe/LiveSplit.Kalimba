@@ -45,6 +45,7 @@ namespace LiveSplit.Kalimba {
 			keyboard.RegisterHotKey(Keys.Control | Keys.E);
 			keyboard.RegisterHotKey(Keys.Control | Keys.C);
 			keyboard.RegisterHotKey(Keys.Control | Keys.I);
+			keyboard.RegisterHotKey(Keys.Control | Keys.K);
 			keyboard.RegisterHotKey(Keys.Control | Keys.Shift | Keys.P);
 			keyboard.RegisterHotKey(Keys.Control | Keys.F);
 			keyboard.RegisterHotKey(Keys.Control | Keys.R);
@@ -72,35 +73,63 @@ namespace LiveSplit.Kalimba {
 			if (!"Kalimba".Equals(title, StringComparison.OrdinalIgnoreCase)) { return; }
 
 			if (e.Modifiers == Keys.Control && e.KeyCode == Keys.Z) {
-				itemNewGame_Click(this, null);
+				if (itemNewGame.Enabled) {
+					itemNewGame_Click(this, null);
+				}
 			} else if (e.Modifiers == (Keys.Control | Keys.Shift) && e.KeyCode == Keys.Z) {
-				itemAllTotems_Click(this, null);
+				if (itemAllTotems.Enabled) {
+					itemAllTotems_Click(this, null);
+				}
 			} else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.N) {
-				itemCheckpointNext_Click(this, null);
+				if (itemCheckpointNext.Enabled) {
+					itemCheckpointNext_Click(this, null);
+				}
 			} else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.P) {
-				itemCheckpointPrevious_Click(this, null);
+				if (itemCheckpointPrevious.Enabled) {
+					itemCheckpointPrevious_Click(this, null);
+				}
 			} else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.L) {
-				itemCheckpointLock.Checked = !itemCheckpointLock.Checked;
-				itemCheckpointLock_Click(this, null);
+				if (itemCheckpointLock.Enabled) {
+					itemCheckpointLock.Checked = !itemCheckpointLock.Checked;
+					itemCheckpointLock_Click(this, null);
+				}
 			} else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.E) {
-				itemLevelErase_Click(this, null);
+				if (itemLevelErase.Enabled) {
+					itemLevelErase_Click(this, null);
+				}
 			} else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.C) {
-				itemLevelClear_Click(this, null);
+				if (itemLevelClear.Enabled) {
+					itemLevelClear_Click(this, null);
+				}
 			} else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.I) {
-				itemInvincibleToOoze.Checked = !itemInvincibleToOoze.Checked;
-				itemInvincibleToOoze_Click(this, null);
+				if (itemInvincibleToOoze.Enabled) {
+					itemInvincibleToOoze.Checked = !itemInvincibleToOoze.Checked;
+					itemInvincibleToOoze_Click(this, null);
+				}
+			} else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.K) {
+				if (itemKillTotems.Enabled) {
+					itemKillTotems_Click(this, null);
+				}
 			} else if (e.Modifiers == (Keys.Control | Keys.Shift) && e.KeyCode == Keys.P) {
-				itemNoPickups.Checked = !itemNoPickups.Checked;
-				itemNoPickups_Click(this, null);
+				if (itemNoPickups.Enabled) {
+					itemNoPickups.Checked = !itemNoPickups.Checked;
+					itemNoPickups_Click(this, null);
+				}
 			} else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.F) {
-				itemCameraLead.Checked = !itemCameraLead.Checked;
-				itemCameraLead_Click(this, null);
+				if (itemCameraLead.Enabled) {
+					itemCameraLead.Checked = !itemCameraLead.Checked;
+					itemCameraLead_Click(this, null);
+				}
 			} else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.R) {
-				itemCameraTrail.Checked = !itemCameraTrail.Checked;
-				itemCameraTrail_Click(this, null);
+				if (itemCameraTrail.Enabled) {
+					itemCameraTrail.Checked = !itemCameraTrail.Checked;
+					itemCameraTrail_Click(this, null);
+				}
 			} else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.T) {
-				itemTASDisplay.Checked = !itemTASDisplay.Checked;
-				itemTASDisplay_Click(this, null);
+				if (itemTASDisplay.Enabled) {
+					itemTASDisplay.Checked = !itemTASDisplay.Checked;
+					itemTASDisplay_Click(this, null);
+				}
 			}
 		}
 		private void KalimbaManager_FormClosing(object sender, FormClosingEventArgs e) {

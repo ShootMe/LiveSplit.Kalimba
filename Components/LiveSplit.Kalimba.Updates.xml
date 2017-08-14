@@ -1,5 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <updates>
+	<update version="2.4.7">
+		<files>
+			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
+		</files>
+		<changelog>
+			<change>
+				Fixed key commands to not activate when they should be disabled
+			</change>
+		</changelog>
+	</update>
 	<update version="2.4.6">
 		<files>
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>

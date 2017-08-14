@@ -33,8 +33,8 @@
 			this.lblTASOutput = new System.Windows.Forms.Label();
 			this.menu = new System.Windows.Forms.MenuStrip();
 			this.menuWorld = new System.Windows.Forms.ToolStripMenuItem();
-			this.itemSingleNew = new System.Windows.Forms.ToolStripMenuItem();
-			this.itemSingleAll = new System.Windows.Forms.ToolStripMenuItem();
+			this.itemNewGame = new System.Windows.Forms.ToolStripMenuItem();
+			this.itemAllTotems = new System.Windows.Forms.ToolStripMenuItem();
 			this.menuCheckpoint = new System.Windows.Forms.ToolStripMenuItem();
 			this.itemCheckpointNext = new System.Windows.Forms.ToolStripMenuItem();
 			this.itemCheckpointPrevious = new System.Windows.Forms.ToolStripMenuItem();
@@ -164,30 +164,30 @@
 			// menuWorld
 			// 
 			this.menuWorld.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.itemSingleNew,
-            this.itemSingleAll});
+            this.itemNewGame,
+            this.itemAllTotems});
 			this.menuWorld.Name = "menuWorld";
 			this.menuWorld.Size = new System.Drawing.Size(60, 20);
 			this.menuWorld.Text = "World";
 			// 
-			// itemSingleNew
+			// itemNewGame
 			// 
-			this.itemSingleNew.Image = global::LiveSplit.Kalimba.Properties.Resources.world2New;
-			this.itemSingleNew.Name = "itemSingleNew";
-			this.itemSingleNew.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Z)));
-			this.itemSingleNew.Size = new System.Drawing.Size(260, 22);
-			this.itemSingleNew.Text = "New Game";
-			this.itemSingleNew.Click += new System.EventHandler(this.itemNewGame_Click);
+			this.itemNewGame.Image = global::LiveSplit.Kalimba.Properties.Resources.world2New;
+			this.itemNewGame.Name = "itemNewGame";
+			this.itemNewGame.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Z)));
+			this.itemNewGame.Size = new System.Drawing.Size(260, 22);
+			this.itemNewGame.Text = "New Game";
+			this.itemNewGame.Click += new System.EventHandler(this.itemNewGame_Click);
 			// 
-			// itemSingleAll
+			// itemAllTotems
 			// 
-			this.itemSingleAll.Image = global::LiveSplit.Kalimba.Properties.Resources.world2All;
-			this.itemSingleAll.Name = "itemSingleAll";
-			this.itemSingleAll.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+			this.itemAllTotems.Image = global::LiveSplit.Kalimba.Properties.Resources.world2All;
+			this.itemAllTotems.Name = "itemAllTotems";
+			this.itemAllTotems.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
             | System.Windows.Forms.Keys.Z)));
-			this.itemSingleAll.Size = new System.Drawing.Size(260, 22);
-			this.itemSingleAll.Text = "All Totems";
-			this.itemSingleAll.Click += new System.EventHandler(this.itemAllTotems_Click);
+			this.itemAllTotems.Size = new System.Drawing.Size(260, 22);
+			this.itemAllTotems.Text = "All Totems";
+			this.itemAllTotems.Click += new System.EventHandler(this.itemAllTotems_Click);
 			// 
 			// menuCheckpoint
 			// 
@@ -373,7 +373,6 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.Color.White;
 			this.ClientSize = new System.Drawing.Size(437, 131);
-			this.Controls.Add(this.lblNotAvailable);
 			this.Controls.Add(this.lblP3P4Pos);
 			this.Controls.Add(this.lblTASOutput);
 			this.Controls.Add(this.chkLockZoom);
@@ -382,6 +381,7 @@
 			this.Controls.Add(this.lblP1P2Pos);
 			this.Controls.Add(this.lblCurrentCheckpoint);
 			this.Controls.Add(this.menu);
+			this.Controls.Add(this.lblNotAvailable);
 			this.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.ForeColor = System.Drawing.Color.Black;
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -414,8 +414,8 @@
 		private System.Windows.Forms.Label lblTASOutput;
 		private System.Windows.Forms.MenuStrip menu;
 		private System.Windows.Forms.ToolStripMenuItem menuWorld;
-		private System.Windows.Forms.ToolStripMenuItem itemSingleNew;
-		private System.Windows.Forms.ToolStripMenuItem itemSingleAll;
+		private System.Windows.Forms.ToolStripMenuItem itemNewGame;
+		private System.Windows.Forms.ToolStripMenuItem itemAllTotems;
 		private System.Windows.Forms.ToolStripMenuItem menuCheckpoint;
 		private System.Windows.Forms.ToolStripMenuItem itemCheckpointNext;
 		private System.Windows.Forms.ToolStripMenuItem itemCheckpointPrevious;
