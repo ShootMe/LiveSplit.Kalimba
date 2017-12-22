@@ -1,13 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <updates>
+	<update version="2.5.0">
+		<files>
+			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
+		</files>
+		<changelog>
+			<change> Improved Performance </change>
+		</changelog>
+	</update>
 	<update version="2.4.8">
 		<files>
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
 		</files>
 		<changelog>
-			<change>
-				Fix manager display
-			</change>
+			<change> Fix manager display </change>
 		</changelog>
 	</update>
 	<update version="2.4.7">
@@ -15,9 +21,7 @@
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
 		</files>
 		<changelog>
-			<change>
-				Fixed key commands to not activate when they should be disabled
-			</change>
+			<change> Fixed key commands to not activate when they should be disabled </change>
 		</changelog>
 	</update>
 	<update version="2.4.6">
@@ -25,9 +29,7 @@
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
 		</files>
 		<changelog>
-			<change>
-				IL final split was not calculating game time correctly
-			</change>
+			<change> IL final split was not calculating game time correctly </change>
 		</changelog>
 	</update>
 	<update version="2.4.5">
@@ -35,9 +37,7 @@
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
 		</files>
 		<changelog>
-			<change>
-				Added Global Hotkeys for Manager when Kalimba.exe is active window
-			</change>
+			<change> Added Global Hotkeys for Manager when Kalimba.exe is active window </change>
 		</changelog>
 	</update>
 	<update version="2.4.0">
@@ -45,9 +45,7 @@
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
 		</files>
 		<changelog>
-			<change>
-				Fix New Game options in Manager
-			</change>
+			<change> Fix New Game options in Manager </change>
 		</changelog>
 	</update>
 	<update version="2.3.5">
@@ -55,9 +53,7 @@
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
 		</files>
 		<changelog>
-			<change>
-				Improved Kalimba Manager
-			</change>
+			<change> Improved Kalimba Manager </change>
 		</changelog>
 	</update>
 	<update version="2.3.0">
@@ -65,9 +61,7 @@
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
 		</files>
 		<changelog>
-			<change>
-				Fix game time at end of full runs
-			</change>
+			<change> Fix game time at end of full runs </change>
 		</changelog>
 	</update>
 	<update version="2.2.0">
@@ -75,9 +69,7 @@
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
 		</files>
 		<changelog>
-			<change>
-				Add IL splits for boss states
-			</change>
+			<change> Add IL splits for boss states </change>
 		</changelog>
 	</update>
 	<update version="2.1.5">
@@ -85,9 +77,7 @@
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
 		</files>
 		<changelog>
-			<change>
-				Fix memory reading issues
-			</change>
+			<change> Fix memory reading issues </change>
 		</changelog>
 	</update>
 	<update version="2.1.1">
@@ -95,9 +85,7 @@
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
 		</files>
 		<changelog>
-			<change>
-				Fix end level splits in ILs
-			</change>
+			<change> Fix end level splits in ILs </change>
 		</changelog>
 	</update>
 	<update version="2.1.0">
@@ -105,9 +93,7 @@
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
 		</files>
 		<changelog>
-			<change>
-				Remove need for LiveSplit32
-			</change>
+			<change> Remove need for LiveSplit32 </change>
 		</changelog>
 	</update>
 	<update version="2.0.2">
@@ -115,9 +101,7 @@
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
 		</files>
 		<changelog>
-			<change>
-				Clean up code
-			</change>
+			<change> Clean up code </change>
 		</changelog>
 	</update>
 	<update version="2.0.1">
@@ -125,9 +109,7 @@
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
 		</files>
 		<changelog>
-			<change>
-				Fix Checkpoint splits in ILs
-			</change>
+			<change> Fix Checkpoint splits in ILs </change>
 		</changelog>
 	</update>
 	<update version="2.0.0">
@@ -135,9 +117,7 @@
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
 		</files>
 		<changelog>
-			<change>
-				Fix manager not getting disposed properly
-			</change>
+			<change> Fix manager not getting disposed properly </change>
 		</changelog>
 	</update>
 	<update version="1.9.9">
@@ -145,9 +125,7 @@
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
 		</files>
 		<changelog>
-			<change>
-				Added splits on checkpoints for ILs
-			</change>
+			<change> Added splits on checkpoints for ILs </change>
 		</changelog>
 	</update>
 	<update version="1.9.8">
@@ -155,9 +133,7 @@
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
 		</files>
 		<changelog>
-			<change>
-				Manager Fixes
-			</change>
+			<change> Manager Fixes </change>
 		</changelog>
 	</update>
 	<update version="1.9.7">
@@ -165,9 +141,7 @@
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
 		</files>
 		<changelog>
-			<change>
-				Fixing IL coord splits
-			</change>
+			<change> Fixing IL coord splits </change>
 		</changelog>
 	</update>
 	<update version="1.9.6">
@@ -175,9 +149,7 @@
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
 		</files>
 		<changelog>
-			<change>
-				Hopefully Fix IL splits
-			</change>
+			<change> Hopefully Fix IL splits </change>
 		</changelog>
 	</update>
 	<update version="1.9.5">
@@ -185,9 +157,7 @@
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
 		</files>
 		<changelog>
-			<change>
-				Change to allow Kalimba Manager to be it's own exe
-			</change>
+			<change> Change to allow Kalimba Manager to be it's own exe </change>
 		</changelog>
 	</update>
 	<update version="1.9.4">
@@ -195,9 +165,7 @@
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
 		</files>
 		<changelog>
-			<change>
-				Fix race stuff
-			</change>
+			<change> Fix race stuff </change>
 		</changelog>
 	</update>
 	<update version="1.9.3">
@@ -205,9 +173,7 @@
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
 		</files>
 		<changelog>
-			<change>
-				Fix random splits hopefully
-			</change>
+			<change> Fix random splits hopefully </change>
 		</changelog>
 	</update>
 	<update version="1.9.2">
@@ -215,9 +181,7 @@
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
 		</files>
 		<changelog>
-			<change>
-				Race updates
-			</change>
+			<change> Race updates </change>
 		</changelog>
 	</update>
 	<update version="1.9.1">
@@ -225,9 +189,7 @@
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
 		</files>
 		<changelog>
-			<change>
-				Fix race changes
-			</change>
+			<change> Fix race changes </change>
 		</changelog>
 	</update>
 	<update version="1.9.0">
@@ -235,9 +197,7 @@
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
 		</files>
 		<changelog>
-			<change>
-				Race changes
-			</change>
+			<change> Race changes </change>
 		</changelog>
 	</update>
 	<update version="1.8.9">
@@ -245,9 +205,7 @@
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
 		</files>
 		<changelog>
-			<change>
-				Add more info to races
-			</change>
+			<change> Add more info to races </change>
 		</changelog>
 	</update>
 	<update version="1.8.8">
@@ -255,9 +213,7 @@
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
 		</files>
 		<changelog>
-			<change>
-				Fix PierceParrot IL
-			</change>
+			<change> Fix PierceParrot IL </change>
 		</changelog>
 	</update>
 	<update version="1.8.7">
@@ -265,9 +221,7 @@
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
 		</files>
 		<changelog>
-			<change>
-				Add ability to split on position for ILs
-			</change>
+			<change> Add ability to split on position for ILs </change>
 		</changelog>
 	</update>
 	<update version="1.8.6">
@@ -275,9 +229,7 @@
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
 		</files>
 		<changelog>
-			<change>
-				Removed DirectX 11 button as it didn't work
-			</change>
+			<change> Removed DirectX 11 button as it didn't work </change>
 		</changelog>
 	</update>
 	<update version="1.8.5">
@@ -285,9 +237,7 @@
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
 		</files>
 		<changelog>
-			<change>
-				Cleaned code and added ability to override DirectX11
-			</change>
+			<change> Cleaned code and added ability to override DirectX11 </change>
 		</changelog>
 	</update>
 	<update version="1.8.4">
@@ -295,9 +245,7 @@
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
 		</files>
 		<changelog>
-			<change>
-				Make invincibility work better and added kill button
-			</change>
+			<change> Make invincibility work better and added kill button </change>
 		</changelog>
 	</update>
 	<update version="1.8.3">
@@ -305,9 +253,7 @@
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
 		</files>
 		<changelog>
-			<change>
-				Fix checkpoint locking and invincible on coop
-			</change>
+			<change> Fix checkpoint locking and invincible on coop </change>
 		</changelog>
 	</update>
 	<update version="1.8.2">

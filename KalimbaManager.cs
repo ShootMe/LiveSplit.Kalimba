@@ -257,16 +257,6 @@ namespace LiveSplit.Kalimba {
 					}
 				}
 
-				float temp;
-				if (float.TryParse(txtMusicVolume.Text, out temp)) {
-					if (temp < 0) {
-						temp = 0;
-					} else if (temp > 100) {
-						temp = 100;
-					}
-					Memory.SetMusicVolume(temp / 100f);
-				}
-
 				if (menu == MenuScreen.Loading) {
 					MenuScreen prevMenu = Memory.GetPreviousMenu();
 					if (prevMenu == MenuScreen.SpeedRunLevelSelect && !Memory.SpeedrunLoaded()) {
@@ -287,51 +277,83 @@ namespace LiveSplit.Kalimba {
 			}
 		}
 		private void chkLockZoom_CheckedChanged(object sender, EventArgs e) {
-			if (!chkLockZoom.Checked) {
-				foreach (KeyValuePair<int, float> pair in oldZoomValues) {
-					Memory.Program.Write((IntPtr)pair.Key, pair.Value, 0x24);
+			try {
+				if (!chkLockZoom.Checked) {
+					foreach (KeyValuePair<int, float> pair in oldZoomValues) {
+						Memory.Program.Write((IntPtr)pair.Key, pair.Value, 0x24);
+					}
+					oldZoomValues.Clear();
 				}
-				oldZoomValues.Clear();
+			} catch (Exception ex) {
+				MessageBox.Show(ex.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 		}
 		private void itemTASDisplay_Click(object sender, EventArgs e) {
-			Memory.SetTASUI(!itemTASDisplay.Checked);
-			lblTASOutput.Visible = itemTASDisplay.Checked;
-			if (itemTASDisplay.Checked) {
-				Size = new Size(Size.Width, 209);
-			} else {
-				Size = new Size(Size.Width, 170);
+			try {
+				Memory.SetTASUI(!itemTASDisplay.Checked);
+				lblTASOutput.Visible = itemTASDisplay.Checked;
+				if (itemTASDisplay.Checked) {
+					Size = new Size(Size.Width, 209);
+				} else {
+					Size = new Size(Size.Width, 170);
+				}
+			} catch (Exception ex) {
+				MessageBox.Show(ex.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 		}
 		private void itemCameraLead_Click(object sender, EventArgs e) {
-			if (itemCameraTrail.Checked && itemCameraLead.Checked) {
-				itemCameraTrail.Checked = false;
-			} else if (!itemCameraTrail.Checked && !itemCameraLead.Checked) {
-				Memory.ResetCamera();
+			try {
+				if (itemCameraTrail.Checked && itemCameraLead.Checked) {
+					itemCameraTrail.Checked = false;
+				} else if (!itemCameraTrail.Checked && !itemCameraLead.Checked) {
+					Memory.ResetCamera();
+				}
+			} catch (Exception ex) {
+				MessageBox.Show(ex.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 		}
 		private void itemCameraTrail_Click(object sender, EventArgs e) {
-			if (itemCameraTrail.Checked && itemCameraLead.Checked) {
-				itemCameraLead.Checked = false;
-			} else if (!itemCameraTrail.Checked && !itemCameraLead.Checked) {
-				Memory.ResetCamera();
+			try {
+				if (itemCameraTrail.Checked && itemCameraLead.Checked) {
+					itemCameraLead.Checked = false;
+				} else if (!itemCameraTrail.Checked && !itemCameraLead.Checked) {
+					Memory.ResetCamera();
+				}
+			} catch (Exception ex) {
+				MessageBox.Show(ex.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 		}
 		private void itemKillTotems_Click(object sender, EventArgs e) {
-			Memory.KillTotems();
+			try {
+				Memory.KillTotems();
+			} catch (Exception ex) {
+				MessageBox.Show(ex.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
 		}
 		private void itemInvincibleToOoze_Click(object sender, EventArgs e) {
-			Memory.SetCurrentDeaths(70);
-			Memory.SetInvincible(itemInvincibleToOoze.Checked);
+			try {
+				Memory.SetCurrentDeaths(70);
+				Memory.SetInvincible(itemInvincibleToOoze.Checked);
+			} catch (Exception ex) {
+				MessageBox.Show(ex.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
 		}
 		private void itemNoPickups_Click(object sender, EventArgs e) {
-			Memory.PassthroughPickups(itemNoPickups.Checked);
+			try {
+				Memory.PassthroughPickups(itemNoPickups.Checked);
+			} catch (Exception ex) {
+				MessageBox.Show(ex.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
 		}
 		private void itemCheckpointLock_Click(object sender, EventArgs e) {
-			if (itemCheckpointLock.Checked) {
-				lockedCheckpoint = Memory.GetCurrentCheckpoint();
-			} else {
-				lockedCheckpoint = -1;
+			try {
+				if (itemCheckpointLock.Checked) {
+					lockedCheckpoint = Memory.GetCurrentCheckpoint();
+				} else {
+					lockedCheckpoint = -1;
+				}
+			} catch (Exception ex) {
+				MessageBox.Show(ex.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 		}
 		private void itemCheckpointNext_Click(object sender, EventArgs e) {
@@ -341,7 +363,9 @@ namespace LiveSplit.Kalimba {
 				if (lockedCheckpoint >= 0) {
 					lockedCheckpoint = Memory.GetCurrentCheckpoint();
 				}
-			} catch { }
+			} catch (Exception ex) {
+				MessageBox.Show(ex.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
 		}
 		private void itemCheckpointPrevious_Click(object sender, EventArgs e) {
 			try {
@@ -350,18 +374,28 @@ namespace LiveSplit.Kalimba {
 				if (lockedCheckpoint >= 0) {
 					lockedCheckpoint = Memory.GetCurrentCheckpoint();
 				}
-			} catch { }
+			} catch (Exception ex) {
+				MessageBox.Show(ex.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
 		}
 		private void itemLevelErase_Click(object sender, EventArgs e) {
-			MenuScreen screen = Memory.GetCurrentMenu();
-			if (screen == MenuScreen.CoopDLCMap || screen == MenuScreen.CoopMap || screen == MenuScreen.SinglePlayerDLCMap || screen == MenuScreen.SinglePlayerMap) {
-				Memory.SetLevelScore(Memory.SelectedLevel(), 0, true);
+			try {
+				MenuScreen screen = Memory.GetCurrentMenu();
+				if (screen == MenuScreen.CoopDLCMap || screen == MenuScreen.CoopMap || screen == MenuScreen.SinglePlayerDLCMap || screen == MenuScreen.SinglePlayerMap) {
+					Memory.SetLevelScore(Memory.SelectedLevel(), 0, true);
+				}
+			} catch (Exception ex) {
+				MessageBox.Show(ex.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 		}
 		private void itemLevelClear_Click(object sender, EventArgs e) {
-			MenuScreen screen = Memory.GetCurrentMenu();
-			if (screen == MenuScreen.CoopDLCMap || screen == MenuScreen.CoopMap || screen == MenuScreen.SinglePlayerDLCMap || screen == MenuScreen.SinglePlayerMap) {
-				Memory.SetLevelScore(Memory.SelectedLevel(), 0);
+			try {
+				MenuScreen screen = Memory.GetCurrentMenu();
+				if (screen == MenuScreen.CoopDLCMap || screen == MenuScreen.CoopMap || screen == MenuScreen.SinglePlayerDLCMap || screen == MenuScreen.SinglePlayerMap) {
+					Memory.SetLevelScore(Memory.SelectedLevel(), 0);
+				}
+			} catch (Exception ex) {
+				MessageBox.Show(ex.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 		}
 		private void itemNewGame_Click(object sender, EventArgs e) {
@@ -371,7 +405,9 @@ namespace LiveSplit.Kalimba {
 				} else {
 					Memory.EraseData();
 				}
-			} catch { }
+			} catch (Exception ex) {
+				MessageBox.Show(ex.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
 		}
 		private void itemAllTotems_Click(object sender, EventArgs e) {
 			try {
@@ -380,7 +416,24 @@ namespace LiveSplit.Kalimba {
 				} else {
 					Memory.SetLevelScore(PlatformLevelId.None, 40);
 				}
-			} catch { }
+			} catch (Exception ex) {
+				MessageBox.Show(ex.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
+		}
+		private void txtMusicVolume_TextChanged(object sender, EventArgs e) {
+			try {
+				float temp;
+				if (float.TryParse(txtMusicVolume.Text, out temp)) {
+					if (temp < 0) {
+						temp = 0;
+					} else if (temp > 100) {
+						temp = 100;
+					}
+					Memory.SetMusicVolume(temp / 100f);
+				}
+			} catch (Exception ex) {
+				MessageBox.Show(ex.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
 		}
 	}
 	public class RaceWatcher {

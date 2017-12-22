@@ -4,44 +4,43 @@ using System.Diagnostics;
 using System.Text;
 namespace LiveSplit.Kalimba.Memory {
 	public partial class KalimbaMemory {
-		private ProgramPointer globalGameManager, menuManager, totemPole, platformManager, ghostManager, levelComplete, musicMachine, tas;
+		private static ProgramPointer globalGameManager = new ProgramPointer(true, new ProgramSignature(PointerVersion.V1, "558BEC5783EC34C745E4000000008B4508C74034000000008B05????????83EC086A0050E8????????83C41085C0743A8B05", 50));
+		private static ProgramPointer menuManager = new ProgramPointer(true, new ProgramSignature(PointerVersion.V1, "558BEC53575683EC0C8B05????????83EC086A0050E8????????83C41085C074338B05", 35));
+		private static ProgramPointer totemPole = new ProgramPointer(false, new ProgramSignature(PointerVersion.V1, "D95810D94510D958148B4D1489480CC9C3000000558BEC83EC08B8????????8B4D088908C9C3000000000000558BEC5683EC0483EC0C", 27));
+		private static ProgramPointer platformManager = new ProgramPointer(false, new ProgramSignature(PointerVersion.V1, "558BEC535683EC108B05????????83EC0C50E8????????83C41085C0740B8B05", 32));
+		private static ProgramPointer ghostManager = new ProgramPointer(true, new ProgramSignature(PointerVersion.V1, "EC5783EC148B7D088B05????????83EC0C503900E8????????83C41083EC086A01503900E8", 10));
+		private static ProgramPointer levelComplete = new ProgramPointer(false, new ProgramSignature(PointerVersion.V1, "558BEC5783EC648B7D0883EC0C57E8????????83C410B8????????C60000D9EED99F", 23));
+		private static ProgramPointer musicMachine = new ProgramPointer(true, new ProgramSignature(PointerVersion.V1, "558BEC575683EC108B75088B7D0C83FF060F85????????8B05????????83EC0C503900E8", 58));
+		private static ProgramPointer tas = new ProgramPointer(false, new ProgramSignature(PointerVersion.V1, "C745F88B2F7DE1C745FC933CAF568D45F883EC0868????????50E8????????83C4108BC8B8", 37));
 		public Process Program { get; set; }
 		public bool IsHooked { get; set; } = false;
 		private DateTime lastHooked;
 
 		public KalimbaMemory() {
-			globalGameManager = new ProgramPointer(this, MemPointer.GlobalGameManager);
-			menuManager = new ProgramPointer(this, MemPointer.MenuManager);
-			totemPole = new ProgramPointer(this, MemPointer.TotemPole) { AutoDeref = false };
-			platformManager = new ProgramPointer(this, MemPointer.PlatformManager) { AutoDeref = false };
-			ghostManager = new ProgramPointer(this, MemPointer.GhostManager);
-			levelComplete = new ProgramPointer(this, MemPointer.LevelComplete) { AutoDeref = false };
-			musicMachine = new ProgramPointer(this, MemPointer.MusicMachine);
-			tas = new ProgramPointer(this, MemPointer.TAS) { AutoDeref = false, RetrySeconds = 10 };
 			lastHooked = DateTime.MinValue;
 		}
 
 		public void SetMusicVolume(float volume) {
-			musicMachine.Write(volume, 0x1c, 0x24);
-			musicMachine.Write(volume, 0x20, 0x24);
+			musicMachine.Write<float>(Program, volume, 0x1c, 0x24);
+			musicMachine.Write<float>(Program, volume, 0x20, 0x24);
 		}
 		public bool LevelComplete() {
-			return levelComplete.Read<bool>() && (MenuScreen)menuManager.Read<int>(0x34) == MenuScreen.InGame;
+			return levelComplete.Read<bool>(Program) && (MenuScreen)menuManager.Read<int>(Program, 0x34) == MenuScreen.InGame;
 		}
 		public string ReadTASOutput() {
-			return tas.Read();
+			return tas.Read(Program);
 		}
 		public bool TASUI() {
-			return tas.Read<bool>(4);
+			return tas.Read<bool>(Program, 4);
 		}
 		public void SetTASUI(bool val) {
-			tas.Write(val, 4);
+			tas.Write<bool>(Program, val, 4);
 		}
 		public void SetMaxSpeed(float runSpeed, float slideSpeed, float jumpHeight) {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0]
-			IntPtr p1 = (IntPtr)globalGameManager.Read<uint>(0x14, 0xc, 0x18, 0x28, 0x10, 0x8);
+			IntPtr p1 = (IntPtr)globalGameManager.Read<uint>(Program, 0x14, 0xc, 0x18, 0x28, 0x10, 0x8);
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[1]
-			IntPtr p2 = (IntPtr)globalGameManager.Read<uint>(0x14, 0xc, 0x18, 0x28, 0x14, 0x8);
+			IntPtr p2 = (IntPtr)globalGameManager.Read<uint>(Program, 0x14, 0xc, 0x18, 0x28, 0x14, 0x8);
 			if (p1 == IntPtr.Zero) { return; }
 
 			//PlayerMovement
@@ -67,43 +66,43 @@ namespace LiveSplit.Kalimba.Memory {
 		}
 		public void SetZoom(float zoom) {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.cameraController._currentZone.cameraSettings.size
-			globalGameManager.Write(zoom, 0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x24);
+			globalGameManager.Write<float>(Program, zoom, 0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x24);
 		}
 		public float Zoom() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.cameraController._currentZone.cameraSettings.size
-			return globalGameManager.Read<float>(0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x24);
+			return globalGameManager.Read<float>(Program, 0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x24);
 		}
 		public int CameraZone() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.cameraController._currentZone.cameraSettings
-			return globalGameManager.Read<int>(0x14, 0x0c, 0x1c, 0x4c, 0x1c);
+			return globalGameManager.Read<int>(Program, 0x14, 0x0c, 0x1c, 0x4c, 0x1c);
 		}
 		public float CameraCenterX() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.cameraController.oldCenter.x
-			return globalGameManager.Read<float>(0x14, 0x0c, 0x1c, 0x2c, 0x58);
+			return globalGameManager.Read<float>(Program, 0x14, 0x0c, 0x1c, 0x2c, 0x58);
 		}
 		public float CameraCenterY() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.cameraController.oldCenter.y
-			return globalGameManager.Read<float>(0x14, 0x0c, 0x1c, 0x2c, 0x5c);
+			return globalGameManager.Read<float>(Program, 0x14, 0x0c, 0x1c, 0x2c, 0x5c);
 		}
 		public void ResetCamera() {
-			globalGameManager.Write(0, 0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x40);
-			globalGameManager.Write(0, 0x14, 0x0c, 0x1c, 0x68);
-			globalGameManager.Write(0L, 0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x1c);
-			globalGameManager.Write(0, 0x14, 0x0c, 0x1c, 0x2c);
+			globalGameManager.Write<int>(Program, 0, 0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x40);
+			globalGameManager.Write<int>(Program, 0, 0x14, 0x0c, 0x1c, 0x68);
+			globalGameManager.Write<long>(Program, 0L, 0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x1c);
+			globalGameManager.Write<int>(Program, 0, 0x14, 0x0c, 0x1c, 0x2c);
 		}
 		public void SetCameraOffset(float x, float y) {
-			globalGameManager.Write(2, 0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x40);
-			globalGameManager.Write(2, 0x14, 0x0c, 0x1c, 0x68);
-			globalGameManager.Write(x, 0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x1c);
-			globalGameManager.Write(y, 0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x20);
-			globalGameManager.Write(false, 0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x28);
+			globalGameManager.Write<int>(Program, 2, 0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x40);
+			globalGameManager.Write<int>(Program, 2, 0x14, 0x0c, 0x1c, 0x68);
+			globalGameManager.Write<float>(Program, x, 0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x1c);
+			globalGameManager.Write<float>(Program, y, 0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x20);
+			globalGameManager.Write<bool>(Program, false, 0x14, 0x0c, 0x1c, 0x4c, 0x1c, 0x28);
 
-			if (globalGameManager.Read<int>(0x14, 0x0c, 0x1c, 0x2c) == 0) {
+			if (globalGameManager.Read<int>(Program, 0x14, 0x0c, 0x1c, 0x2c) == 0) {
 				int checkPoints = GetCheckpointCount();
 				int currentCheckpoint = GetCurrentCheckpoint();
 				for (int i = 0; i < checkPoints; i++) {
-					if (globalGameManager.Read<int>(0x14, 0x0c, 0x14, 0x18, 0x10 + (i * 4), 0x50) == currentCheckpoint) {
-						globalGameManager.Write(globalGameManager.Read<int>(0x14, 0x0c, 0x14, 0x18, 0x10 + (i * 4)), 0x14, 0x0c, 0x1c, 0x2c);
+					if (globalGameManager.Read<int>(Program, 0x14, 0x0c, 0x14, 0x18, 0x10 + (i * 4), 0x50) == currentCheckpoint) {
+						globalGameManager.Write<int>(Program, globalGameManager.Read<int>(Program, 0x14, 0x0c, 0x14, 0x18, 0x10 + (i * 4)), 0x14, 0x0c, 0x1c, 0x2c);
 						break;
 					}
 				}
@@ -114,40 +113,44 @@ namespace LiveSplit.Kalimba.Memory {
 		}
 		public PlatformLevelId SelectedLevel() {
 			//TotemWorldMap.instance.levelInfo.sceneFile.platformLevelId
-			return (PlatformLevelId)totemPole.Read<int>(0x00, 0x28, 0x8c, 0x80);
+			return (PlatformLevelId)totemPole.Read<int>(Program, 0x0, 0x28, 0x8c, 0x80);
 		}
 		public int SinglePlayerIndex() {
 			//TotemWorldMap.instance.singleplayerTotemPole.menu.selectedIndex
-			return totemPole.Read<int>(0x00, 0x18, 0x40, 0x44);
+			return totemPole.Read<int>(Program, 0x0, 0x18, 0x40, 0x44);
 		}
 		public int CoopIndex() {
 			//TotemWorldMap.instance.multiplayerTotemPole.menu.selectedIndex
-			return totemPole.Read<int>(0x00, 0x1c, 0x40, 0x44);
+			return totemPole.Read<int>(Program, 0x0, 0x1c, 0x40, 0x44);
 		}
 		public int SinglePlayerDVIndex() {
 			//TotemWorldMap.instance.singleplayerDLCTotemPole.menu.selectedIndex
-			return totemPole.Read<int>(0x00, 0x20, 0x40, 0x44);
+			return totemPole.Read<int>(Program, 0x0, 0x20, 0x40, 0x44);
 		}
 		public int CoopDVIndex() {
 			//TotemWorldMap.instance.multiplayerDLCTotemPole.menu.selectedIndex
-			return totemPole.Read<int>(0x00, 0x24, 0x40, 0x44);
+			return totemPole.Read<int>(Program, 0x0, 0x24, 0x40, 0x44);
 		}
 		public void FixSpeedrun() {
-			ghostManager.Write(true, 0x24);
+			ghostManager.Write<bool>(Program, true, 0x24);
 		}
 		public bool SpeedrunLoaded() {
-			return ghostManager.Read<bool>(0x24);
+			return ghostManager.Read<bool>(Program, 0x24);
 		}
 		public void PassthroughPickups(bool passthrough) {
-			List<IntPtr> pickups = Program.FindAllSignatures("000000000000000000????000000A040????????????????00000000000000000000003f");
+			MemorySearcher searcher = new MemorySearcher();
+			searcher.MemoryFilter = delegate (MemInfo info) {
+				return (info.State & 0x1000) != 0 && (info.Protect & 0x100) == 0 && (info.Protect & 0x40) != 0;
+			};
+			List<IntPtr> pickups = searcher.FindSignatures(Program, "000000000000000000????000000A040????????????????00000000000000000000003f");
 			for (int i = 0; i < pickups.Count; i++) {
-				IntPtr pickup = pickups[i] - 0x4c;
-				Program.Write(pickup, passthrough, 0x31);
+				IntPtr pickup = pickups[i] - 0x28;
+				Program.Write<bool>(pickup, passthrough, 0x31);
 			}
 		}
 		public int GetCheckpointCount() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.checkpointManager.checkPoints.Length
-			return globalGameManager.Read<int>(0x14, 0x0c, 0x14, 0x18, 0x0c);
+			return globalGameManager.Read<int>(Program, 0x14, 0x0c, 0x14, 0x18, 0x0c);
 		}
 		public void SetCheckpoint(int num, bool killTotems = true) {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.checkpointManager.checkPoints.Length
@@ -155,13 +158,13 @@ namespace LiveSplit.Kalimba.Memory {
 			if (num >= cpCount) { num = 0; }
 			if (num < 0) { num = cpCount - 1; }
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].reachedCheckpoint
-			globalGameManager.Write(num, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x18);
+			globalGameManager.Write<int>(Program, num, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x18);
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].currentCheckpoint
-			globalGameManager.Write(num, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x1c);
+			globalGameManager.Write<int>(Program, num, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x1c);
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[1].reachedCheckpoint
-			globalGameManager.Write(num, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x18);
+			globalGameManager.Write<int>(Program, num, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x18);
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[1].currentCheckpoint
-			globalGameManager.Write(num, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x1c);
+			globalGameManager.Write<int>(Program, num, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x1c);
 
 			if (killTotems) {
 				KillTotems();
@@ -169,86 +172,86 @@ namespace LiveSplit.Kalimba.Memory {
 		}
 		public void KillTotems() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].controlledPlayers[0]._objectDetector.updateable
-			globalGameManager.Write(0, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0xdc, 0x50);
+			globalGameManager.Write<int>(Program, 0, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0xdc, 0x50);
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].controlledPlayers[0]._objectDetector.phase
-			globalGameManager.Write(48, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0xdc, 0x48);
+			globalGameManager.Write<int>(Program, 48, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0xdc, 0x48);
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].controlledPlayers[0]._objectDetector.burntime
-			globalGameManager.Write(2f, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0xdc, 0x54);
+			globalGameManager.Write<float>(Program, 2f, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0xdc, 0x54);
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].controlledPlayers[1]._objectDetector.updateable
-			globalGameManager.Write(0, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0xdc, 0x50);
+			globalGameManager.Write<int>(Program, 0, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0xdc, 0x50);
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].controlledPlayers[1]._objectDetector.phase
-			globalGameManager.Write(48, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0xdc, 0x48);
+			globalGameManager.Write<int>(Program, 48, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0xdc, 0x48);
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].controlledPlayers[1]._objectDetector.burntime
-			globalGameManager.Write(2f, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0xdc, 0x54);
+			globalGameManager.Write<float>(Program, 2f, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0xdc, 0x54);
 
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[1].controlledPlayers[0]._objectDetector.updateable
-			globalGameManager.Write(0, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x10, 0xdc, 0x50);
+			globalGameManager.Write<int>(Program, 0, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x10, 0xdc, 0x50);
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[1].controlledPlayers[0]._objectDetector.phase
-			globalGameManager.Write(48, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x10, 0xdc, 0x48);
+			globalGameManager.Write<int>(Program, 48, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x10, 0xdc, 0x48);
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[1].controlledPlayers[0]._objectDetector.burntime
-			globalGameManager.Write(2f, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x10, 0xdc, 0x54);
+			globalGameManager.Write<float>(Program, 2f, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x10, 0xdc, 0x54);
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[1].controlledPlayers[1]._objectDetector.updateable
-			globalGameManager.Write(0, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x14, 0xdc, 0x50);
+			globalGameManager.Write<int>(Program, 0, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x14, 0xdc, 0x50);
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[1].controlledPlayers[1]._objectDetector.phase
-			globalGameManager.Write(48, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x14, 0xdc, 0x48);
+			globalGameManager.Write<int>(Program, 48, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x14, 0xdc, 0x48);
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[1].controlledPlayers[1]._objectDetector.burntime
-			globalGameManager.Write(2f, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x14, 0xdc, 0x54);
+			globalGameManager.Write<float>(Program, 2f, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x14, 0xdc, 0x54);
 		}
 		public void SetInvincible(bool enabled) {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].controlledPlayers[0]._objectDetector.burntime
-			globalGameManager.Write((float)(enabled ? int.MinValue : 0), 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0xdc, 0x54);
+			globalGameManager.Write<float>(Program, (float)(enabled ? int.MinValue : 0), 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0xdc, 0x54);
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].controlledPlayers[0]._objectDetector.updateable
-			globalGameManager.Write(enabled ? int.MinValue : 0, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0xdc, 0x50);
+			globalGameManager.Write<int>(Program, enabled ? int.MinValue : 0, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0xdc, 0x50);
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].controlledPlayers[1]._objectDetector.burntime
-			globalGameManager.Write((float)(enabled ? int.MinValue : 0), 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0xdc, 0x54);
+			globalGameManager.Write<float>(Program, (float)(enabled ? int.MinValue : 0), 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0xdc, 0x54);
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].controlledPlayers[1]._objectDetector.updateable
-			globalGameManager.Write(enabled ? int.MinValue : 0, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0xdc, 0x50);
+			globalGameManager.Write<int>(Program, enabled ? int.MinValue : 0, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0xdc, 0x50);
 
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[1].controlledPlayers[0]._objectDetector.burntime
-			globalGameManager.Write((float)(enabled ? int.MinValue : 0), 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x10, 0xdc, 0x54);
+			globalGameManager.Write<float>(Program, (float)(enabled ? int.MinValue : 0), 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x10, 0xdc, 0x54);
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[1].controlledPlayers[0]._objectDetector.updateable
-			globalGameManager.Write(enabled ? int.MinValue : 0, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x10, 0xdc, 0x50);
+			globalGameManager.Write<int>(Program, enabled ? int.MinValue : 0, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x10, 0xdc, 0x50);
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[1].controlledPlayers[1]._objectDetector.burntime
-			globalGameManager.Write((float)(enabled ? int.MinValue : 0), 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x14, 0xdc, 0x54);
+			globalGameManager.Write<float>(Program, (float)(enabled ? int.MinValue : 0), 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x14, 0xdc, 0x54);
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[1].controlledPlayers[1]._objectDetector.updateable
-			globalGameManager.Write(enabled ? int.MinValue : 0, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x14, 0xdc, 0x50);
+			globalGameManager.Write<int>(Program, enabled ? int.MinValue : 0, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x14, 0xdc, 0x50);
 		}
 		public bool IsInvincible() {
-			return globalGameManager.Read<int>(0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0xdc, 0x50) < -10;
+			return globalGameManager.Read<int>(Program, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0xdc, 0x50) < -10;
 		}
 		public int GetCurrentCheckpoint() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].currentCheckpoint
-			int rCp = globalGameManager.Read<int>(0x14, 0x0c, 0x18, 0x28, 0x10, 0x1c);
+			int rCp = globalGameManager.Read<int>(Program, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x1c);
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[1].currentCheckpoint
-			int cCp = globalGameManager.Read<int>(0x14, 0x0c, 0x18, 0x28, 0x14, 0x1c);
+			int cCp = globalGameManager.Read<int>(Program, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x1c);
 			return rCp > cCp ? rCp : cCp;
 		}
 		public bool IsDying() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].controlledPlayers[0].isDying
-			bool dying = globalGameManager.Read<bool>(0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0x146);
+			bool dying = globalGameManager.Read<bool>(Program, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0x146);
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[0].controlledPlayers[1].isDying
-			dying |= globalGameManager.Read<bool>(0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0x146);
+			dying |= globalGameManager.Read<bool>(Program, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0x146);
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[1].controlledPlayers[0].isDying
-			dying |= globalGameManager.Read<bool>(0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x14, 0x146);
+			dying |= globalGameManager.Read<bool>(Program, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x14, 0x146);
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controller[1].controlledPlayers[1].isDying
-			dying |= globalGameManager.Read<bool>(0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x14, 0x146);
+			dying |= globalGameManager.Read<bool>(Program, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x14, 0x146);
 			return dying;
 		}
 		public PlatformLevelId GetPlatformLevelId() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.sceneFile.platformLevelId
-			return (PlatformLevelId)globalGameManager.Read<int>(0x14, 0x0c, 0x10, 0x80);
+			return (PlatformLevelId)globalGameManager.Read<int>(Program, 0x14, 0x0c, 0x10, 0x80);
 		}
 		public World GetWorld() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.sceneFile.world
-			return (World)globalGameManager.Read<int>(0x14, 0x0c, 0x10, 0x5c);
+			return (World)globalGameManager.Read<int>(Program, 0x14, 0x0c, 0x10, 0x5c);
 		}
 		public Campaign GetCampaign() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.sceneFile.campaign
-			return (Campaign)globalGameManager.Read<int>(0x14, 0x0c, 0x10, 0x60);
+			return (Campaign)globalGameManager.Read<int>(Program, 0x14, 0x0c, 0x10, 0x60);
 		}
 		public string GetBossState() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.camerController.bossControllers
-			IntPtr bossControllers = (IntPtr)globalGameManager.Read<uint>(0x14, 0x0c, 0x1c, 0x5c);
+			IntPtr bossControllers = (IntPtr)globalGameManager.Read<uint>(Program, 0x14, 0x0c, 0x1c, 0x5c);
 			int size = Program.Read<int>(bossControllers, 0xc);
 			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i < size; i++) {
@@ -258,91 +261,91 @@ namespace LiveSplit.Kalimba.Memory {
 		}
 		public MenuScreen GetCurrentMenu() {
 			//MenuManager.instance._currentMenu
-			return (MenuScreen)menuManager.Read<int>(0x34);
+			return (MenuScreen)menuManager.Read<int>(Program, 0x34);
 		}
 		public MenuScreen GetPreviousMenu() {
 			//MenuManager.instance._previousMenu
-			return (MenuScreen)menuManager.Read<int>(0x38);
+			return (MenuScreen)menuManager.Read<int>(Program, 0x38);
 		}
 		public bool GetPlayingCinematic() {
 			//GlobalGameManager.instance.isPlayingCinematic
-			return globalGameManager.Read<bool>(0x46);
+			return globalGameManager.Read<bool>(Program, 0x46);
 		}
 		public bool GetIsLoadingLevel() {
 			//GlobalGameManager.instance.levelIsLoading
-			return globalGameManager.Read<bool>(0x4c);
+			return globalGameManager.Read<bool>(Program, 0x4c);
 		}
 		public int GetCurrentScore() {
 			//GlobalGameManager.instance.currentSession.currentScore
-			return globalGameManager.Read<int>(0x14, 0x10);
+			return globalGameManager.Read<int>(Program, 0x14, 0x10);
 		}
 		public void SetCurrentScore(int score) {
 			//GlobalGameManager.instance.currentSession.currentScore
-			globalGameManager.Write(score, 0x14, 0x10);
+			globalGameManager.Write<int>(Program, score, 0x14, 0x10);
 		}
 		public int GetCurrentDeaths() {
 			//GlobalGameManager.instance.currentSession.currentDeaths
-			return globalGameManager.Read<int>(0x14, 0x14);
+			return globalGameManager.Read<int>(Program, 0x14, 0x14);
 		}
 		public void SetCurrentDeaths(int deaths) {
 			//GlobalGameManager.instance.currentSession.currentDeaths
-			globalGameManager.Write(deaths, 0x14, 0x14);
+			globalGameManager.Write<int>(Program, deaths, 0x14, 0x14);
 		}
 		public float GetLevelTime() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.levelMetric.completionTime
-			return globalGameManager.Read<float>(0x14, 0x0c, 0x18, 0x30, 0x20);
+			return globalGameManager.Read<float>(Program, 0x14, 0x0c, 0x18, 0x30, 0x20);
 		}
 		public string GetLevelName() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.levelMetric.levelName
-			return globalGameManager.Read(0x14, 0x0c, 0x18, 0x30, 0x14);
+			return globalGameManager.Read(Program, 0x14, 0x0c, 0x18, 0x30, 0x14);
 		}
 		public bool GetIsDisabled() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.(noJump | noSwap | noMove)
-			return globalGameManager.Read<int>(0x14, 0x0c, 0x18, 0x64) == 65793;
+			return globalGameManager.Read<int>(Program, 0x14, 0x0c, 0x18, 0x64) == 65793;
 		}
 		public float GetLastXP1() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].controlledPlayers[0].animationHandler.lastPos.X
-			return globalGameManager.Read<float>(0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0xd4, 0xd0);
+			return globalGameManager.Read<float>(Program, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0xd4, 0xd0);
 		}
 		public float GetLastYP1() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].controlledPlayers[0].animationHandler.lastPos.Y
-			return globalGameManager.Read<float>(0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0xd4, 0xd4);
+			return globalGameManager.Read<float>(Program, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0xd4, 0xd4);
 		}
 		public float GetLastXP2() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].controlledPlayers[1].animationHandler.lastPos.X
-			return globalGameManager.Read<float>(0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0xd4, 0xd0);
+			return globalGameManager.Read<float>(Program, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0xd4, 0xd0);
 		}
 		public float GetLastYP2() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].controlledPlayers[1].animationHandler.lastPos.Y
-			return globalGameManager.Read<float>(0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0xd4, 0xd4);
+			return globalGameManager.Read<float>(Program, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x14, 0xd4, 0xd4);
 		}
 		public float GetLastXP3() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[1].controlledPlayers[0].animationHandler.lastPos.X
-			return globalGameManager.Read<float>(0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x10, 0xd4, 0xd0);
+			return globalGameManager.Read<float>(Program, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x10, 0xd4, 0xd0);
 		}
 		public float GetLastYP3() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[1].controlledPlayers[0].animationHandler.lastPos.Y
-			return globalGameManager.Read<float>(0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x10, 0xd4, 0xd4);
+			return globalGameManager.Read<float>(Program, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x10, 0xd4, 0xd4);
 		}
 		public float GetLastXP4() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[1].controlledPlayers[1].animationHandler.lastPos.X
-			return globalGameManager.Read<float>(0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x14, 0xd4, 0xd0);
+			return globalGameManager.Read<float>(Program, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x14, 0xd4, 0xd0);
 		}
 		public float GetLastYP4() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[1].controlledPlayers[1].animationHandler.lastPos.Y
-			return globalGameManager.Read<float>(0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x14, 0xd4, 0xd4);
+			return globalGameManager.Read<float>(Program, 0x14, 0x0c, 0x18, 0x28, 0x14, 0x08, 0x14, 0xd4, 0xd4);
 		}
 		public bool GetFrozen() {
 			//GlobalGameManager.instance.currentSession.activeSessionHolder.gameManager.controllers[0].controlledPlayers[0].frozen
-			return globalGameManager.Read<bool>(0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0x3c);
+			return globalGameManager.Read<bool>(Program, 0x14, 0x0c, 0x18, 0x28, 0x10, 0x08, 0x10, 0x3c);
 		}
 		public PersistentLevelStats GetLevelStats(PlatformLevelId id) {
 			//PlatformManager.instance.imp.players[0].gameSinglePlayerStats._levels
-			IntPtr levels = (IntPtr)platformManager.Read<uint>(0x0, 0x10, 0x48, 0x10, 0x24, 0x0c);
+			IntPtr levels = (IntPtr)platformManager.Read<uint>(Program, 0x0, 0x10, 0x48, 0x10, 0x24, 0x0c);
 			PersistentLevelStats level = (id >= PlatformLevelId.Coop_Jump && id <= PlatformLevelId.Coop_EpicBossFight) || (id >= PlatformLevelId.DLC_Coop_Andrew && id <= PlatformLevelId.DLC_Coop_Jack) ? null : GetLevelStats(levels, id);
 			if (level == null) {
 				//PlatformManager.instance.imp.players[0].platformStats._coop["guest"]._levels
-				levels = (IntPtr)platformManager.Read<uint>(0x0, 0x10, 0x48, 0x10, 0x34, 0x1c, 0x14, 0x10, 0x0c);
+				levels = (IntPtr)platformManager.Read<uint>(Program, 0x0, 0x10, 0x48, 0x10, 0x34, 0x1c, 0x14, 0x10, 0x0c);
 				return GetLevelStats(levels, id);
 			}
 			return level;
@@ -377,12 +380,12 @@ namespace LiveSplit.Kalimba.Memory {
 		}
 		public void SetSingleLevelScore(PlatformLevelId id, int score, bool erase = false) {
 			//PlatformManager.instance.imp.players[0].gameSinglePlayerStats._levels
-			IntPtr levels = (IntPtr)platformManager.Read<uint>(0x0, 0x10, 0x48, 0x10, 0x24, 0x0c);
+			IntPtr levels = (IntPtr)platformManager.Read<uint>(Program, 0x0, 0x10, 0x48, 0x10, 0x24, 0x0c);
 			SetScore(levels, id, score, erase);
 		}
 		public void SetCoopLevelScore(PlatformLevelId id, int score, bool erase = false) {
 			//PlatformManager.instance.imp.players[0].platformStats._coop["guest"]._levels
-			IntPtr levels = (IntPtr)platformManager.Read<uint>(0x0, 0x10, 0x48, 0x10, 0x34, 0x1c, 0x14, 0x10, 0x0c);
+			IntPtr levels = (IntPtr)platformManager.Read<uint>(Program, 0x0, 0x10, 0x48, 0x10, 0x34, 0x1c, 0x14, 0x10, 0x0c);
 			SetScore(levels, id, score, erase);
 		}
 		private void SetScore(IntPtr levels, PlatformLevelId id, int score, bool erase = false) {
@@ -405,13 +408,13 @@ namespace LiveSplit.Kalimba.Memory {
 		}
 		public void EraseData() {
 			//PlatformManager.instance.imp.players[0].gameSinglePlayerStats._rememberedMoments.Count
-			platformManager.Write(0, 0x0, 0x10, 0x48, 0x10, 0x24, 0x08, 0x0c);
+			platformManager.Write<int>(Program, 0, 0x0, 0x10, 0x48, 0x10, 0x24, 0x08, 0x0c);
 			//PlatformManager.instance.imp.players[0].gameSinglePlayerStats._levels
-			ClearStats((IntPtr)platformManager.Read<uint>(0x0, 0x10, 0x48, 0x10, 0x24, 0x0c));
+			ClearStats((IntPtr)platformManager.Read<uint>(Program, 0x0, 0x10, 0x48, 0x10, 0x24, 0x0c));
 			//PlatformManager.instance.imp.players[0].platformStats._coop["guest"]._levels
-			IntPtr coopDic = (IntPtr)platformManager.Read<uint>(0x0, 0x10, 0x48, 0x10, 0x34, 0x1c, 0x14, 0x10);
+			IntPtr coopDic = (IntPtr)platformManager.Read<uint>(Program, 0x0, 0x10, 0x48, 0x10, 0x34, 0x1c, 0x14, 0x10);
 			//PlatformManager.instance.imp.players[0].platformStats._coop["guest"]._rememberedMoments.Count
-			Program.Write(coopDic, (int)0, 0x08, 0x0c);
+			Program.Write<int>(coopDic, (int)0, 0x08, 0x0c);
 			ClearStats((IntPtr)Program.Read<uint>(coopDic, 0x0c));
 		}
 		private void ClearStats(IntPtr levels) {
@@ -451,117 +454,111 @@ namespace LiveSplit.Kalimba.Memory {
 			}
 		}
 	}
-	public enum MemVersion {
-		None,
+	public enum PointerVersion {
 		V1
 	}
-	public enum MemPointer {
-		GlobalGameManager,
-		MenuManager,
-		PlatformManager,
-		TotemPole,
-		GhostManager,
-		LevelComplete,
-		MusicMachine,
-		TAS
+	public class ProgramSignature {
+		public PointerVersion Version { get; set; }
+		public string Signature { get; set; }
+		public int Offset { get; set; }
+		public ProgramSignature(PointerVersion version, string signature, int offset) {
+			Version = version;
+			Signature = signature;
+			Offset = offset;
+		}
+		public override string ToString() {
+			return Version.ToString() + " - " + Signature;
+		}
 	}
 	public class ProgramPointer {
-		private static Dictionary<MemVersion, Dictionary<MemPointer, string>> funcPatterns = new Dictionary<MemVersion, Dictionary<MemPointer, string>>() {
-			{MemVersion.V1, new Dictionary<MemPointer, string>() {
-				{MemPointer.GlobalGameManager, "558BEC5783EC34C745E4000000008B4508C74034000000008B05????????83EC086A0050E8????????83C41085C0743A8B05????????8B4D0883EC085150|-12"},
-				{MemPointer.MenuManager,       "558BEC53575683EC0C8B05????????83EC086A0050E8????????83C41085C074338B05????????83EC08FF750850E8????????83C41085C0741A83EC0CFF7508E8|-30"},
-				{MemPointer.PlatformManager,   "558BEC535683EC108B05????????83EC0C50E8????????83C41085C0740B8B05"},
-				{MemPointer.TotemPole,         "D95810D94510D958148B4D1489480CC9C3000000558BEC83EC08B8????????8B4D088908C9C3000000000000558BEC5683EC0483EC0C|-27"},
-				{MemPointer.GhostManager,      "EC5783EC148B7D088B05????????83EC0C503900E8????????83C41083EC086A01503900E8????????83C410C647240083EC0C68????????E8????????83C41083EC0C8945F450E8????????83C4108B45F489471883EC0C|-78" },
-				{MemPointer.LevelComplete,     "558BEC5783EC648B7D0883EC0C57E8????????83C410B8????????C60000D9EED99F????????8B474083EC086A0050E8????????83C41085C0743083EC0C57|-40" },
-				{MemPointer.MusicMachine,      "558BEC575683EC108B75088B7D0C83FF060F85????????8B05????????83EC0C503900E8????????83C4108945F48B45F43D????????74268B05" },
-				{MemPointer.TAS,               "C745F88B2F7DE1C745FC933CAF568D45F883EC0868????????50E8????????83C4108BC8B8" }
-			}},
-		};
-		private IntPtr pointer;
-		public KalimbaMemory Memory { get; set; }
-		public MemPointer Name { get; set; }
-		public MemVersion Version { get; set; }
-		public bool AutoDeref { get; set; }
 		private int lastID;
 		private DateTime lastTry;
-		public int RetrySeconds { get; set; }
-		public ProgramPointer(KalimbaMemory memory, MemPointer pointer) {
-			this.Memory = memory;
-			this.Name = pointer;
-			this.AutoDeref = true;
-			RetrySeconds = 1;
-			lastID = memory.Program == null ? -1 : memory.Program.Id;
+		private ProgramSignature[] signatures;
+		private int[] offsets;
+		private bool is64bit;
+		public IntPtr Pointer { get; private set; }
+		public PointerVersion Version { get; private set; }
+		public bool AutoDeref { get; private set; }
+
+		public ProgramPointer(bool autoDeref, params ProgramSignature[] signatures) {
+			AutoDeref = autoDeref;
+			this.signatures = signatures;
+			lastID = -1;
+			lastTry = DateTime.MinValue;
+		}
+		public ProgramPointer(bool autoDeref, params int[] offsets) {
+			AutoDeref = autoDeref;
+			this.offsets = offsets;
+			lastID = -1;
 			lastTry = DateTime.MinValue;
 		}
 
-		public IntPtr Value {
-			get {
-				GetPointer();
-				return pointer;
-			}
+		public T Read<T>(Process program, params int[] offsets) where T : struct {
+			GetPointer(program);
+			return program.Read<T>(Pointer, offsets);
 		}
-		public T Read<T>(params int[] offsets) where T : struct {
-			return Memory.Program.Read<T>(Value, offsets);
+		public string Read(Process program, params int[] offsets) {
+			GetPointer(program);
+			return program.Read((IntPtr)program.Read<uint>(Pointer, offsets));
 		}
-		public string Read(params int[] offsets) {
-			if (!Memory.IsHooked) { return string.Empty; }
-
-			bool is64bit = Memory.Program.Is64Bit();
-			IntPtr p = IntPtr.Zero;
-			if (is64bit) {
-				p = (IntPtr)Memory.Program.Read<ulong>(Value, offsets);
-			} else {
-				p = (IntPtr)Memory.Program.Read<uint>(Value, offsets);
-			}
-			return Memory.Program.Read(p);
+		public byte[] ReadBytes(Process program, int length, params int[] offsets) {
+			GetPointer(program);
+			return program.Read(Pointer, length, offsets);
 		}
-		public void Write<T>(T value, params int[] offsets) where T : struct {
-			Memory.Program.Write<T>(Value, value, offsets);
+		public void Write<T>(Process program, T value, params int[] offsets) where T : struct {
+			GetPointer(program);
+			program.Write<T>(Pointer, value, offsets);
 		}
-		private void GetPointer() {
-			if (!Memory.IsHooked) {
-				pointer = IntPtr.Zero;
-				Version = MemVersion.None;
-				return;
+		public IntPtr GetPointer(Process program) {
+			if ((program?.HasExited).GetValueOrDefault(true)) {
+				Pointer = IntPtr.Zero;
+				lastID = -1;
+				return Pointer;
+			} else if (program.Id != lastID) {
+				Pointer = IntPtr.Zero;
+				lastID = program.Id;
 			}
 
-			if (Memory.Program.Id != lastID) {
-				pointer = IntPtr.Zero;
-				Version = MemVersion.None;
-				lastID = Memory.Program.Id;
-			}
-			if (pointer == IntPtr.Zero && DateTime.Now > lastTry.AddSeconds(RetrySeconds)) {
+			if (Pointer == IntPtr.Zero && DateTime.Now > lastTry.AddSeconds(1)) {
 				lastTry = DateTime.Now;
-				pointer = GetVersionedFunctionPointer();
-				if (pointer != IntPtr.Zero) {
-					bool is64bit = Memory.Program.Is64Bit();
-					pointer = (IntPtr)Memory.Program.Read<uint>(pointer);
+
+				Pointer = GetVersionedFunctionPointer(program);
+				if (Pointer != IntPtr.Zero) {
+					is64bit = program.Is64Bit();
+					Pointer = (IntPtr)program.Read<uint>(Pointer);
 					if (AutoDeref) {
 						if (is64bit) {
-							pointer = (IntPtr)Memory.Program.Read<ulong>(pointer);
+							Pointer = (IntPtr)program.Read<ulong>(Pointer);
 						} else {
-							pointer = (IntPtr)Memory.Program.Read<uint>(pointer);
+							Pointer = (IntPtr)program.Read<uint>(Pointer);
 						}
 					}
 				}
 			}
+			return Pointer;
 		}
-		private IntPtr GetVersionedFunctionPointer() {
-			foreach (MemVersion version in Enum.GetValues(typeof(MemVersion))) {
-				Dictionary<MemPointer, string> patterns = null;
-				if (!funcPatterns.TryGetValue(version, out patterns)) { continue; }
+		private IntPtr GetVersionedFunctionPointer(Process program) {
+			if (signatures != null) {
+				MemorySearcher searcher = new MemorySearcher();
+				searcher.MemoryFilter = delegate (MemInfo info) {
+					return (info.State & 0x1000) != 0 && (info.Protect & 0x100) == 0 && (info.Protect & 0x40) != 0;
+				};
+				for (int i = 0; i < signatures.Length; i++) {
+					ProgramSignature signature = signatures[i];
 
-				string pattern = null;
-				if (!patterns.TryGetValue(Name, out pattern)) { continue; }
-
-				IntPtr ptr = Memory.Program.FindSignatures(pattern)[0];
+					IntPtr ptr = searcher.FindSignature(program, signature.Signature);
+					if (ptr != IntPtr.Zero) {
+						Version = signature.Version;
+						return ptr + signature.Offset;
+					}
+				}
+			} else {
+				IntPtr ptr = (IntPtr)program.Read<uint>(program.MainModule.BaseAddress, offsets);
 				if (ptr != IntPtr.Zero) {
-					Version = version;
 					return ptr;
 				}
 			}
-			Version = MemVersion.None;
+
 			return IntPtr.Zero;
 		}
 	}

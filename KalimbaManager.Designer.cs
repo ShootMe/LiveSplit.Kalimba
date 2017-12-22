@@ -339,6 +339,7 @@
 			this.txtMusicVolume.Name = "txtMusicVolume";
 			this.txtMusicVolume.Size = new System.Drawing.Size(100, 23);
 			this.txtMusicVolume.Text = "100";
+			this.txtMusicVolume.TextChanged += new System.EventHandler(this.txtMusicVolume_TextChanged);
 			// 
 			// menuTAS
 			// 
