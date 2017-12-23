@@ -257,6 +257,16 @@ namespace LiveSplit.Kalimba {
 					}
 				}
 
+				float temp;
+				if (float.TryParse(txtMusicVolume.Text, out temp)) {
+					if (temp < 0) {
+						temp = 0;
+					} else if (temp > 100) {
+						temp = 100;
+					}
+					Memory.SetMusicVolume(temp / 100f);
+				}
+
 				if (menu == MenuScreen.Loading) {
 					MenuScreen prevMenu = Memory.GetPreviousMenu();
 					if (prevMenu == MenuScreen.SpeedRunLevelSelect && !Memory.SpeedrunLoaded()) {
@@ -415,21 +425,6 @@ namespace LiveSplit.Kalimba {
 					MessageBox.Show("Please go to the Main Menu before activating All Totems.", "Kalimba");
 				} else {
 					Memory.SetLevelScore(PlatformLevelId.None, 40);
-				}
-			} catch (Exception ex) {
-				MessageBox.Show(ex.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-			}
-		}
-		private void txtMusicVolume_TextChanged(object sender, EventArgs e) {
-			try {
-				float temp;
-				if (float.TryParse(txtMusicVolume.Text, out temp)) {
-					if (temp < 0) {
-						temp = 0;
-					} else if (temp > 100) {
-						temp = 100;
-					}
-					Memory.SetMusicVolume(temp / 100f);
 				}
 			} catch (Exception ex) {
 				MessageBox.Show(ex.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
