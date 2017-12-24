@@ -179,6 +179,7 @@ namespace LiveSplit.Kalimba {
 				itemInvincibleToOoze.Enabled = inGameNotRunning;
 				itemNoPickups.Enabled = inGameNotRunning;
 				itemKillTotems.Enabled = inGameNotRunning;
+				txtMusicVolume.Enabled = itemMusicEnable.Checked;
 
 				if (!inGameNotRunning) {
 					itemCheckpointLock.Checked = false;
@@ -257,14 +258,16 @@ namespace LiveSplit.Kalimba {
 					}
 				}
 
-				float temp;
-				if (float.TryParse(txtMusicVolume.Text, out temp)) {
-					if (temp < 0) {
-						temp = 0;
-					} else if (temp > 100) {
-						temp = 100;
+				if (itemMusicEnable.Checked) {
+					float temp;
+					if (float.TryParse(txtMusicVolume.Text, out temp)) {
+						if (temp < 0) {
+							temp = 0;
+						} else if (temp > 100) {
+							temp = 100;
+						}
+						Memory.SetMusicVolume(temp / 100f);
 					}
-					Memory.SetMusicVolume(temp / 100f);
 				}
 
 				if (menu == MenuScreen.Loading) {

@@ -51,6 +51,7 @@
 			this.itemCameraLead = new System.Windows.Forms.ToolStripMenuItem();
 			this.itemCameraTrail = new System.Windows.Forms.ToolStripMenuItem();
 			this.menuMusic = new System.Windows.Forms.ToolStripMenuItem();
+			this.itemMusicEnable = new System.Windows.Forms.ToolStripMenuItem();
 			this.txtMusicVolume = new System.Windows.Forms.ToolStripTextBox();
 			this.menuTAS = new System.Windows.Forms.ToolStripMenuItem();
 			this.itemTASDisplay = new System.Windows.Forms.ToolStripMenuItem();
@@ -328,10 +329,18 @@
 			// menuMusic
 			// 
 			this.menuMusic.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.itemMusicEnable,
             this.txtMusicVolume});
 			this.menuMusic.Name = "menuMusic";
 			this.menuMusic.Size = new System.Drawing.Size(60, 20);
 			this.menuMusic.Text = "Music";
+			// 
+			// itemMusicEnable
+			// 
+			this.itemMusicEnable.CheckOnClick = true;
+			this.itemMusicEnable.Name = "itemMusicEnable";
+			this.itemMusicEnable.Size = new System.Drawing.Size(160, 22);
+			this.itemMusicEnable.Text = "Enable";
 			// 
 			// txtMusicVolume
 			// 
@@ -436,5 +445,6 @@
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
 		private System.Windows.Forms.ToolStripMenuItem menuTAS;
 		private System.Windows.Forms.ToolStripMenuItem itemTASDisplay;
+		private System.Windows.Forms.ToolStripMenuItem itemMusicEnable;
 	}
 }
