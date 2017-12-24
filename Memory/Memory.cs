@@ -267,13 +267,14 @@ namespace LiveSplit.Kalimba.Memory {
 			bool[] mask;
 			GetSignature(signature, out pattern, out mask);
 			GetMemoryInfo(process.Handle);
+			int[] offsets = GetCharacterOffsets(pattern, mask);
 
 			for (int i = 0; i < memoryInfo.Count; i++) {
 				MemInfo info = memoryInfo[i];
 				byte[] buff = new byte[(uint)info.RegionSize];
 				ReadProcessMemory(process.Handle, info.BaseAddress, buff, (uint)info.RegionSize, 0);
 
-				int result = ScanMemory(buff, pattern, mask);
+				int result = ScanMemory(buff, pattern, mask, offsets);
 				if (result != int.MinValue) {
 					return info.BaseAddress + result;
 				}
@@ -285,6 +286,7 @@ namespace LiveSplit.Kalimba.Memory {
 			bool[] mask;
 			GetSignature(signature, out pattern, out mask);
 			GetMemoryInfo(process.Handle);
+			int[] offsets = GetCharacterOffsets(pattern, mask);
 
 			List<IntPtr> pointers = new List<IntPtr>();
 			for (int i = 0; i < memoryInfo.Count; i++) {
@@ -292,7 +294,7 @@ namespace LiveSplit.Kalimba.Memory {
 				byte[] buff = new byte[(uint)info.RegionSize];
 				ReadProcessMemory(process.Handle, info.BaseAddress, buff, (uint)info.RegionSize, 0);
 
-				ScanMemory(pointers, info, buff, pattern, mask);
+				ScanMemory(pointers, info, buff, pattern, mask, offsets);
 			}
 			return pointers;
 		}
@@ -316,8 +318,7 @@ namespace LiveSplit.Kalimba.Memory {
 				current = memInfo.BaseAddress + (int)regionSize;
 			}
 		}
-		private int ScanMemory(byte[] data, byte[] search, bool[] mask) {
-			int[] offsets = GetCharacterOffsets(search, mask);
+		private int ScanMemory(byte[] data, byte[] search, bool[] mask, int[] offsets) {
 			int current = 0;
 			int end = search.Length - 1;
 			while (current <= data.Length - search.Length) {
@@ -327,15 +328,14 @@ namespace LiveSplit.Kalimba.Memory {
 					}
 				}
 				int offset = offsets[data[current + end]];
-				if (offset < 0) {
+				if (offset == 0) {
 					offset = offsets[256];
 				}
 				current += offset;
 			}
 			return int.MinValue;
 		}
-		private void ScanMemory(List<IntPtr> pointers, MemInfo info, byte[] data, byte[] search, bool[] mask) {
-			int[] offsets = GetCharacterOffsets(search, mask);
+		private void ScanMemory(List<IntPtr> pointers, MemInfo info, byte[] data, byte[] search, bool[] mask, int[] offsets) {
 			int current = 0;
 			int end = search.Length - 1;
 			while (current <= data.Length - search.Length) {
@@ -346,7 +346,7 @@ namespace LiveSplit.Kalimba.Memory {
 					}
 				}
 				int offset = offsets[data[current + end]];
-				if (offset < 0) {
+				if (offset == 0) {
 					offset = offsets[256];
 				}
 				current += offset;
@@ -355,18 +355,15 @@ namespace LiveSplit.Kalimba.Memory {
 		private int[] GetCharacterOffsets(byte[] search, bool[] mask) {
 			int[] offsets = new int[257];
 			int end = search.Length - 1;
-			for (int i = 0; i < 256; i++) {
-				offsets[i] = -1;
-			}
 			for (int i = 0; i < end; i++) {
 				if (!mask[i]) {
 					offsets[search[i]] = end - i;
-				} else {
+				} else if (offsets[256] == 0) {
 					offsets[256] = end - i;
 				}
 			}
 			if (offsets[256] == 0) {
-				offsets[256] = search.Length;
+				offsets[256] = end;
 			}
 			return offsets;
 		}
