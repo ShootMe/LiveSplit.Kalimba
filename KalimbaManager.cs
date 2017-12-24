@@ -158,7 +158,6 @@ namespace LiveSplit.Kalimba {
 				this.Invoke((Action)UpdateValues);
 			} else if (Memory != null && Memory.IsHooked) {
 				if (!Visible) { this.Show(); }
-				if (WindowState == FormWindowState.Minimized) { return; }
 
 				lblNotAvailable.Visible = false;
 				MenuScreen menu = Memory.GetCurrentMenu();
