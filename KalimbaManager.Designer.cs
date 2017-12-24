@@ -170,6 +170,7 @@
 			this.menuWorld.Name = "menuWorld";
 			this.menuWorld.Size = new System.Drawing.Size(60, 20);
 			this.menuWorld.Text = "World";
+			this.menuWorld.Click += new System.EventHandler(this.menuWorld_Click);
 			// 
 			// itemNewGame
 			// 
@@ -200,6 +201,7 @@
 			this.menuCheckpoint.Name = "menuCheckpoint";
 			this.menuCheckpoint.Size = new System.Drawing.Size(100, 20);
 			this.menuCheckpoint.Text = "Checkpoint";
+			this.menuCheckpoint.Click += new System.EventHandler(this.menuCheckpoint_Click);
 			// 
 			// itemCheckpointNext
 			// 
@@ -247,6 +249,7 @@
 			this.menuLevel.Name = "menuLevel";
 			this.menuLevel.Size = new System.Drawing.Size(60, 20);
 			this.menuLevel.Text = "Level";
+			this.menuLevel.Click += new System.EventHandler(this.menuLevel_Click);
 			// 
 			// itemLevelErase
 			// 
@@ -307,6 +310,7 @@
 			this.menuCamera.Name = "menuCamera";
 			this.menuCamera.Size = new System.Drawing.Size(68, 20);
 			this.menuCamera.Text = "Camera";
+			this.menuCamera.Click += new System.EventHandler(this.menuCamera_Click);
 			// 
 			// itemCameraLead
 			// 
@@ -334,6 +338,7 @@
 			this.menuMusic.Name = "menuMusic";
 			this.menuMusic.Size = new System.Drawing.Size(60, 20);
 			this.menuMusic.Text = "Music";
+			this.menuMusic.Click += new System.EventHandler(this.menuMusic_Click);
 			// 
 			// itemMusicEnable
 			// 
@@ -341,6 +346,7 @@
 			this.itemMusicEnable.Name = "itemMusicEnable";
 			this.itemMusicEnable.Size = new System.Drawing.Size(160, 22);
 			this.itemMusicEnable.Text = "Enable";
+			this.itemMusicEnable.Click += new System.EventHandler(this.menuMusic_Click);
 			// 
 			// txtMusicVolume
 			// 
@@ -382,7 +388,6 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.Color.White;
 			this.ClientSize = new System.Drawing.Size(437, 131);
-			this.Controls.Add(this.lblNotAvailable);
 			this.Controls.Add(this.lblP3P4Pos);
 			this.Controls.Add(this.lblTASOutput);
 			this.Controls.Add(this.chkLockZoom);
@@ -391,6 +396,7 @@
 			this.Controls.Add(this.lblP1P2Pos);
 			this.Controls.Add(this.lblCurrentCheckpoint);
 			this.Controls.Add(this.menu);
+			this.Controls.Add(this.lblNotAvailable);
 			this.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.ForeColor = System.Drawing.Color.Black;
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));

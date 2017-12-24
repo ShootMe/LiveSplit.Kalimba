@@ -19,6 +19,7 @@ namespace LiveSplit.Kalimba {
 		private MenuScreen mainMenu = MenuScreen.MainMenu;
 		private int lastLevelComplete = 0, startFrameCount, splitFrameCount;
 		private bool lastDisabled = false;
+		private RaceWatcher raceWatcher = new RaceWatcher();
 #else
 	public class KalimbaComponent {
 #endif
@@ -79,6 +80,7 @@ namespace LiveSplit.Kalimba {
 
 			MenuScreen screen = mem.GetCurrentMenu();
 #if LiveSplit
+			PlatformLevelId levelID = mem.GetPlatformLevelId();
 			if (Model != null) {
 				if (Model.CurrentState.CurrentPhase == TimerPhase.NotRunning) {
 					mainMenu = screen;
@@ -108,7 +110,6 @@ namespace LiveSplit.Kalimba {
 				} else if (screen != MenuScreen.InGame) {
 					Model.CurrentState.IsGameTimePaused = true;
 				} else if (currentSplit > 0) {
-					PlatformLevelId levelID = mem.GetPlatformLevelId();
 					PersistentLevelStats level = mem.GetLevelStats(levelID);
 					if (level != null && level.minMillisecondsForMaxScore != int.MaxValue) {
 						Model.CurrentState.IsGameTimePaused = true;
@@ -119,6 +120,8 @@ namespace LiveSplit.Kalimba {
 					HandleGameTimes();
 				}
 			}
+
+			raceWatcher.UpdateRace(screen == MenuScreen.InGame || screen == MenuScreen.InGameMenu, levelID, mem.GetCurrentCheckpoint(), mem.LevelComplete());
 #endif
 			lastMenu = screen;
 			LogValues(screen);

@@ -13,19 +13,15 @@ using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
-using System.Text;
 namespace LiveSplit.Kalimba {
 	public partial class KalimbaManager : Form {
 		[DllImport("user32.dll")]
-		static extern IntPtr GetForegroundWindow();
-		[DllImport("user32.dll")]
-		static extern int GetWindowText(IntPtr hWnd, StringBuilder text, int count);
+		private static extern IntPtr GetForegroundWindow();
 		public KalimbaMemory Memory { get; set; }
 		public KalimbaComponent Component { get; set; }
 		private int lockedCheckpoint = -1;
 		private DateTime lastCheckLoading = DateTime.MinValue;
 		private Dictionary<int, float> oldZoomValues = new Dictionary<int, float>();
-		private RaceWatcher raceWatcher = new RaceWatcher();
 		private Thread getValuesThread = null;
 		private KeyboardHook keyboard = new KeyboardHook();
 		public bool AlwaysShown { get; set; }
@@ -64,63 +60,71 @@ namespace LiveSplit.Kalimba {
 
 			if (Focused || Memory == null || !Memory.IsHooked) { return; }
 
-			IntPtr ptr = GetForegroundWindow();
-			StringBuilder sb = new StringBuilder(256);
-			string title = null;
-			if (GetWindowText(ptr, sb, 256) > 0) {
-				title = sb.ToString();
+			if (Memory.Program.MainWindowHandle != GetForegroundWindow()) {
+				return;
 			}
-			if (!"Kalimba".Equals(title, StringComparison.OrdinalIgnoreCase)) { return; }
 
 			if (e.Modifiers == Keys.Control && e.KeyCode == Keys.Z) {
+				UpdateWorldMenu();
 				if (itemNewGame.Enabled) {
 					itemNewGame_Click(this, null);
 				}
 			} else if (e.Modifiers == (Keys.Control | Keys.Shift) && e.KeyCode == Keys.Z) {
+				UpdateWorldMenu();
 				if (itemAllTotems.Enabled) {
 					itemAllTotems_Click(this, null);
 				}
 			} else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.N) {
+				UpdateCheckpointMenu();
 				if (itemCheckpointNext.Enabled) {
 					itemCheckpointNext_Click(this, null);
 				}
 			} else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.P) {
+				UpdateCheckpointMenu();
 				if (itemCheckpointPrevious.Enabled) {
 					itemCheckpointPrevious_Click(this, null);
 				}
 			} else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.L) {
+				UpdateCheckpointMenu();
 				if (itemCheckpointLock.Enabled) {
 					itemCheckpointLock.Checked = !itemCheckpointLock.Checked;
 					itemCheckpointLock_Click(this, null);
 				}
 			} else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.E) {
+				UpdateLevelMenu();
 				if (itemLevelErase.Enabled) {
 					itemLevelErase_Click(this, null);
 				}
 			} else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.C) {
+				UpdateLevelMenu();
 				if (itemLevelClear.Enabled) {
 					itemLevelClear_Click(this, null);
 				}
 			} else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.I) {
+				UpdateLevelMenu();
 				if (itemInvincibleToOoze.Enabled) {
 					itemInvincibleToOoze.Checked = !itemInvincibleToOoze.Checked;
 					itemInvincibleToOoze_Click(this, null);
 				}
 			} else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.K) {
+				UpdateLevelMenu();
 				if (itemKillTotems.Enabled) {
 					itemKillTotems_Click(this, null);
 				}
 			} else if (e.Modifiers == (Keys.Control | Keys.Shift) && e.KeyCode == Keys.P) {
+				UpdateLevelMenu();
 				if (itemNoPickups.Enabled) {
 					itemNoPickups.Checked = !itemNoPickups.Checked;
 					itemNoPickups_Click(this, null);
 				}
 			} else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.F) {
+				UpdateCameraMenu();
 				if (itemCameraLead.Enabled) {
 					itemCameraLead.Checked = !itemCameraLead.Checked;
 					itemCameraLead_Click(this, null);
 				}
 			} else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.R) {
+				UpdateCameraMenu();
 				if (itemCameraTrail.Enabled) {
 					itemCameraTrail.Checked = !itemCameraTrail.Checked;
 					itemCameraTrail_Click(this, null);
@@ -163,23 +167,10 @@ namespace LiveSplit.Kalimba {
 				MenuScreen menu = Memory.GetCurrentMenu();
 				bool inGame = menu == MenuScreen.InGame || menu == MenuScreen.InGameMenu;
 				bool inGameNotRunning = inGame && (Component == null || Component.IsNotRunning());
-				bool notInGameNotRunning = !inGame && (Component == null || Component.IsNotRunning());
-				bool canClearErase = menu == MenuScreen.SinglePlayerDLCMap || menu == MenuScreen.SinglePlayerMap || menu == MenuScreen.CoopDLCMap || menu == MenuScreen.CoopMap;
 
-				itemLevelClear.Enabled = canClearErase;
-				itemLevelErase.Enabled = canClearErase;
-				itemNewGame.Enabled = notInGameNotRunning;
-				itemAllTotems.Enabled = notInGameNotRunning;
-				itemCheckpointNext.Enabled = inGameNotRunning;
-				itemCheckpointPrevious.Enabled = inGameNotRunning;
-				itemCheckpointLock.Enabled = inGameNotRunning;
-				chkLockZoom.Enabled = inGameNotRunning;
-				itemCameraLead.Enabled = inGameNotRunning;
-				itemCameraTrail.Enabled = inGameNotRunning;
-				itemInvincibleToOoze.Enabled = inGameNotRunning;
-				itemNoPickups.Enabled = inGameNotRunning;
-				itemKillTotems.Enabled = inGameNotRunning;
-				txtMusicVolume.Enabled = itemMusicEnable.Checked;
+				if (chkLockZoom.Enabled != inGameNotRunning) {
+					chkLockZoom.Enabled = inGameNotRunning;
+				}
 
 				if (!inGameNotRunning) {
 					itemCheckpointLock.Checked = false;
@@ -211,8 +202,6 @@ namespace LiveSplit.Kalimba {
 					lblP3P4Pos.Text = "T3: (0.00, 0.00) T4: (0.00, 0.00)";
 					lblCurrentCheckpoint.Text = "Checkpoint: N/A";
 				}
-
-				raceWatcher.UpdateRace(inGame, Memory.GetPlatformLevelId(), currentCheckpoint, Memory.LevelComplete());
 
 				if (chkLockZoom.Checked) {
 					int cameraZone = Memory.CameraZone();
@@ -429,6 +418,74 @@ namespace LiveSplit.Kalimba {
 				} else {
 					Memory.SetLevelScore(PlatformLevelId.None, 40);
 				}
+			} catch (Exception ex) {
+				MessageBox.Show(ex.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
+		}
+		private void menuWorld_Click(object sender, EventArgs e) {
+			try {
+				UpdateWorldMenu();
+			} catch (Exception ex) {
+				MessageBox.Show(ex.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
+		}
+		private void UpdateWorldMenu() {
+			MenuScreen menu = Memory.GetCurrentMenu();
+			bool inGame = menu == MenuScreen.InGame || menu == MenuScreen.InGameMenu;
+			bool notInGameNotRunning = !inGame && (Component == null || Component.IsNotRunning());
+			itemNewGame.Enabled = notInGameNotRunning;
+			itemAllTotems.Enabled = notInGameNotRunning;
+		}
+		private void menuCheckpoint_Click(object sender, EventArgs e) {
+			try {
+				UpdateCheckpointMenu();
+			} catch (Exception ex) {
+				MessageBox.Show(ex.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
+		}
+		private void UpdateCheckpointMenu() {
+			MenuScreen menu = Memory.GetCurrentMenu();
+			bool inGame = menu == MenuScreen.InGame || menu == MenuScreen.InGameMenu;
+			bool inGameNotRunning = inGame && (Component == null || Component.IsNotRunning());
+			itemCheckpointNext.Enabled = inGameNotRunning;
+			itemCheckpointPrevious.Enabled = inGameNotRunning;
+			itemCheckpointLock.Enabled = inGameNotRunning;
+		}
+		private void menuLevel_Click(object sender, EventArgs e) {
+			try {
+				UpdateLevelMenu();
+			} catch (Exception ex) {
+				MessageBox.Show(ex.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
+		}
+		private void UpdateLevelMenu() {
+			MenuScreen menu = Memory.GetCurrentMenu();
+			bool inGame = menu == MenuScreen.InGame || menu == MenuScreen.InGameMenu;
+			bool inGameNotRunning = inGame && (Component == null || Component.IsNotRunning());
+			bool canClearErase = menu == MenuScreen.SinglePlayerDLCMap || menu == MenuScreen.SinglePlayerMap || menu == MenuScreen.CoopDLCMap || menu == MenuScreen.CoopMap;
+			itemLevelClear.Enabled = canClearErase;
+			itemLevelErase.Enabled = canClearErase;
+			itemNoPickups.Enabled = inGameNotRunning;
+			itemInvincibleToOoze.Enabled = inGameNotRunning;
+			itemKillTotems.Enabled = inGameNotRunning;
+		}
+		private void menuCamera_Click(object sender, EventArgs e) {
+			try {
+				UpdateCameraMenu();
+			} catch (Exception ex) {
+				MessageBox.Show(ex.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
+		}
+		private void UpdateCameraMenu() {
+			MenuScreen menu = Memory.GetCurrentMenu();
+			bool inGame = menu == MenuScreen.InGame || menu == MenuScreen.InGameMenu;
+			bool inGameNotRunning = inGame && (Component == null || Component.IsNotRunning());
+			itemCameraLead.Enabled = inGameNotRunning;
+			itemCameraTrail.Enabled = inGameNotRunning;
+		}
+		private void menuMusic_Click(object sender, EventArgs e) {
+			try {
+				txtMusicVolume.Enabled = itemMusicEnable.Checked;
 			} catch (Exception ex) {
 				MessageBox.Show(ex.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
