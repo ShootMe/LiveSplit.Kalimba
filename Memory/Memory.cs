@@ -328,9 +328,6 @@ namespace LiveSplit.Kalimba.Memory {
 					}
 				}
 				int offset = offsets[data[current + end]];
-				if (offset == 0) {
-					offset = offsets[256];
-				}
 				current += offset;
 			}
 			return int.MinValue;
@@ -346,24 +343,30 @@ namespace LiveSplit.Kalimba.Memory {
 					}
 				}
 				int offset = offsets[data[current + end]];
-				if (offset == 0) {
-					offset = offsets[256];
-				}
 				current += offset;
 			}
 		}
 		private int[] GetCharacterOffsets(byte[] search, bool[] mask) {
-			int[] offsets = new int[257];
+			int[] offsets = new int[256];
+			int unknown = 0;
 			int end = search.Length - 1;
 			for (int i = 0; i < end; i++) {
 				if (!mask[i]) {
 					offsets[search[i]] = end - i;
-				} else if (offsets[256] == 0) {
-					offsets[256] = end - i;
+				} else {
+					unknown = end - i;
 				}
 			}
-			if (offsets[256] == 0) {
-				offsets[256] = end;
+
+			if (unknown == 0) {
+				unknown = search.Length;
+			}
+
+			for (int i = 0; i < 256; i++) {
+				int offset = offsets[i];
+				if (unknown < offset || offset == 0) {
+					offsets[i] = unknown;
+				}
 			}
 			return offsets;
 		}

@@ -7,7 +7,7 @@ namespace LiveSplit.Kalimba.Memory {
 		private static ProgramPointer globalGameManager = new ProgramPointer(true, new ProgramSignature(PointerVersion.V1, "558BEC5783EC34C745E4000000008B4508C74034000000008B05????????83EC086A0050E8????????83C41085C0743A8B05", 50));
 		private static ProgramPointer menuManager = new ProgramPointer(true, new ProgramSignature(PointerVersion.V1, "558BEC53575683EC0C8B05????????83EC086A0050E8????????83C41085C074338B05", 35));
 		private static ProgramPointer totemPole = new ProgramPointer(false, new ProgramSignature(PointerVersion.V1, "D95810D94510D958148B4D1489480CC9C3000000558BEC83EC08B8????????8B4D088908C9C3000000000000558BEC5683EC0483EC0C", 27));
-		private static ProgramPointer platformManager = new ProgramPointer(false, new ProgramSignature(PointerVersion.V1, "558BEC535683EC108B05????????83EC0C50E8????????83C41085C0740B8B05", 32));
+		private static ProgramPointer platformManager = new ProgramPointer(false, new ProgramSignature(PointerVersion.V1, "83EC0C50E8????????83C41085C0740B8B05????????E9????????0FB605", 18));
 		private static ProgramPointer ghostManager = new ProgramPointer(true, new ProgramSignature(PointerVersion.V1, "EC5783EC148B7D088B05????????83EC0C503900E8????????83C41083EC086A01503900E8", 10));
 		private static ProgramPointer levelComplete = new ProgramPointer(false, new ProgramSignature(PointerVersion.V1, "558BEC5783EC648B7D0883EC0C57E8????????83C410B8????????C60000D9EED99F", 23));
 		private static ProgramPointer musicMachine = new ProgramPointer(true, new ProgramSignature(PointerVersion.V1, "558BEC575683EC108B75088B7D0C83FF060F85????????8B05????????83EC0C503900E8", 58));
