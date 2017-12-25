@@ -17,7 +17,8 @@ namespace LiveSplit.Kalimba {
 		public string ComponentName { get { return "Kalimba Autosplitter"; } }
 		private float lastYP2;
 		private MenuScreen mainMenu = MenuScreen.MainMenu;
-		private int lastLevelComplete = 0, startFrameCount, splitFrameCount;
+		private int lastLevelComplete = 0;
+		private double startGameTime, splitGameTime;
 		private bool lastDisabled = false;
 		private RaceWatcher raceWatcher = new RaceWatcher();
 #else
@@ -139,7 +140,7 @@ namespace LiveSplit.Kalimba {
 					mem.SetLevelScore(mem.GetPlatformLevelId(), 0);
 				} else if (state == 2) {
 					shouldSplit = true;
-					startFrameCount = mem.FrameCount();
+					startGameTime = mem.GameTime();
 				}
 			} else if (Model.CurrentState.CurrentPhase == TimerPhase.Running) {
 				if (currentSplit < Model.CurrentState.Run.Count) {
@@ -363,7 +364,7 @@ namespace LiveSplit.Kalimba {
 			}
 			lastYP2 = 0;
 			lastSplit = DateTime.MinValue;
-			startFrameCount = 0;
+			startGameTime = 0;
 			lastMenu = MenuScreen.MainMenu;
 			Model.CurrentState.IsGameTimePaused = true;
 			WriteLog("---------Reset----------------------------------");
@@ -397,8 +398,8 @@ namespace LiveSplit.Kalimba {
 			HandleGameTimes();
 		}
 		private void HandleGameTimes() {
-			if (startFrameCount > 0) {
-				splitFrameCount = mem.FrameCount();
+			if (startGameTime > 0) {
+				splitGameTime = mem.GameTime();
 
 				if (currentSplit > 1 && currentSplit - 1 <= Model.CurrentState.Run.Count) {
 					Time currentTime = Model.CurrentState.Run[lastLevelComplete].SplitTime;
@@ -409,7 +410,7 @@ namespace LiveSplit.Kalimba {
 							PersistentLevelStats level = mem.GetLevelStats(levelID);
 							total = TimeSpan.FromMilliseconds(level.minMillisecondsForMaxScore);
 						} else {
-							total = TimeSpan.FromSeconds((splitFrameCount - startFrameCount) / 60f);
+							total = TimeSpan.FromSeconds(splitGameTime - startGameTime);
 						}
 
 						TimeSpan lastLevel = TimeSpan.FromSeconds(0);

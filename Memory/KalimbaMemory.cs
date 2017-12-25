@@ -111,6 +111,9 @@ namespace LiveSplit.Kalimba.Memory {
 		public int FrameCount() {
 			return Program.Read<int>(Program.MainModule.BaseAddress, 0xa1e97c);
 		}
+		public double GameTime() {
+			return Program.Read<double>(Program.MainModule.BaseAddress, 0xa1cdfc, 0x58);
+		}
 		public PlatformLevelId SelectedLevel() {
 			//TotemWorldMap.instance.levelInfo.sceneFile.platformLevelId
 			return (PlatformLevelId)totemPole.Read<int>(Program, 0x0, 0x28, 0x8c, 0x80);
