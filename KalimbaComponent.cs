@@ -21,6 +21,7 @@ namespace LiveSplit.Kalimba {
 		private double startGameTime, splitGameTime;
 		private bool lastDisabled = false;
 		private RaceWatcher raceWatcher = new RaceWatcher();
+		private ILSplitInfo ilSplitInfo;
 #else
 	public class KalimbaComponent {
 #endif
@@ -122,7 +123,7 @@ namespace LiveSplit.Kalimba {
 				}
 			}
 
-			raceWatcher.UpdateRace(screen == MenuScreen.InGame || screen == MenuScreen.InGameMenu, levelID, mem.GetCurrentCheckpoint(), mem.LevelComplete());
+			raceWatcher.UpdateRace(screen == MenuScreen.InGame || screen == MenuScreen.InGameMenu, levelID, mem.GetCurrentCheckpoint(), mem.LevelComplete(screen));
 #endif
 			lastMenu = screen;
 			LogValues(screen);
@@ -144,45 +145,31 @@ namespace LiveSplit.Kalimba {
 				}
 			} else if (Model.CurrentState.CurrentPhase == TimerPhase.Running) {
 				if (currentSplit < Model.CurrentState.Run.Count) {
-					string[] splits = Model.CurrentState.CurrentSplit.Name.Split(' ');
-					float pickupsPos = -1;
-					bool isPosX = false, isPosY = false, isLessThan = false, isCP = false, isDis = false;
-					bool isBoss = Model.CurrentState.CurrentSplit.Name.StartsWith("b ", StringComparison.OrdinalIgnoreCase);
-					bool dis = mem.GetIsDisabled();
-					string bossText = null;
-					if (!isBoss) {
-						for (int i = 0; i < splits.Length; i++) {
-							string sp = splits[i];
-							isPosX = sp.EndsWith("x", StringComparison.OrdinalIgnoreCase);
-							isPosY = sp.EndsWith("y", StringComparison.OrdinalIgnoreCase);
-							isCP = sp.EndsWith("c", StringComparison.OrdinalIgnoreCase);
-							isDis = sp.Equals("d", StringComparison.OrdinalIgnoreCase) || sp.Equals("dis", StringComparison.OrdinalIgnoreCase) || sp.Equals("disabled", StringComparison.OrdinalIgnoreCase);
-							isLessThan = sp.StartsWith("<", StringComparison.OrdinalIgnoreCase);
-							if (isDis || ((isPosX || isPosY) && float.TryParse(sp.Substring(isLessThan ? 1 : 0, sp.Length - (isLessThan ? 2 : 1)), out pickupsPos))
-								|| (!isPosX && !isPosY && float.TryParse(isCP ? sp.Substring(0, sp.Length - 1) : sp, out pickupsPos))) {
-								break;
-							}
-							isPosX = false;
-							isPosY = false;
-							isCP = false;
-							isLessThan = false;
-						}
-					} else {
-						bossText = Model.CurrentState.CurrentSplit.Name.Substring(2);
+					if (ilSplitInfo == null) {
+						ilSplitInfo = new ILSplitInfo(Model.CurrentState.CurrentSplit.Name);
 					}
 
-					bool isNotCoop = Math.Abs(mem.GetLastXP3()) < 0.01f;
-					shouldSplit = screen == MenuScreen.InGame;
-					shouldSplit &= (isBoss && mem.GetBossState().IndexOf(bossText, StringComparison.OrdinalIgnoreCase) >= 0)
-								|| (!isPosX && !isPosY && !isCP && !isDis && (int)pickupsPos > 0 && mem.GetCurrentScore() == (int)pickupsPos)
-								|| (isCP && (int)pickupsPos > 0 && mem.GetCurrentCheckpoint() + 1 == (int)pickupsPos)
-								|| (!isPosX && !isPosY && isDis && dis && !lastDisabled)
-								|| (isPosX && (isLessThan ? mem.GetLastXP1() < pickupsPos || mem.GetLastXP2() < pickupsPos || (!isNotCoop && (mem.GetLastXP3() < pickupsPos || mem.GetLastXP4() < pickupsPos))
-									: mem.GetLastXP1() > pickupsPos || mem.GetLastXP2() > pickupsPos || (!isNotCoop && (mem.GetLastXP3() > pickupsPos || mem.GetLastXP4() > pickupsPos))))
-								|| (isPosY && (isLessThan ? mem.GetLastYP1() < pickupsPos || mem.GetLastYP2() < pickupsPos || (!isNotCoop && (mem.GetLastYP3() < pickupsPos || mem.GetLastYP4() < pickupsPos))
-									: mem.GetLastYP1() > pickupsPos || mem.GetLastYP2() > pickupsPos || (!isNotCoop && (mem.GetLastYP3() > pickupsPos || mem.GetLastYP4() > pickupsPos))));
-
-					lastDisabled = dis;
+					if (screen == MenuScreen.InGame) {
+						if(ilSplitInfo.IsPosX) {
+							float xpos = ilSplitInfo.Value;
+							bool isCoop = Math.Abs(mem.GetLastXP3()) >= 0.01f;
+							shouldSplit = mem.GetLastXP1() > xpos || mem.GetLastXP2() > xpos || (isCoop && (mem.GetLastXP3() > xpos || mem.GetLastXP4() > xpos));
+						} else if (ilSplitInfo.IsCP) {
+							shouldSplit = (int)ilSplitInfo.Value > 0 && mem.GetCurrentCheckpoint() + 1 == (int)ilSplitInfo.Value;
+						} else if (ilSplitInfo.IsPickup) {
+							shouldSplit = (int)ilSplitInfo.Value > 0 && mem.GetCurrentScore() == (int)ilSplitInfo.Value;
+						} else if (ilSplitInfo.IsBoss) {
+							shouldSplit = mem.GetBossState().IndexOf(ilSplitInfo.BossText, StringComparison.OrdinalIgnoreCase) >= 0;
+						} else if (ilSplitInfo.IsDis) {
+							bool disabled = mem.GetIsDisabled();
+							shouldSplit = disabled && !lastDisabled;
+							lastDisabled = disabled;
+						} else if (ilSplitInfo.IsPosY) {
+							float ypos = ilSplitInfo.Value;
+							bool isCoop = Math.Abs(mem.GetLastXP3()) >= 0.01f;
+							shouldSplit = mem.GetLastYP1() > ypos || mem.GetLastYP2() > ypos || (isCoop && (mem.GetLastYP3() > ypos || mem.GetLastYP4() > ypos));
+						}
+					}
 				} else if (currentSplit == Model.CurrentState.Run.Count) {
 					PersistentLevelStats level = mem.GetLevelStats(mem.GetPlatformLevelId());
 					shouldSplit = level != null && level.minMillisecondsForMaxScore != int.MaxValue;
@@ -229,7 +216,7 @@ namespace LiveSplit.Kalimba {
 				if (currentSplit < 10) {
 					shouldSplit = screen == MenuScreen.Loading && prev == MenuScreen.SinglePlayerDLCMap && lastMenu != MenuScreen.Loading && (9 - mem.SinglePlayerDVIndex()) == currentSplit;
 				} else if (currentSplit == 10) {
-					shouldSplit = mem.LevelComplete();
+					shouldSplit = mem.LevelComplete(screen);
 				}
 			}
 
@@ -245,7 +232,7 @@ namespace LiveSplit.Kalimba {
 				if (currentSplit < 10) {
 					shouldSplit = screen == MenuScreen.Loading && prev == MenuScreen.CoopMap && lastMenu != MenuScreen.Loading && (9 - mem.CoopIndex()) == currentSplit;
 				} else if (currentSplit == 10) {
-					shouldSplit = mem.LevelComplete();
+					shouldSplit = mem.LevelComplete(screen);
 				}
 			}
 
@@ -261,7 +248,7 @@ namespace LiveSplit.Kalimba {
 				if (currentSplit < 10) {
 					shouldSplit = screen == MenuScreen.Loading && prev == MenuScreen.CoopDLCMap && lastMenu != MenuScreen.Loading && (9 - mem.CoopDVIndex()) == currentSplit;
 				} else if (currentSplit == 10) {
-					shouldSplit = mem.LevelComplete();
+					shouldSplit = mem.LevelComplete(screen);
 				}
 			}
 
@@ -312,7 +299,7 @@ namespace LiveSplit.Kalimba {
 						case "Deaths": curr = mem.GetCurrentDeaths().ToString(); break;
 						case "CurrentSplit": curr = currentSplit.ToString(); break;
 						case "State": curr = state.ToString(); break;
-						case "EndLevel": curr = mem.LevelComplete().ToString(); break;
+						case "EndLevel": curr = mem.LevelComplete(mem.GetCurrentMenu()).ToString(); break;
 						case "PlatformLevel": curr = mem.GetPlatformLevelId().ToString(); break;
 						case "BossState": curr = mem.GetBossState(); break;
 						case "Stats":
@@ -352,6 +339,19 @@ namespace LiveSplit.Kalimba {
 
 #if LiveSplit
 		public void Update(IInvalidator invalidator, LiveSplitState lvstate, float width, float height, LayoutMode mode) {
+			//Remove duplicate autosplitter componenets
+			IList<ILayoutComponent> components = lvstate.Layout.LayoutComponents;
+			bool hasAutosplitter = false;
+			for (int i = components.Count - 1; i >= 0; i--) {
+				ILayoutComponent component = components[i];
+				if (component.Component is KalimbaComponent) {
+					if ((invalidator == null && width == 0 && height == 0) || hasAutosplitter) {
+						components.Remove(component);
+					}
+					hasAutosplitter = true;
+				}
+			}
+
 			GetValues();
 		}
 
@@ -362,6 +362,7 @@ namespace LiveSplit.Kalimba {
 			for (int i = 0; i < levelTimes.Length; i++) {
 				levelTimes[i] = 0;
 			}
+			ilSplitInfo = null;
 			lastYP2 = 0;
 			lastSplit = DateTime.MinValue;
 			startGameTime = 0;
@@ -376,22 +377,26 @@ namespace LiveSplit.Kalimba {
 			WriteLog("---------Paused---------------------------------");
 		}
 		public void OnStart(object sender, EventArgs e) {
+			ilSplitInfo = null;
 			Model.CurrentState.IsGameTimePaused = true;
 			state = 0;
 			currentSplit++;
 			WriteLog("---------New Game-------------------------------");
 		}
 		public void OnUndoSplit(object sender, EventArgs e) {
+			ilSplitInfo = null;
 			currentSplit--;
 			lastLevelComplete--;
 			state = 0;
 		}
 		public void OnSkipSplit(object sender, EventArgs e) {
+			ilSplitInfo = null;
 			currentSplit++;
 			lastLevelComplete++;
 			state = 0;
 		}
 		public void OnSplit(object sender, EventArgs e) {
+			ilSplitInfo = null;
 			state = 0;
 			currentSplit++;
 
@@ -465,6 +470,32 @@ namespace LiveSplit.Kalimba {
 			Manager.Memory = null;
 			Manager.Close();
 			Manager.Dispose();
+		}
+	}
+	public class ILSplitInfo {
+		public string[] NameSplit;
+		public float Value = -1;
+		public bool IsPosX = false, IsPosY = false, IsCP = false, IsDis = false, IsBoss = false, IsPickup = false;
+		public string BossText = null;
+		public ILSplitInfo(string splitName) {
+			NameSplit = splitName.Split(' ');
+			IsBoss = splitName.StartsWith("b ", StringComparison.OrdinalIgnoreCase);
+
+			if (!IsBoss) {
+				for (int i = 0; i < NameSplit.Length; i++) {
+					string sp = NameSplit[i];
+					IsPosX = sp.EndsWith("x", StringComparison.OrdinalIgnoreCase);
+					IsPosY = sp.EndsWith("y", StringComparison.OrdinalIgnoreCase);
+					IsCP = sp.EndsWith("c", StringComparison.OrdinalIgnoreCase);
+					IsDis = sp.EndsWith("d", StringComparison.OrdinalIgnoreCase);
+					if (IsDis || float.TryParse(IsCP ? sp.Substring(0, sp.Length - 1) : sp, out Value)) {
+						break;
+					}
+				}
+			} else {
+				BossText = splitName.Substring(2);
+			}
+			IsPickup = !IsPosX && !IsPosY && !IsCP && !IsDis && !IsBoss;
 		}
 	}
 }

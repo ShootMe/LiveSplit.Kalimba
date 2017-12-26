@@ -24,8 +24,8 @@ namespace LiveSplit.Kalimba.Memory {
 			musicMachine.Write<float>(Program, volume, 0x1c, 0x24);
 			musicMachine.Write<float>(Program, volume, 0x20, 0x24);
 		}
-		public bool LevelComplete() {
-			return levelComplete.Read<bool>(Program) && (MenuScreen)menuManager.Read<int>(Program, 0x34) == MenuScreen.InGame;
+		public bool LevelComplete(MenuScreen currentMenu) {
+			return levelComplete.Read<bool>(Program) && currentMenu == MenuScreen.InGame;
 		}
 		public string ReadTASOutput() {
 			return tas.Read(Program);

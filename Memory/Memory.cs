@@ -147,6 +147,7 @@ namespace LiveSplit.Kalimba.Memory {
 				} else {
 					address = (IntPtr)BitConverter.ToUInt32(buffer, 0);
 				}
+				if (address == IntPtr.Zero) { break; }
 			}
 			return offsets.Length > 0 ? offsets[offsets.Length - 1] : 0;
 		}
