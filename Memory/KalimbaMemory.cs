@@ -4,14 +4,14 @@ using System.Diagnostics;
 using System.Text;
 namespace LiveSplit.Kalimba.Memory {
 	public partial class KalimbaMemory {
-		private static ProgramPointer globalGameManager = new ProgramPointer(true, new ProgramSignature(PointerVersion.V1, "558BEC5783EC34C745E4000000008B4508C74034000000008B05????????83EC086A0050E8????????83C41085C0743A8B05", 50));
-		private static ProgramPointer menuManager = new ProgramPointer(true, new ProgramSignature(PointerVersion.V1, "558BEC53575683EC0C8B05????????83EC086A0050E8????????83C41085C074338B05", 35));
-		private static ProgramPointer totemPole = new ProgramPointer(false, new ProgramSignature(PointerVersion.V1, "D95810D94510D958148B4D1489480CC9C3000000558BEC83EC08B8????????8B4D088908C9C3000000000000558BEC5683EC0483EC0C", 27));
-		private static ProgramPointer platformManager = new ProgramPointer(false, new ProgramSignature(PointerVersion.V1, "83EC0C50E8????????83C41085C0740B8B05????????E9????????0FB605", 18));
-		private static ProgramPointer ghostManager = new ProgramPointer(true, new ProgramSignature(PointerVersion.V1, "EC5783EC148B7D088B05????????83EC0C503900E8????????83C41083EC086A01503900E8", 10));
-		private static ProgramPointer levelComplete = new ProgramPointer(false, new ProgramSignature(PointerVersion.V1, "558BEC5783EC648B7D0883EC0C57E8????????83C410B8????????C60000D9EED99F", 23));
-		private static ProgramPointer musicMachine = new ProgramPointer(true, new ProgramSignature(PointerVersion.V1, "558BEC575683EC108B75088B7D0C83FF060F85????????8B05????????83EC0C503900E8", 58));
-		private static ProgramPointer tas = new ProgramPointer(false, new ProgramSignature(PointerVersion.V1, "C745F88B2F7DE1C745FC933CAF568D45F883EC0868????????50E8????????83C4108BC8B8", 37));
+		private static ProgramPointer globalGameManager = new ProgramPointer(AutoDeref.Double, new ProgramSignature(PointerVersion.V1, "558BEC5783EC34C745E4000000008B4508C74034000000008B05????????83EC086A0050E8????????83C41085C0743A8B05", 50));
+		private static ProgramPointer menuManager = new ProgramPointer(AutoDeref.Double, new ProgramSignature(PointerVersion.V1, "558BEC53575683EC0C8B05????????83EC086A0050E8????????83C41085C074338B05", 35));
+		private static ProgramPointer totemPole = new ProgramPointer(AutoDeref.Single, new ProgramSignature(PointerVersion.V1, "D95810D94510D958148B4D1489480CC9C3000000558BEC83EC08B8????????8B4D088908C9C3000000000000558BEC5683EC0483EC0C", 27));
+		private static ProgramPointer platformManager = new ProgramPointer(AutoDeref.Single, new ProgramSignature(PointerVersion.V1, "83EC0C50E8????????83C41085C0740B8B05????????E9????????0FB605", 18));
+		private static ProgramPointer ghostManager = new ProgramPointer(AutoDeref.Double, new ProgramSignature(PointerVersion.V1, "EC5783EC148B7D088B05????????83EC0C503900E8????????83C41083EC086A01503900E8", 10));
+		private static ProgramPointer levelComplete = new ProgramPointer(AutoDeref.Single, new ProgramSignature(PointerVersion.V1, "558BEC5783EC648B7D0883EC0C57E8????????83C410B8????????C60000D9EED99F", 23));
+		private static ProgramPointer musicMachine = new ProgramPointer(AutoDeref.Double, new ProgramSignature(PointerVersion.V1, "558BEC575683EC108B75088B7D0C83FF060F85????????8B05????????83EC0C503900E8", 58));
+		private static ProgramPointer tas = new ProgramPointer(AutoDeref.Single, new ProgramSignature(PointerVersion.V1, "C745F88B2F7DE1C745FC933CAF568D45F883EC0868????????50E8????????83C4108BC8B8", 37));
 		public Process Program { get; set; }
 		public bool IsHooked { get; set; } = false;
 		private DateTime lastHooked;
@@ -438,16 +438,16 @@ namespace LiveSplit.Kalimba.Memory {
 			}
 		}
 		public bool HookProcess() {
-			if ((Program == null || Program.HasExited) && DateTime.Now > lastHooked.AddSeconds(1)) {
+			if (DateTime.Now > lastHooked.AddSeconds(1) && (Program == null || Program.HasExited)) {
 				lastHooked = DateTime.Now;
 				Process[] processes = Process.GetProcessesByName("Kalimba");
 				Program = processes.Length == 0 ? null : processes[0];
-				IsHooked = true;
+				if (Program != null) {
+					MemoryReader.Update64Bit(Program);
+				}
 			}
 
-			if (Program == null || Program.HasExited) {
-				IsHooked = false;
-			}
+			IsHooked = Program != null;
 
 			return IsHooked;
 		}
@@ -459,6 +459,11 @@ namespace LiveSplit.Kalimba.Memory {
 	}
 	public enum PointerVersion {
 		V1
+	}
+	public enum AutoDeref {
+		None,
+		Single,
+		Double
 	}
 	public class ProgramSignature {
 		public PointerVersion Version { get; set; }
@@ -478,18 +483,17 @@ namespace LiveSplit.Kalimba.Memory {
 		private DateTime lastTry;
 		private ProgramSignature[] signatures;
 		private int[] offsets;
-		private bool is64bit;
 		public IntPtr Pointer { get; private set; }
 		public PointerVersion Version { get; private set; }
-		public bool AutoDeref { get; private set; }
+		public AutoDeref AutoDeref { get; private set; }
 
-		public ProgramPointer(bool autoDeref, params ProgramSignature[] signatures) {
+		public ProgramPointer(AutoDeref autoDeref, params ProgramSignature[] signatures) {
 			AutoDeref = autoDeref;
 			this.signatures = signatures;
 			lastID = -1;
 			lastTry = DateTime.MinValue;
 		}
-		public ProgramPointer(bool autoDeref, params int[] offsets) {
+		public ProgramPointer(AutoDeref autoDeref, params int[] offsets) {
 			AutoDeref = autoDeref;
 			this.offsets = offsets;
 			lastID = -1;
@@ -512,8 +516,12 @@ namespace LiveSplit.Kalimba.Memory {
 			GetPointer(program);
 			program.Write<T>(Pointer, value, offsets);
 		}
+		public void Write(Process program, byte[] value, params int[] offsets) {
+			GetPointer(program);
+			program.Write(Pointer, value, offsets);
+		}
 		public IntPtr GetPointer(Process program) {
-			if ((program?.HasExited).GetValueOrDefault(true)) {
+			if (program == null) {
 				Pointer = IntPtr.Zero;
 				lastID = -1;
 				return Pointer;
@@ -527,13 +535,14 @@ namespace LiveSplit.Kalimba.Memory {
 
 				Pointer = GetVersionedFunctionPointer(program);
 				if (Pointer != IntPtr.Zero) {
-					is64bit = program.Is64Bit();
-					Pointer = (IntPtr)program.Read<uint>(Pointer);
-					if (AutoDeref) {
-						if (is64bit) {
-							Pointer = (IntPtr)program.Read<ulong>(Pointer);
-						} else {
-							Pointer = (IntPtr)program.Read<uint>(Pointer);
+					if (AutoDeref != AutoDeref.None) {
+						Pointer = (IntPtr)program.Read<uint>(Pointer);
+						if (AutoDeref == AutoDeref.Double) {
+							if (MemoryReader.is64Bit) {
+								Pointer = (IntPtr)program.Read<ulong>(Pointer);
+							} else {
+								Pointer = (IntPtr)program.Read<uint>(Pointer);
+							}
 						}
 					}
 				}
@@ -544,7 +553,7 @@ namespace LiveSplit.Kalimba.Memory {
 			if (signatures != null) {
 				MemorySearcher searcher = new MemorySearcher();
 				searcher.MemoryFilter = delegate (MemInfo info) {
-					return (info.State & 0x1000) != 0 && (info.Protect & 0x100) == 0 && (info.Protect & 0x40) != 0;
+					return (info.State & 0x1000) != 0 && (info.Protect & 0x40) != 0 && (info.Protect & 0x100) == 0;
 				};
 				for (int i = 0; i < signatures.Length; i++) {
 					ProgramSignature signature = signatures[i];
