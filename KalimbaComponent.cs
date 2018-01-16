@@ -150,7 +150,7 @@ namespace LiveSplit.Kalimba {
 					}
 
 					if (screen == MenuScreen.InGame) {
-						if(ilSplitInfo.IsPosX) {
+						if (ilSplitInfo.IsPosX) {
 							float xpos = ilSplitInfo.Value;
 							bool isCoop = Math.Abs(mem.GetLastXP3()) >= 0.01f;
 							shouldSplit = mem.GetLastXP1() > xpos || mem.GetLastXP2() > xpos || (isCoop && (mem.GetLastXP3() > xpos || mem.GetLastXP4() > xpos));
@@ -407,7 +407,7 @@ namespace LiveSplit.Kalimba {
 				splitGameTime = mem.GameTime();
 
 				if (currentSplit > 1 && currentSplit - 1 <= Model.CurrentState.Run.Count) {
-					Time currentTime = Model.CurrentState.Run[lastLevelComplete].SplitTime;
+					Time currentTime = Model.CurrentState.Run[currentSplit - 2].SplitTime;
 					try {
 						TimeSpan total;
 						if (currentSplit - 1 == Model.CurrentState.Run.Count) {
@@ -419,19 +419,17 @@ namespace LiveSplit.Kalimba {
 						}
 
 						TimeSpan lastLevel = TimeSpan.FromSeconds(0);
-						if (lastLevelComplete > 0) {
-							lastLevel = Model.CurrentState.Run[lastLevelComplete - 1].SplitTime.RealTime.Value;
+						if (currentSplit > 2) {
+							lastLevel = Model.CurrentState.Run[currentSplit - 3].SplitTime.RealTime.Value;
 						}
 						if ((total - lastLevel).TotalSeconds > 1) {
-							Model.CurrentState.Run[lastLevelComplete].SplitTime = new Time(total, total);
+							Model.CurrentState.Run[currentSplit - 2].SplitTime = new Time(total, total);
 							WriteLog(total.TotalSeconds.ToString());
 						}
 					} catch {
-						Model.CurrentState.Run[lastLevelComplete].SplitTime = currentTime;
+						Model.CurrentState.Run[currentSplit - 2].SplitTime = currentTime;
 					}
 				}
-
-				lastLevelComplete++;
 			} else if (currentSplit > 0 && Model != null && Model.CurrentState != null && Model.CurrentState.Run != null) {
 				PlatformLevelId levelID = mem.GetPlatformLevelId();
 				PersistentLevelStats level = mem.GetLevelStats(levelID);
@@ -487,8 +485,8 @@ namespace LiveSplit.Kalimba {
 					IsPosX = sp.EndsWith("x", StringComparison.OrdinalIgnoreCase);
 					IsPosY = sp.EndsWith("y", StringComparison.OrdinalIgnoreCase);
 					IsCP = sp.EndsWith("c", StringComparison.OrdinalIgnoreCase);
-					IsDis = sp.EndsWith("d", StringComparison.OrdinalIgnoreCase);
-					if (IsDis || float.TryParse(IsCP ? sp.Substring(0, sp.Length - 1) : sp, out Value)) {
+					IsDis = sp.Equals("d", StringComparison.OrdinalIgnoreCase);
+					if (IsDis || float.TryParse(IsCP || IsPosX || IsPosY ? sp.Substring(0, sp.Length - 1) : sp, out Value)) {
 						break;
 					}
 				}

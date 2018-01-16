@@ -438,7 +438,8 @@ namespace LiveSplit.Kalimba.Memory {
 			}
 		}
 		public bool HookProcess() {
-			if (DateTime.Now > lastHooked.AddSeconds(1) && (Program == null || Program.HasExited)) {
+			IsHooked = Program != null && !Program.HasExited;
+			if (!IsHooked && DateTime.Now > lastHooked.AddSeconds(1)) {
 				lastHooked = DateTime.Now;
 				Process[] processes = Process.GetProcessesByName("Kalimba");
 				Program = processes.Length == 0 ? null : processes[0];
@@ -446,8 +447,6 @@ namespace LiveSplit.Kalimba.Memory {
 					MemoryReader.Update64Bit(Program);
 				}
 			}
-
-			IsHooked = Program != null;
 
 			return IsHooked;
 		}

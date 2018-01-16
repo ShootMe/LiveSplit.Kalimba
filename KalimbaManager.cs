@@ -148,9 +148,6 @@ namespace LiveSplit.Kalimba {
 		private void UpdateLoop() {
 			while (getValuesThread != null) {
 				try {
-					if (Component != null && AlwaysShown) {
-						Component.GetValues();
-					}
 					keyboard.Poll();
 					UpdateValues();
 					Thread.Sleep(15);
@@ -160,7 +157,7 @@ namespace LiveSplit.Kalimba {
 		public void UpdateValues() {
 			if (this.InvokeRequired) {
 				this.Invoke((Action)UpdateValues);
-			} else if (Memory != null && Memory.IsHooked) {
+			} else if (Memory != null && Memory.HookProcess()) {
 				if (!Visible) { this.Show(); }
 
 				lblNotAvailable.Visible = false;
