@@ -176,7 +176,7 @@ namespace LiveSplit.Kalimba {
 				}
 			}
 
-			HandleSplit(shouldSplit, screen, screen == MenuScreen.SinglePlayerMap || screen == MenuScreen.SinglePlayerDLCMap || screen == MenuScreen.CoopMap || screen == MenuScreen.CoopDLCMap);
+			HandleSplit(shouldSplit, screen == MenuScreen.SinglePlayerMap || screen == MenuScreen.SinglePlayerDLCMap || screen == MenuScreen.CoopMap || screen == MenuScreen.CoopDLCMap);
 		}
 		private void HandleJourney(MenuScreen screen) {
 			bool shouldSplit = false;
@@ -204,7 +204,7 @@ namespace LiveSplit.Kalimba {
 				}
 			}
 
-			HandleSplit(shouldSplit, screen);
+			HandleSplit(shouldSplit, false);
 		}
 		private void HandleDarkVoid(MenuScreen screen) {
 			bool shouldSplit = false;
@@ -220,7 +220,7 @@ namespace LiveSplit.Kalimba {
 				}
 			}
 
-			HandleSplit(shouldSplit, screen);
+			HandleSplit(shouldSplit, false);
 		}
 		private void HandleJourneyCoop(MenuScreen screen) {
 			bool shouldSplit = false;
@@ -236,7 +236,7 @@ namespace LiveSplit.Kalimba {
 				}
 			}
 
-			HandleSplit(shouldSplit, screen);
+			HandleSplit(shouldSplit, false);
 		}
 		private void HandleDarkVoidCoop(MenuScreen screen) {
 			bool shouldSplit = false;
@@ -252,10 +252,10 @@ namespace LiveSplit.Kalimba {
 				}
 			}
 
-			HandleSplit(shouldSplit, screen);
+			HandleSplit(shouldSplit, false);
 		}
-		private void HandleSplit(bool shouldSplit, MenuScreen screen, bool shouldReset = false) {
-			if (currentSplit > 0 && (screen == MenuScreen.MainMenu || shouldReset)) {
+		private void HandleSplit(bool shouldSplit, bool shouldReset = false) {
+			if (currentSplit > 0 && shouldReset) {
 				currentSplit = 0;
 				Model.Reset();
 			} else if (shouldSplit && DateTime.Now > lastSplit.AddSeconds(1)) {
@@ -339,19 +339,6 @@ namespace LiveSplit.Kalimba {
 
 #if LiveSplit
 		public void Update(IInvalidator invalidator, LiveSplitState lvstate, float width, float height, LayoutMode mode) {
-			//Remove duplicate autosplitter componenets
-			IList<ILayoutComponent> components = lvstate.Layout.LayoutComponents;
-			bool hasAutosplitter = false;
-			for (int i = components.Count - 1; i >= 0; i--) {
-				ILayoutComponent component = components[i];
-				if (component.Component is KalimbaComponent) {
-					if ((invalidator == null && width == 0 && height == 0) || hasAutosplitter) {
-						components.Remove(component);
-					}
-					hasAutosplitter = true;
-				}
-			}
-
 			GetValues();
 		}
 
