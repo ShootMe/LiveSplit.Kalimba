@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
-namespace LiveSplit.Kalimba.Memory {
+namespace LiveSplit.Kalimba {
 	public static class MemoryReader {
 		private static Dictionary<int, Module64[]> ModuleCache = new Dictionary<int, Module64[]>();
 		public static bool is64Bit;

@@ -1,18 +1,15 @@
-﻿using LiveSplit.Kalimba.Memory;
-#if LiveSplit
-using IrcDotNet;
+﻿using IrcDotNet;
 using LiveSplit.Model;
 using LiveSplit.TimeFormatters;
 using LiveSplit.View;
 using LiveSplit.Web.SRL;
-#endif
 using System;
-using System.Drawing;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
-using System.Runtime.InteropServices;
 namespace LiveSplit.Kalimba {
 	public partial class KalimbaManager : Form {
 		[DllImport("user32.dll")]

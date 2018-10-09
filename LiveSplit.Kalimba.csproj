@@ -66,6 +66,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="KalimbaObjects.cs" />
     <Compile Include="KalimbaComponent.cs" />
     <Compile Include="KalimbaFactory.cs" />
     <Compile Include="KalimbaManager.cs">
@@ -75,9 +76,9 @@
       <DependentUpon>KalimbaManager.cs</DependentUpon>
     </Compile>
     <Compile Include="Keyboard.cs" />
-    <Compile Include="Memory\KalimbaMemory.cs" />
+    <Compile Include="KalimbaMemory.cs" />
     <Compile Include="KalimbaTest.cs" />
-    <Compile Include="Memory\MemoryReader.cs" />
+    <Compile Include="MemoryReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

@@ -1,7 +1,5 @@
-﻿#if LiveSplit
-using LiveSplit.Kalimba;
+﻿using LiveSplit.Kalimba;
 using LiveSplit.UI.Components;
-#endif
 using System.Reflection;
 using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("LiveSplit.Kalimba")]
@@ -14,8 +12,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
 [assembly: Guid("b3294e28-2bd4-4e39-92fa-e04a620c7e7f")]
-[assembly: AssemblyVersion("2.5.8.0")]
-[assembly: AssemblyFileVersion("2.5.8.0")]
+[assembly: AssemblyVersion("2.5.9.0")]
+[assembly: AssemblyFileVersion("2.5.9.0")]
 #if LiveSplit
 [assembly: ComponentFactory(typeof(KalimbaFactory))]
 #endif

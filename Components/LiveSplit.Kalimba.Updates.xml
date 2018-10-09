@@ -1,5 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <updates>
+	<update version="2.5.9">
+		<files>
+			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
+		</files>
+		<changelog>
+			<change> Cleaned up code </change>
+			<change> Improved accruacy of IL splits </change>
+		</changelog>
+	</update>
 	<update version="2.5.8">
 		<files>
 			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
