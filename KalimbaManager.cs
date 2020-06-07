@@ -14,7 +14,7 @@ namespace LiveSplit.Kalimba {
 	public partial class KalimbaManager : Form {
 		[DllImport("user32.dll")]
 		private static extern IntPtr GetForegroundWindow();
-		public KalimbaMemory Memory { get; set; }
+		public MemoryManager Memory { get; set; }
 		public KalimbaComponent Component { get; set; }
 		private int lockedCheckpoint = -1;
 		private DateTime lastCheckLoading = DateTime.MinValue;
@@ -188,9 +188,9 @@ namespace LiveSplit.Kalimba {
 
 					zoom = Memory.Zoom();
 
-					lblP1P2Pos.Text = "T1: (" + Memory.GetLastXP1().ToString("0.00") + ", " + Memory.GetLastYP1().ToString("0.00") + ")  T2: (" + Memory.GetLastXP2().ToString("0.00") + ", " + Memory.GetLastYP2().ToString("0.00") + ")";
-					lblP3P4Pos.Text = "T3: (" + Memory.GetLastXP3().ToString("0.00") + ", " + Memory.GetLastYP3().ToString("0.00") + ")  T4: (" + Memory.GetLastXP4().ToString("0.00") + ", " + Memory.GetLastYP4().ToString("0.00") + ")";
-					lblCurrentCheckpoint.Text = "Checkpoint: " + (currentCheckpoint + 1) + " / " + Memory.GetCheckpointCount();
+					lblP1P2Pos.Text = $"T1: ({Memory.GetLastP1()})  T2: ({Memory.GetLastP2()})";
+					lblP3P4Pos.Text = $"T3: ({Memory.GetLastP3()})  T4: ({Memory.GetLastP4()})";
+					lblCurrentCheckpoint.Text = $"Checkpoint: {(currentCheckpoint + 1)} / {Memory.GetCheckpointCount()}";
 				} else {
 					lblP1P2Pos.Text = "T1: (0.00, 0.00) T2: (0.00, 0.00)";
 					lblP3P4Pos.Text = "T3: (0.00, 0.00) T4: (0.00, 0.00)";
@@ -212,19 +212,17 @@ namespace LiveSplit.Kalimba {
 				if (itemCameraLead.Checked || itemCameraTrail.Checked) {
 					float currentZoneCenterX = Memory.CameraCenterX();
 					float currentZoneCenterY = Memory.CameraCenterY();
-					float p1x = Memory.GetLastXP1();
-					float p2x = Memory.GetLastXP2();
-					float p1y = Memory.GetLastYP1();
-					float p2y = Memory.GetLastYP2();
-					float minX = p1x;
-					float maxX = p2x;
-					float minY = p1y;
-					float maxY = p2y;
+					Vector2 p1 = Memory.GetLastP1();
+					Vector2 p2 = Memory.GetLastP2();
+					float minX = p1.X;
+					float maxX = p2.X;
+					float minY = p1.Y;
+					float maxY = p2.Y;
 					if (maxX < minX) {
-						minX = p2x;
-						maxX = p1x;
-						minY = p2y;
-						maxY = p1y;
+						minX = p2.X;
+						maxX = p1.X;
+						minY = p2.Y;
+						maxY = p1.Y;
 					}
 
 					Memory.SetCameraOffset((itemCameraLead.Checked ? maxX : minX) - currentZoneCenterX, (itemCameraLead.Checked ? maxY : minY) - currentZoneCenterY);

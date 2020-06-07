@@ -26,7 +26,7 @@ namespace LiveSplit.Kalimba {
 #endif
 		public IDictionary<string, Action> ContextMenuControls { get { return null; } }
 		private static string LOGFILE = "_Kalimba.txt";
-		private KalimbaMemory mem;
+		private MemoryManager mem;
 		private int currentSplit = 0, state = 0, lastLogCheck = 0;
 		private bool hasLog = false;
 		private MenuScreen lastMenu = MenuScreen.MainMenu;
@@ -41,7 +41,7 @@ namespace LiveSplit.Kalimba {
 #else
 		public KalimbaComponent(object state, bool shown = false) {
 #endif
-			mem = new KalimbaMemory();
+			mem = new MemoryManager();
 			foreach (LogObject key in Enum.GetValues(typeof(LogObject))) {
 				currentValues[key] = "";
 			}
@@ -152,10 +152,18 @@ namespace LiveSplit.Kalimba {
 					}
 
 					if (screen == MenuScreen.InGame) {
-						if (ilSplitInfo.IsPosX) {
-							float xpos = ilSplitInfo.Value;
-							bool isCoop = Math.Abs(mem.GetLastXP3()) >= 0.01f;
-							shouldSplit = mem.GetLastXP1() > xpos || mem.GetLastXP2() > xpos || (isCoop && (mem.GetLastXP3() > xpos || mem.GetLastXP4() > xpos));
+						if (ilSplitInfo.IsPosX || ilSplitInfo.IsPosY) {
+							float pos = ilSplitInfo.Value;
+							Vector2 p1 = mem.GetLastP1();
+							Vector2 p2 = mem.GetLastP2();
+							Vector2 p3 = mem.GetLastP3();
+							Vector2 p4 = mem.GetLastP4();
+							float p1Val = ilSplitInfo.IsPosX ? p1.X : p1.Y;
+							float p2Val = ilSplitInfo.IsPosX ? p2.X : p2.Y;
+							float p3Val = ilSplitInfo.IsPosX ? p3.X : p3.Y;
+							float p4Val = ilSplitInfo.IsPosX ? p4.X : p4.Y;
+							bool isCoop = Math.Abs(p3.X) >= 0.01f;
+							shouldSplit = p1Val > pos || p2Val > pos || (isCoop && (p3Val > pos || p4Val > pos));
 						} else if (ilSplitInfo.IsCP) {
 							shouldSplit = (int)ilSplitInfo.Value > 0 && mem.GetCurrentCheckpoint() + 1 == (int)ilSplitInfo.Value;
 						} else if (ilSplitInfo.IsPickup) {
@@ -166,10 +174,6 @@ namespace LiveSplit.Kalimba {
 							bool disabled = mem.GetIsDisabled();
 							shouldSplit = disabled && !lastDisabled;
 							lastDisabled = disabled;
-						} else if (ilSplitInfo.IsPosY) {
-							float ypos = ilSplitInfo.Value;
-							bool isCoop = Math.Abs(mem.GetLastXP3()) >= 0.01f;
-							shouldSplit = mem.GetLastYP1() > ypos || mem.GetLastYP2() > ypos || (isCoop && (mem.GetLastYP3() > ypos || mem.GetLastYP4() > ypos));
 						}
 					}
 				} else if (currentSplit == Model.CurrentState.Run.Count) {
@@ -194,15 +198,15 @@ namespace LiveSplit.Kalimba {
 						state = 0;
 					}
 					bool disabled = mem.GetIsDisabled();
-					float p2Y = mem.GetLastYP2();
+					Vector2 p2 = mem.GetLastP2();
 					if (state < 6) {
 						if ((state & 1) == 0 ? disabled : !disabled) {
 							state++;
 						}
 					} else {
-						shouldSplit = p2Y < -211 && lastYP2 < p2Y;
+						shouldSplit = p2.Y < -211 && lastYP2 < p2.Y;
 					}
-					lastYP2 = p2Y;
+					lastYP2 = p2.Y;
 				}
 			}
 
