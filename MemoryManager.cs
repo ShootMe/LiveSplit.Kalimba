@@ -9,7 +9,7 @@ namespace LiveSplit.Kalimba {
         private static ProgramPointer totemPole = new ProgramPointer(new FindPointerSignature(PointerVersion.Steam, AutoDeref.Double, "D95810D94510D958148B4D1489480CC9C3000000558BEC83EC08B8????????8B4D088908C9C3000000000000558BEC5683EC0483EC0C", 27));
         private static ProgramPointer platformManager = new ProgramPointer(new FindPointerSignature(PointerVersion.Steam, AutoDeref.Double, "83EC0C50E8????????83C41085C0740B8B05????????E9????????0FB605", 18));
         private static ProgramPointer ghostManager = new ProgramPointer(new FindPointerSignature(PointerVersion.Steam, AutoDeref.Double, "EC5783EC148B7D088B05????????83EC0C503900E8????????83C41083EC086A01503900E8", 10));
-        private static ProgramPointer levelComplete = new ProgramPointer(new FindPointerSignature(PointerVersion.Steam, AutoDeref.Double, "558BEC5783EC648B7D0883EC0C57E8????????83C410B8????????C60000D9EED99F", 23));
+        private static ProgramPointer levelComplete = new ProgramPointer(new FindPointerSignature(PointerVersion.Steam, AutoDeref.Single, "558BEC5783EC648B7D0883EC0C57E8????????83C410B8????????C60000D9EED99F", 23));
         private static ProgramPointer musicMachine = new ProgramPointer(new FindPointerSignature(PointerVersion.Steam, AutoDeref.Double, "558BEC575683EC108B75088B7D0C83FF060F85????????8B05????????83EC0C503900E8", 58));
         private static ProgramPointer tas = new ProgramPointer(new FindPointerSignature(PointerVersion.Steam, AutoDeref.Single, "C745F88B2F7DE1C745FC933CAF568D45F883EC0868????????50E8????????83C4108BC8B8", 37));
         public static PointerVersion Version { get; set; } = PointerVersion.Steam;
