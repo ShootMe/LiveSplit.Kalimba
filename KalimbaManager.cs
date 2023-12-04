@@ -190,7 +190,7 @@ namespace LiveSplit.Kalimba {
 
 					lblP1P2Pos.Text = $"T1: ({Memory.GetLastP1()})  T2: ({Memory.GetLastP2()})";
 					lblP3P4Pos.Text = $"T3: ({Memory.GetLastP3()})  T4: ({Memory.GetLastP4()})";
-					lblCurrentCheckpoint.Text = $"Checkpoint: {(currentCheckpoint + 1)} / {Memory.GetCheckpointCount()}";
+					lblCurrentCheckpoint.Text = $"Checkpoint: {currentCheckpoint + 1} / {Memory.GetCheckpointCount()}";
 				} else {
 					lblP1P2Pos.Text = "T1: (0.00, 0.00) T2: (0.00, 0.00)";
 					lblP3P4Pos.Text = "T3: (0.00, 0.00) T4: (0.00, 0.00)";
@@ -229,7 +229,7 @@ namespace LiveSplit.Kalimba {
 				}
 
 				PlatformLevelId level = Memory.SelectedLevel();
-				lblLevel.Text = "Level: " + level.ToString() + " (" + ((LevelID)level).ToString() + ")";
+				lblLevel.Text = $"Level: {level} ({(LevelID)level})";
 
 				if (itemTASDisplay.Checked) {
 					lblTASOutput.Text = Memory.ReadTASOutput();

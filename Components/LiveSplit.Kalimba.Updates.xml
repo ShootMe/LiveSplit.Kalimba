@@ -1,13 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <updates>
-    <update version="2.6.1">
-        <files>
-            <file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
-        </files>
-        <changelog>
-            <change> Memory reading improvements </change>
-        </changelog>
-    </update>
+	<update version="2.6.2">
+		<files>
+			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
+		</files>
+		<changelog>
+			<change> Fix position readout in Manager </change>
+		</changelog>
+	</update>
+	<update version="2.6.1">
+		<files>
+			<file path="Components/LiveSplit.Kalimba.dll" status="changed"/>
+		</files>
+		<changelog>
+			<change> Memory reading improvements </change>
+		</changelog>
+	</update>
     <update version="2.6.0">
         <files>
             <file path="Components/LiveSplit.Kalimba.dll" status="changed"/>

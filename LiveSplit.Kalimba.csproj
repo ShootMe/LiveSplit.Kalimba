@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>LiveSplit.Kalimba</RootNamespace>
     <AssemblyName>LiveSplit.Kalimba</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -44,16 +44,17 @@
     <ApplicationIcon>kalimba.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="IrcDotNet, Version=0.1.0.408, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\LiveSplit\IrcDotNet.dll</HintPath>
+    <Reference Include="IrcDotNet">
+      <HintPath>..\..\Programs\LiveSplit\IrcDotNet.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="LiveSplit.Core">
-      <HintPath>..\..\LiveSplit\LiveSplit.Core.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\..\Programs\LiveSplit\LiveSplit.Core.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="LiveSplit.View">
-      <HintPath>..\..\LiveSplit\LiveSplit.View.dll</HintPath>
+      <HintPath>..\..\Programs\LiveSplit\LiveSplit.View.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -61,10 +62,9 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="UpdateManager, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\LiveSplit\UpdateManager.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="UpdateManager">
+      <HintPath>..\..\Programs\LiveSplit\UpdateManager.dll</HintPath>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>

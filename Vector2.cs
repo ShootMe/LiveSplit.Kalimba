@@ -50,7 +50,7 @@ namespace LiveSplit.Kalimba {
             return (float)Math.Sqrt(one.X * one.X + one.Y * one.Y);
         }
         public override string ToString() {
-            return $"{X:0}, {Y:0}";
+            return $"{X:0.00}, {Y:0.00}";
         }
         public override int GetHashCode() {
             return (int)(X * Y);
